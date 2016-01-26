@@ -5,11 +5,13 @@
 	var injectables = ['$scope', 'userApi'];
 
 	function ctrlFunction ($scope, userApi) {
-		$scope.userData = {};
+		var scope = $scope;
 
-    	$scope.loading = true;
+		scope.userData = {};
 
-    	$scope.init = function() {
+    	scope.loading = true;
+
+    	scope.init = function() {
     		userApi.get().then(function(data) {
     			console.log(data);
 	            $scope.users = data.data;
@@ -17,7 +19,7 @@
 	        });
     	};
 
-        $scope.createUser = function() {
+        scope.createUser = function() {
 	        $scope.loading = true;
 
 	        userApi.save($scope.userData)
@@ -33,7 +35,7 @@
 	            });
 	    };
 
-	    $scope.init();
+	    scope.init();
 
 	}
 

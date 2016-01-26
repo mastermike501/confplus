@@ -7,23 +7,26 @@
 
     function serviceFunction($http) {
 
-        return {
-            // get all the users
-            get: function() {
-                return $http.get('api/' + 'users');
-            },
+        var http = $http;
 
-            // save a comment (pass in comment data)
-            save: function(userData) {
-                return $http({
-                    method: 'POST',
-                    url: 'http://localhost:8000/api/' + 'users',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    data: $.param(userData)
-                });
-            }
+        function getUsers () {
+            return http.get('api/' + 'users');
+        }
+
+        function saveUser(userData) {
+            return http({
+                method: 'POST',
+                url: 'http://localhost:8000/api/' + 'users',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: $.param(userData)
+            });
+        }
+
+        return {
+            get: getUsers, // get all the users
+            save: saveUser //save user
         }
 
     }
