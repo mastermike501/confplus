@@ -1,8 +1,9 @@
 <html>
 <head>
-	<title>Test</title>
+    <title>Test</title>
 </head>
 <body ng-app="app" ng-controller="mainController">
+
 <div class="col-md-8 col-md-offset-2">
 
     <!-- PAGE TITLE =============================================== -->
@@ -33,14 +34,15 @@
     <!-- hide these comments if the loading variable is true -->
 
     <ul ng-show="!loading">
-    	<li ng-repeat="user in users">{{ user }}</li>
+        <li ng-repeat="user in users">{{ user }}</li>
     </ul>
     
 </div>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
-<script src="../js/controllers/mainCtrl.js"></script> <!-- load our controller -->
-<script src="../js/services/userService.js"></script> <!-- load our service -->
-<script src="../js/app.js"></script> <!-- load our application -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+<script src="/js/controllers/mainCtrl.js"></script> <!-- load our controller -->
+<script src="/js/services/userService.js"></script> <!-- load our service -->
+<script src="/js/app.js"></script> <!-- load our application -->
 </body>
 </html>

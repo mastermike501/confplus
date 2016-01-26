@@ -11,6 +11,7 @@
 
     	$scope.init = function() {
     		userApi.get().then(function(data) {
+    			console.log(data);
 	            $scope.users = data.data;
 	            $scope.loading = false;
 	        });
