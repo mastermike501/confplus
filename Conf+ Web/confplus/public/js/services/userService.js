@@ -1,5 +1,5 @@
 (function(){
-    var service = angular.module('userService', []);
+    var service = angular.module('cpService', []);
 
     // service.constant('API_URL', 'http://localhost/api/');
 
@@ -8,15 +8,16 @@
     function serviceFunction($http) {
 
         var http = $http;
+        var url = 'api/users';
 
         function getUsers () {
-            return http.get('api/' + 'users');
+            return http.get(url);
         }
 
         function saveUser(userData) {
             return http({
                 method: 'POST',
-                url: 'http://localhost:8000/api/' + 'users',
+                url: url,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -31,6 +32,6 @@
 
     }
 
-    service.factory('userApi', injectables.concat([serviceFunction]));
+    service.factory('cpApi', injectables.concat([serviceFunction]));
 
 })();
