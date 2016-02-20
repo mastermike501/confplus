@@ -33,6 +33,17 @@ class CreateUserTable extends Migration
             $table->unique('username');
             $table->unique('fb_id');
             $table->unique('linkedin_id');
+
+            $table->nullable('title');
+            $table->nullable('first_name');
+            $table->nullable('last_name');
+            $table->nullable('dob');
+            $table->nullable('street');
+            $table->nullable('city');
+            $table->nullable('state');
+            $table->nullable('country');
+            $table->nullable('fb_id');
+            $table->nullable('linkedin_id');
         });
     }
 
