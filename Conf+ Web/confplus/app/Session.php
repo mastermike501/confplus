@@ -4,9 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class User extends Model
+class Session extends Model
 {
-
     public static function store(array $data = [])
     {
     	// return response()->json();
@@ -22,5 +21,4 @@ class User extends Model
     {
     	// return User::$users;
     }
-
 }
