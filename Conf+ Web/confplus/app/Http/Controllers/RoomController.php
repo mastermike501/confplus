@@ -6,9 +6,8 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\User;
 
-class UserController extends Controller
+class RoomController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        // return response()->json(User::get());
+        //
     }
 
     /**
@@ -38,7 +37,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        return User::store($request->all());
+        return Room::store($request->all());
     }
 
     /**
@@ -49,7 +48,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        return User::show($id);
+        return Room::show($id);
     }
 
     /**
