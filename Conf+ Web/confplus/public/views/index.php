@@ -42,8 +42,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.min.js"></script>
-<script src="/js/controllers/mainCtrl.js"></script> <!-- load our controller -->
-<script src="/js/services/userService.js"></script> <!-- load our service -->
-<script src="/js/app.js"></script> <!-- load our application -->
+<script src="js/controllers/mainCtrl.js"></script> <!-- load our controller -->
+<script src="js/services/userService.js"></script> <!-- load our service -->
+<script src="js/app.js"></script> <!-- load our application -->
 </body>
 </html>
