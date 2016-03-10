@@ -29,7 +29,7 @@ class JSONUtilities
 		return response()->json(
 			array(
 				'success' => 'true',
-				'data' => response()->json($data)
+				'data' => $data
 			)
 		);
 	}

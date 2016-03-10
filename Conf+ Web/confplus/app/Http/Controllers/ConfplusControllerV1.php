@@ -98,10 +98,22 @@ class ConfplusControllerV1 extends Controller
 
             case 'upload_poster':
 
-                $required = array('event_id', 'poster_url');
+                $required = array('event_id', 'poster_data_url');
 
                 if ($request->has($required)) {
                     return Event::uploadPoster($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                break;
+
+            case 'get_poster':
+
+                $required = array('event_id');
+
+                if ($request->has($required)) {
+                    return Event::getPoster($request->except(['method']));
                 } else {
                     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }

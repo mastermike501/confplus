@@ -43,7 +43,7 @@ class User extends Model
 
     /**
      * [edit]
-     * @param  [string] $primaryKey [description]
+     * @param  [string] $primaryKey [user primary key]
      * @param  [array] $data [User data to update]
      * @return [JSON]       [A JSON string containing a success or error body]
      */
