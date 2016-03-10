@@ -41,11 +41,16 @@ class ConfplusControllerV1 extends Controller
                 break;
 
             case 'update_user':
+                $required = array('email');
 
-                $data = $request->except(['method']);
+                if (!$request->has($required)) {
+                    return JSONUtilities::returnError('[email] not found');
+                }
+
+                $data = $request->except(['method', 'email']);
 
                 if (!empty($data)) {
-                    return User::edit($data);
+                    return User::edit($request->input('email'), $data);
                 } else {
                     return JSONUtilities::returnError('No data to update');
                 }
@@ -73,14 +78,32 @@ class ConfplusControllerV1 extends Controller
 
                 break;
 
-            case 'update_user':
+            case 'update_event':
 
-                $data = $request->except(['method']);
+                $required = array('event_id');
+
+                if (!$request->has($required)) {
+                    return JSONUtilities::returnError('[event_id] not found');
+                }
+
+                $data = $request->except(['method', 'event_id']);
 
                 if (!empty($data)) {
-                    return Event::edit($data);
+                    return Event::edit($request->input('event_id'), $data);
                 } else {
                     return JSONUtilities::returnError('No data to update');
+                }
+
+                break;
+
+            case 'upload_poster':
+
+                $required = array('event_id', 'poster_url');
+
+                if ($request->has($required)) {
+                    return Event::uploadPoster($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }
 
                 break;

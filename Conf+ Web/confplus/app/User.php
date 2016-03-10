@@ -32,16 +32,31 @@ class User extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function insert(array $data) {
-        // var_dump($data);
+        $success = DB::table('users')->insert($data);
+
+        if ($success) {
+            return JSONUtilities::returnData(array('data' => 'User successfully created.'));
+        } else {
+            return JSONUtilities::returnError('Could not insert user.');
+        }
     }
 
     /**
      * [edit]
+     * @param  [string] $primaryKey [description]
      * @param  [array] $data [User data to update]
      * @return [JSON]       [A JSON string containing a success or error body]
      */
-    public static function edit(array $data) {
-        // var_dump($data);
+    public static function edit($primaryKey, array $data) {
+        $success = DB::table('users')
+            ->where('email', $primaryKey)
+            ->update($data);
+
+        if ($success) {
+            return JSONUtilities::returnData(array('data' => 'User successfully updated.'));
+        } else {
+            return JSONUtilities::returnError('Could not update user.');
+        }
     }
 
 }

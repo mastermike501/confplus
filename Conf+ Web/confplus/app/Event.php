@@ -28,11 +28,11 @@ class Event extends Model
 
     /**
      * [create]
-     * @param  [array] $data [User data containing event data]
+     * @param  [array] $data [Event data containing a new event]
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function insert(array $data) {
-        // var_dump($data);
+        return JSONUtilities::returnError('insert not implemented');
     }
 
     /**
@@ -41,7 +41,16 @@ class Event extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function edit(array $data) {
-        // var_dump($data);
+        return JSONUtilities::returnError('edit not implemented');
+    }
+
+    /**
+     * [uploadPoster]
+     * @param  array  $data [Poster data to upload]
+     * @return [JSON]       [A JSON string containing a success or error body]]
+     */
+    public static function uploadPoster(array $data) {
+        return JSONUtilities::returnError('uploadPoster not implemented');
     }
 
 }
