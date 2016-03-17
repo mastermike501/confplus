@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserTable extends Migration
+class CreateUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,34 +16,24 @@ class CreateUserTable extends Migration
             $table->string('email');
             $table->string('username');
             $table->binary('password');
-            $table->char('title', 10);
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->date('dob');
-            $table->string('street');
-            $table->string('city');
-            $table->string('state');
-            $table->string('country');
-            $table->boolean('verified')->default(false);
-            $table->string('fb_id');
-            $table->string('linkedin_id');
+            $table->char('title', 10)->nullable();
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->date('dob')->nullable();
+            $table->string('street')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('country')->nullable();
+            $table->boolean('verified')->default(false)->nullable();
+            $table->string('fb_id')->nullable();
+            $table->string('linkedin_id')->nullable();
             $table->timestamps();
-
+ 
             $table->primary('email');
             $table->unique('username');
             $table->unique('fb_id');
             $table->unique('linkedin_id');
 
-            $table->nullable('title');
-            $table->nullable('first_name');
-            $table->nullable('last_name');
-            $table->nullable('dob');
-            $table->nullable('street');
-            $table->nullable('city');
-            $table->nullable('state');
-            $table->nullable('country');
-            $table->nullable('fb_id');
-            $table->nullable('linkedin_id');
         });
     }
 

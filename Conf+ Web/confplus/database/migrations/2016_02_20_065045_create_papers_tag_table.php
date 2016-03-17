@@ -20,7 +20,7 @@ class CreatePapersTagTable extends Migration
 
             $table->primary(['title', 'publish_date', 'tag_name']);
             $table->foreign('title')->references('title')->on('papers')->onDelete('cascade');
-            $table->foreign('publish_date')->references('publish_date')->on('papers')->onDelete('cascade');
+            //$table->foreign('publish_date')->references('publish_date')->on('papers')->onDelete('cascade');
         });
     }
 

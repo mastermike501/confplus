@@ -22,7 +22,7 @@ class CreateResourcesTable extends Migration
 
             $table->primary(['venue_id', 'room_name', 'name']);
             $table->foreign('venue_id')->references('venue_id')->on('rooms')->onDelete('cascade');
-            $table->foreign('room_name')->references('room_name')->on('rooms')->onDelete('cascade');
+            // $table->foreign('room_name')->references('room_name')->on('rooms')->onDelete('cascade');
         });
     }
 
