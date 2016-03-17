@@ -20,8 +20,7 @@ class CreatePaymentTable extends Migration
             $table->timestamp('payment_date')->useCurrent();
             $table->timestamps();
 
-            $table->primary(['email', 'payment_id']);
-            $table->unique('payment_id');
+            $table->index('email');
             $table->foreign('email')->references('email')->on('users')->onDelete('cascade');
         });
     }

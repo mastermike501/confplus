@@ -25,7 +25,6 @@ class CreateVenuesTable extends Migration
             $table->decimal('latitude', 6, 2);
             $table->timestamps();
 
-            $table->primary('venue_id');
         });
     }
 
