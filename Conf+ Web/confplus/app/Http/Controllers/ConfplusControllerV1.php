@@ -9,6 +9,9 @@ use App\Http\Controllers\Controller;
 
 use App\User;
 use App\Event;
+use App\TicketType;
+use App\EventAttended;
+use App\Payment;
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -20,11 +23,12 @@ class ConfplusControllerV1 extends Controller
 
         switch ($methodName) {
             case 'get_user':
+                $required = array('email');
 
-                if ($request->has('email')) {
+                if ($request->has($required)) {
                     return User::get($request->except(['method']));
                 } else {
-                    return JSONUtilities::returnError('[email] not found');
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }
 
                 break;
@@ -96,6 +100,10 @@ class ConfplusControllerV1 extends Controller
 
                 break;
 
+            // case 'create':
+            //
+            //     break;
+
             case 'upload_poster':
 
                 $required = array('event_id', 'poster_data_url');
@@ -118,6 +126,84 @@ class ConfplusControllerV1 extends Controller
                     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }
 
+                break;
+
+            case 'get_ticket_types':
+
+                $required = array('event_id');
+
+                if ($request->has($required)) {
+                    return TicketType::get($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                break;
+
+            case 'create_single_ticket_type':
+
+                $required = array('event_id', 'name');
+
+                if ($request->has($required)) {
+                    return TicketType::insertSingle($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                break;
+
+            case 'update_ticket_type':
+
+                $required = array('event_id', 'name');
+
+                if (!$request->has($required)) {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                $data = $request->except(array_merge(['method'], $required));
+
+                if (!empty($data)) {
+                    return Event::edit($request->only($required), $data);
+                } else {
+                    return JSONUtilities::returnError('No data to update');
+                }
+
+                break;
+
+            case 'purchase_ticket':
+
+                $required = array('event_id', 'email', 'role', 'seat_no');
+
+                if (!$request->has($required)) {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                $ticketSuccess = TicketType::purchaseTicket($request->only($required));
+
+                if (!is_array($ticketSuccess)) {
+                    return $ticketSuccess;
+                }
+
+                $eventAttendedSuccess = EventAttended::insert($request->only($required));
+
+                if (!is_array($eventAttendedSuccess)) {
+                    return $eventAttendedSuccess;
+                }
+
+                return JSONUtilities::returnData(array_merge($ticketSuccess, $eventAttendedSuccess));
+
+                break;
+
+            case 'make_payment':
+
+                $required = array('email', 'type', 'amount', 'payment_date');
+
+                if ($request->has($required)) {
+                    return Payment::insert($request->only($required));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+                
                 break;
 
             default:

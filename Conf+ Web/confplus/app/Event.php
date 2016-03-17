@@ -20,9 +20,9 @@ class Event extends Model
         $results = DB::select('select * from events where event_id = ?', [$data['event_id']]);
 
         //there must ever be only one instance of this record
-        if (count($results) != 1) {
-            return JSONUtilities::returnError('More than one record exists. Contact backend support.');
-        }
+        // if (count($results) != 1) {
+        //     return JSONUtilities::returnError('More than one record exists. Contact backend support.');
+        // }
 
         return JSONUtilities::returnData($results);
     }

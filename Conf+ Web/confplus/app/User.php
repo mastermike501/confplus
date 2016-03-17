@@ -19,9 +19,9 @@ class User extends Model
         $results = DB::select('select * from users where email = ?', [$data['email']]);
 
         //there must ever be only one instance of this record
-        if (count($results) != 1) {
-            return JSONUtilities::returnError('More than one record exists. Contact backend support.');
-        }
+        // if (count($results) != 1) {
+        //     return JSONUtilities::returnError('More than one record exists. Contact backend support.');
+        // }
 
         return JSONUtilities::returnData($results);
     }
@@ -35,7 +35,7 @@ class User extends Model
         $success = DB::table('users')->insert($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('data' => 'User successfully created.'));
+            return JSONUtilities::returnData(array('message' => 'User successfully created.'));
         } else {
             return JSONUtilities::returnError('Could not insert user.');
         }
@@ -53,7 +53,7 @@ class User extends Model
             ->update($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('data' => 'User successfully updated.'));
+            return JSONUtilities::returnData(array('message' => 'User successfully updated.'));
         } else {
             return JSONUtilities::returnError('Could not update user.');
         }
