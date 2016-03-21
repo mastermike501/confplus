@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserTagTable extends Migration
+class CreateUsersTagTable extends Migration
 {
     /**
      * Run the migrations.
@@ -29,6 +29,6 @@ class CreateUserTagTable extends Migration
      */
     public function down()
     {
-        Schema::drop('user_tag');
+        Schema::drop('users_tag');
     }
 }

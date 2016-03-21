@@ -14,17 +14,16 @@ class CreatePapersTable extends Migration
     {
         Schema::create('papers', function (Blueprint $table) {
             $table->string('title');
-            $table->timestamp('publish_date')->useCurrent();
-            $table->timestamp('latest_submit_date');
+            $table->timestamp('publish_date');
+            $table->timestamp('latest_submit_date')->useCurrent();
             $table->string('status')->default('unreviewed');
-            $table->boolean('accept');
-            $table->string('url');
+            $table->boolean('accept')->nullable();
+            $table->string('url')->nullable();
             $table->timestamps();
 
             $table->primary(['title', 'publish_date']);
             $table->unique('url');
 
-            $table->nullable('accept');
         });
     }
 
