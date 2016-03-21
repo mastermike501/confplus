@@ -20,6 +20,9 @@ class Event extends Model
         $results = DB::select('select * from events where event_id = ?', [$data['event_id']]);
 
         //there must ever be only one instance of this record
+        if (count($results) != 1) {
+            return JSONUtilities::returnError('More than one record exists. Contact backend support.');
+        }
         // if (count($results) != 1) {
         //     return JSONUtilities::returnError('More than one record exists. Contact backend support.');
         // }
@@ -42,8 +45,7 @@ class Event extends Model
         }
     }
 
-    /**
-     * [edit]
+    /*
      * @param  [number] $primaryKey [event primary key]
      * @param  [array] $data [Event data to update]
      * @return [JSON]       [A JSON string containing a success or error body]
@@ -66,6 +68,8 @@ class Event extends Model
      * @return [JSON]       [A JSON string containing a success or error body]]
      */
     public static function uploadPoster(array $data) {
+        // return JSONUtilities::returnError('uploadPoster not implemented');
+
         $localStorage = Storage::disk('local');
 
         //example path: posters/poster_628.txt

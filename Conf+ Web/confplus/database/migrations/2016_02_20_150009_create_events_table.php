@@ -23,6 +23,7 @@ class CreateEventsTable extends Migration
             $table->string('poster_url')->nullable();
             $table->timestamp('paper_deadline')->nullable();
             $table->string('language')->default('EN');
+            $table->string('reminder')->nullable();
             $table->timestamps();
 
         });

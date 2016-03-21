@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBillingTable extends Migration
+class CreateBillingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateBillingTable extends Migration
      */
     public function up()
     {
-        Schema::create('billing', function (Blueprint $table) {
+        Schema::create('billings', function (Blueprint $table) {
             $table->string('email');
             $table->string('card#');
             $table->string('card_type');
@@ -31,6 +31,6 @@ class CreateBillingTable extends Migration
      */
     public function down()
     {
-        Schema::drop('billing');
+        Schema::drop('billings');
     }
 }

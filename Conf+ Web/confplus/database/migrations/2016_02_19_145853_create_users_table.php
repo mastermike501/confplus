@@ -27,8 +27,10 @@ class CreateUsersTable extends Migration
             $table->boolean('verified')->default(false)->nullable();
             $table->string('fb_id')->nullable();
             $table->string('linkedin_id')->nullable();
+            $table->boolean('active')->nullable();
+            $table->boolean('upgraded')->nullable();
             $table->timestamps();
- 
+
             $table->primary('email');
             $table->unique('username');
             $table->unique('fb_id');

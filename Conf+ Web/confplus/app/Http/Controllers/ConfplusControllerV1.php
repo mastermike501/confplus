@@ -23,6 +23,13 @@ class ConfplusControllerV1 extends Controller
 
         switch ($methodName) {
             case 'get_user':
+
+                if ($request->has('email')) {
+                    return User::get($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[email] not found');
+                }
+
                 $required = array('email');
 
                 if ($request->has($required)) {
@@ -33,16 +40,16 @@ class ConfplusControllerV1 extends Controller
 
                 break;
 
-            case 'create_user':
-                $required = array('email', 'password');
+                case 'create_user':
+                    $required = array('email', 'password');
 
-                if ($request->has($required)) {
-                    return User::insert($request->except(['method']));
-                } else {
-                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
-                }
+                    if ($request->has($required)) {
+                        return User::insert($request->except(['method']));
+                    } else {
+                        return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                    }
 
-                break;
+                    break;
 
             case 'update_user':
                 $required = array('email');
@@ -99,10 +106,6 @@ class ConfplusControllerV1 extends Controller
                 }
 
                 break;
-
-            // case 'create':
-            //
-            //     break;
 
             case 'upload_poster':
 
