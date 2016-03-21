@@ -22,9 +22,6 @@ class CreateSessionAttendedTable extends Migration
             $table->primary(['email', 'event_id', 'title', 'speaker_email']);
             $table->foreign('email')->references('email')->on('users')->onDelete('cascade');
             $table->foreign(['event_id', 'title', 'speaker_email'])->references(['event_id', 'title', 'speaker_email'])->on('sessions')->onDelete('cascade');
-            // $table->foreign('event_id')->references('event_id')->on('sessions')->onDelete('cascade');
-            //$table->foreign('title')->references('title')->on('sessions')->onDelete('cascade');
-            // $table->foreign('speaker_email')->references('speaker_email')->on('sessions')->onDelete('cascade');
         });
     }
 

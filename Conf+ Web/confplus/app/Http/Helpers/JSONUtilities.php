@@ -29,7 +29,11 @@ class JSONUtilities
 		return response()->json(
 			array(
 				'success' => 'true',
+<<<<<<< HEAD
 				'data' => response()->json($data)
+=======
+				'data' => $data
+>>>>>>> rest-backend
 			)
 		);
 	}

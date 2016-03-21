@@ -58,15 +58,11 @@ return [
             'database'  => env('DB_DATABASE', ''),
             'username'  => env('DB_USERNAME', 'root'),
             'password'  => env('DB_PASSWORD', 'root'),
-            'database'  => env('DB_DATABASE', 'confplus'),
-            'username'  => env('DB_USERNAME', 'confplus'),
-            'password'  => env('DB_PASSWORD', ''),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
             'strict'    => false,
             'unix_socket' => '/tmp/mysql.sock',
-            'unix_socket' => '/tmp/mysql.sock'
         ],
 
         'pgsql' => [
