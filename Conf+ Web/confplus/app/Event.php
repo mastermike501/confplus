@@ -5,7 +5,10 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 use DB;
+<<<<<<< HEAD
+=======
 use Storage;
+>>>>>>> rest-backend
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -20,9 +23,15 @@ class Event extends Model
         $results = DB::select('select * from events where event_id = ?', [$data['event_id']]);
 
         //there must ever be only one instance of this record
+<<<<<<< HEAD
+        if (count($results) != 1) {
+            return JSONUtilities::returnError('More than one record exists. Contact backend support.');
+        }
+=======
         // if (count($results) != 1) {
         //     return JSONUtilities::returnError('More than one record exists. Contact backend support.');
         // }
+>>>>>>> rest-backend
 
         return JSONUtilities::returnData($results);
     }
@@ -33,6 +42,9 @@ class Event extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function insert(array $data) {
+<<<<<<< HEAD
+        return JSONUtilities::returnError('insert not implemented');
+=======
         $success = DB::table('events')->insert($data);
 
         if ($success) {
@@ -40,10 +52,18 @@ class Event extends Model
         } else {
             return JSONUtilities::returnError('Could not insert event.');
         }
+>>>>>>> rest-backend
     }
 
     /**
      * [edit]
+<<<<<<< HEAD
+     * @param  [array] $data [Event data to update]
+     * @return [JSON]       [A JSON string containing a success or error body]
+     */
+    public static function edit(array $data) {
+        return JSONUtilities::returnError('edit not implemented');
+=======
      * @param  [number] $primaryKey [event primary key]
      * @param  [array] $data [Event data to update]
      * @return [JSON]       [A JSON string containing a success or error body]
@@ -58,6 +78,7 @@ class Event extends Model
         } else {
             return JSONUtilities::returnError('Could not update event.');
         }
+>>>>>>> rest-backend
     }
 
     /**
@@ -66,6 +87,9 @@ class Event extends Model
      * @return [JSON]       [A JSON string containing a success or error body]]
      */
     public static function uploadPoster(array $data) {
+<<<<<<< HEAD
+        return JSONUtilities::returnError('uploadPoster not implemented');
+=======
         $localStorage = Storage::disk('local');
 
         //example path: posters/poster_628.txt
@@ -104,6 +128,7 @@ class Event extends Model
         $dataUrl = $localStorage->get($posterPath);
 
         return JSONUtilities::returnData(array('data_url' => $dataUrl));
+>>>>>>> rest-backend
     }
 
 }

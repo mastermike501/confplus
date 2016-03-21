@@ -20,11 +20,12 @@ class CreateEventsTable extends Migration
             $table->timestamp('to_date');
             $table->text('description');
             $table->string('url');
-            $table->timestamp('paper_deadline');
+            $table->string('poster_url')->nullable();
+            $table->timestamp('paper_deadline')->nullable();
+            $table->string('language')->default('EN');
+            $table->string('reminder')->nullable();
             $table->timestamps();
 
-            $table->primary('event_id');
-            $table->nullable('paper_deadline');
         });
     }
 

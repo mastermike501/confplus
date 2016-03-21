@@ -9,9 +9,12 @@ use App\Http\Controllers\Controller;
 
 use App\User;
 use App\Event;
+<<<<<<< HEAD
+=======
 use App\TicketType;
 use App\EventAttended;
 use App\Payment;
+>>>>>>> rest-backend
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -23,12 +26,20 @@ class ConfplusControllerV1 extends Controller
 
         switch ($methodName) {
             case 'get_user':
+<<<<<<< HEAD
+
+                if ($request->has('email')) {
+                    return User::get($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[email] not found');
+=======
                 $required = array('email');
 
                 if ($request->has($required)) {
                     return User::get($request->except(['method']));
                 } else {
                     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+>>>>>>> rest-backend
                 }
 
                 break;
@@ -100,6 +111,11 @@ class ConfplusControllerV1 extends Controller
 
                 break;
 
+<<<<<<< HEAD
+            case 'upload_poster':
+
+                $required = array('event_id', 'poster_url');
+=======
             // case 'create':
             //
             //     break;
@@ -107,6 +123,7 @@ class ConfplusControllerV1 extends Controller
             case 'upload_poster':
 
                 $required = array('event_id', 'poster_data_url');
+>>>>>>> rest-backend
 
                 if ($request->has($required)) {
                     return Event::uploadPoster($request->except(['method']));
@@ -116,6 +133,8 @@ class ConfplusControllerV1 extends Controller
 
                 break;
 
+<<<<<<< HEAD
+=======
             case 'get_poster':
 
                 $required = array('event_id');
@@ -206,6 +225,7 @@ class ConfplusControllerV1 extends Controller
                 
                 break;
 
+>>>>>>> rest-backend
             default:
                 return JSONUtilities::returnError('Method ' . $methodName . ' not found.');
                 break;
