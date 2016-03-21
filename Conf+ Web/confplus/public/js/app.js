@@ -1,7 +1,7 @@
 (function(){
 
-	var app = angular.module('app', ['ngRoute', 'mainCtrl', 'cpService']);
-	
+	var app = angular.module('app', ['ngRoute', 'mainCtrl']);
+
 	//configure your routes here
 	app.config(function($routeProvider) {
 	  	$routeProvider
