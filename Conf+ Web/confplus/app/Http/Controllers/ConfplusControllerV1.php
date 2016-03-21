@@ -203,7 +203,46 @@ class ConfplusControllerV1 extends Controller
                 } else {
                     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }
-                
+
+                break;
+
+            case 'get_paper':
+                $required = array('paper_id');
+
+                if ($request->has($required)) {
+                    return User::get($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                break;
+
+            case 'create_paper':
+                $required = array('title', 'latest_sub_date');
+
+                if ($request->has($required)) {
+                    return User::insert($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                break;
+
+            case 'update_paper':
+                $required = array('paper_id');
+
+                if (!$request->has($required)) {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                $data = $request->except(['method', 'paper_id']);
+
+                if (!empty($data)) {
+                    return User::edit($request->input('paper_id'), $data);
+                } else {
+                    return JSONUtilities::returnError('No data to update');
+                }
+
                 break;
 
             default:

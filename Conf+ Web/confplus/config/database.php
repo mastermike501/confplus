@@ -55,24 +55,17 @@ return [
         'mysql' => [
             'driver'    => 'mysql',
             'host'      => env('DB_HOST', 'localhost'),
-<<<<<<< HEAD
             'database'  => env('DB_DATABASE', 'confplus'),
             'username'  => env('DB_USERNAME', 'confplus'),
             'password'  => env('DB_PASSWORD', ''),
-=======
             'database'  => env('DB_DATABASE', ''),
             'username'  => env('DB_USERNAME', 'root'),
             'password'  => env('DB_PASSWORD', 'root'),
->>>>>>> Toby's-work
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
             'strict'    => false,
-<<<<<<< HEAD
             'unix_socket' => '/tmp/mysql.sock'
-=======
-            'unix_socket' => '/tmp/mysql.sock',
->>>>>>> Toby's-work
         ],
 
         'pgsql' => [
