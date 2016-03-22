@@ -49,7 +49,7 @@ class User extends Model
      */
     public static function edit($primaryKey, array $data) {
         $success = DB::table('users')
-            ->where('email', $primaryKey)
+            ->where('email', $primaryKey['email'])
             ->update($data);
 
         if ($success) {

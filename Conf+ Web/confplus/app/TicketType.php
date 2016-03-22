@@ -51,8 +51,8 @@ class TicketType extends Model
 
         $results = DB::table('ticket_type')
             ->select('quantity', 'num_purchased', 'price')
-            ->where('event_id', $data[0])
-            ->where('name', $data[1])
+            ->where('event_id', $data['event_id'])
+            ->where('name', $data['name'])
             ->get();
 
         if ($results['num_purchased'] >= $results['quantity']) {
@@ -64,8 +64,8 @@ class TicketType extends Model
 
         //update ticket_type table
         DB::table('ticket_type')
-            ->where('event_id', $data[0])
-            ->where('name', $data[1])
+            ->where('event_id', $data['event_id'])
+            ->where('name', $data['name'])
             ->update(['num_purchased' => $results['num_purchased']]);
 
         //insert new data into event_attended table

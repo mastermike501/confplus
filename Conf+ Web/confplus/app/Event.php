@@ -46,13 +46,14 @@ class Event extends Model
     }
 
     /*
+     * [edit]
      * @param  [number] $primaryKey [event primary key]
      * @param  [array] $data [Event data to update]
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function edit($primaryKey, array $data) {
         $success = DB::table('events')
-            ->where('event_id', $primaryKey)
+            ->where('event_id', $primaryKey['event_id'])
             ->update($data);
 
         if ($success) {
