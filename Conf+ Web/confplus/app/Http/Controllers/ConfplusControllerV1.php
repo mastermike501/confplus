@@ -12,6 +12,7 @@ use App\Event;
 use App\TicketType;
 use App\EventAttended;
 use App\Payment;
+use App\Venue;
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -22,6 +23,12 @@ class ConfplusControllerV1 extends Controller
         $methodName = $request->input('method');
 
         switch ($methodName) {
+            case 'test':
+
+                var_dump($request->only(['a', 'b', 'c']));
+
+                break;
+
             case 'get_user':
 
                 if ($request->has('email')) {
@@ -33,23 +40,23 @@ class ConfplusControllerV1 extends Controller
                 $required = array('email');
 
                 if ($request->has($required)) {
-                    return User::get($request->except(['method']));
+                    return User::get($request->only($required));
                 } else {
                     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }
 
                 break;
 
-                case 'create_user':
-                    $required = array('email', 'password');
+            case 'create_user':
+                $required = array('email', 'password');
 
-                    if ($request->has($required)) {
-                        return User::insert($request->except(['method']));
-                    } else {
-                        return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
-                    }
+                if ($request->has($required)) {
+                    return User::insert($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
 
-                    break;
+                break;
 
             case 'update_user':
                 $required = array('email');
@@ -61,7 +68,7 @@ class ConfplusControllerV1 extends Controller
                 $data = $request->except(['method', 'email']);
 
                 if (!empty($data)) {
-                    return User::edit($request->input('email'), $data);
+                    return User::edit($request->only($required), $data);
                 } else {
                     return JSONUtilities::returnError('No data to update');
                 }
@@ -97,10 +104,10 @@ class ConfplusControllerV1 extends Controller
                     return JSONUtilities::returnError('[event_id] not found');
                 }
 
-                $data = $request->except(['method', 'event_id']);
+                $data = $request->except(array_merge(['method'], $required));
 
                 if (!empty($data)) {
-                    return Event::edit($request->input('event_id'), $data);
+                    return Event::edit($request->only($required), $data);
                 } else {
                     return JSONUtilities::returnError('No data to update');
                 }
@@ -209,39 +216,117 @@ class ConfplusControllerV1 extends Controller
 
                 break;
 
-            case 'get_paper':
-                $required = array('paper_id');
+            // case 'get_paper':
+            //     $required = array('paper_id');
+            //
+            //     if ($request->has($required)) {
+            //         return User::get($request->except(['method']));
+            //     } else {
+            //         return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            //     }
+            //
+            //     break;
+            //
+            // case 'create_paper':
+            //     $required = array('title', 'latest_sub_date');
+            //
+            //     if ($request->has($required)) {
+            //         return User::insert($request->except(['method']));
+            //     } else {
+            //         return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            //     }
+            //
+            //     break;
+            //
+            // case 'update_paper':
+            //     $required = array('paper_id');
+            //
+            //     if (!$request->has($required)) {
+            //         return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            //     }
+            //
+            //     $data = $request->except(['method', 'paper_id']);
+            //
+            //     if (!empty($data)) {
+            //         return User::edit($request->input('paper_id'), $data);
+            //     } else {
+            //         return JSONUtilities::returnError('No data to update');
+            //     }
+            //
+            //     break;
+
+            case 'get_room':
+                $required = array('venue_id', 'name');
 
                 if ($request->has($required)) {
-                    return User::get($request->except(['method']));
+                    return Room::get($request->except(['method']));
                 } else {
                     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }
 
                 break;
 
-            case 'create_paper':
-                $required = array('title', 'latest_sub_date');
+            case 'create_room':
+                $required = array('venue_id', 'name', 'type', 'capacity');
 
                 if ($request->has($required)) {
-                    return User::insert($request->except(['method']));
+                    return Room::insert($request->except(['method']));
                 } else {
                     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }
 
                 break;
 
-            case 'update_paper':
-                $required = array('paper_id');
+            case 'update_room':
+                $required = array('venue_id', 'name');
 
                 if (!$request->has($required)) {
                     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
                 }
 
-                $data = $request->except(['method', 'paper_id']);
+                $data = $request->except(array_merge(['method'], $required));
 
                 if (!empty($data)) {
-                    return User::edit($request->input('paper_id'), $data);
+                    return Room::edit($request->only($required), $data);
+                } else {
+                    return JSONUtilities::returnError('No data to update');
+                }
+
+                break;
+
+            case 'get_venue':
+                $required = array('venue_id');
+
+                if ($request->has($required)) {
+                    return Venue::get($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                break;
+
+            case 'create_venue':
+                $required = array('venue_id', 'name', 'type', 'has_room', 'street', 'city', 'state', 'country', 'longitude', 'latitude');
+
+                if ($request->has($required)) {
+                    return Venue::insert($request->except(['method']));
+                } else {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                break;
+
+            case 'update_venue':
+                $required = array('venue_id');
+
+                if (!$request->has($required)) {
+                    return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+                }
+
+                $data = $request->except(array_merge(['method'], $required));
+
+                if (!empty($data)) {
+                    return Venue::edit($request->input('venue_id'), $data);
                 } else {
                     return JSONUtilities::returnError('No data to update');
                 }
