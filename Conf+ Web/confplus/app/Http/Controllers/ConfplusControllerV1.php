@@ -13,6 +13,7 @@ use App\TicketType;
 use App\EventAttended;
 use App\Payment;
 use App\Venue;
+use App\Room;
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -20,28 +21,28 @@ class ConfplusControllerV1 extends Controller
 {
     private $requestMethods = array(
         'test' => 'test',
-        'getUser' => 'getUser',
-        'createUser' => 'createUser',
-        'updateUser' => 'updateUser',
-        'getEvent' => 'getEvent',
-        'createEvent' => 'createEvent',
-        'updateEvent' => 'updateEvent',
-        'uploadPoster' => 'uploadPoster',
-        'getPoster' => 'getPoster',
-        'getTicketTypes' => 'getTicketTypes',
-        'createSingleTicketType' => 'createSingleTicketType',
-        'updateTicketType' => 'updateTicketType',
+        'getUser' => 'getUser', //tested
+        'createUser' => 'createUser', //tested
+        'updateUser' => 'updateUser', //tested
+        'getEvent' => 'getEvent', //tested
+        'createEvent' => 'createEvent', //tested
+        'updateEvent' => 'updateEvent', //tested
+        'uploadPoster' => 'uploadPoster', //tested
+        'getPoster' => 'getPoster', //tested
+        'getTicketTypes' => 'getTicketTypes', //tested
+        'createSingleTicketType' => 'createSingleTicketType', //tested
+        'updateTicketType' => 'updateTicketType', //tested
         'purchaseTicket' => 'purchaseTicket',
-        'makePayment' => 'makePayment',
+        'makePayment' => 'makePayment', //tested
         // 'getPaper' => 'getPaper',
         // 'createPaper' => 'createPaper',
         // 'updatePaper' => 'updatePaper',
-        'getRoom' => 'getRoom',
-        'createRoom' => 'createRoom',
-        'updateRoom' => 'updateRoom',
-        'getVenue' => 'getVenue',
-        'createVenue' => 'createVenue',
-        'updateVenue' => 'updateVenue'
+        'getRoom' => 'getRoom', //tested
+        'createRoom' => 'createRoom', //tested
+        'updateRoom' => 'updateRoom', //tested
+        'getVenue' => 'getVenue', //tested
+        'createVenue' => 'createVenue', //tested
+        'updateVenue' => 'updateVenue' //tested
     );
 
     public function store(Request $request)
@@ -116,7 +117,7 @@ class ConfplusControllerV1 extends Controller
 
     private function createEvent(Request $request)
     {
-        $required = array('event_id', 'name', 'type', 'from_date', 'to_date', 'description', 'url', 'paper_deadline');
+        $required = array('name', 'type', 'from_date', 'to_date', 'description', 'paper_deadline');
 
         if ($request->has($required)) {
             return Event::insert($request->except(['method']));
@@ -197,7 +198,7 @@ class ConfplusControllerV1 extends Controller
         $data = $request->except(array_merge(['method'], $required));
 
         if (!empty($data)) {
-            return Event::edit($request->only($required), $data);
+            return TicketType::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
         }
@@ -328,7 +329,7 @@ class ConfplusControllerV1 extends Controller
 
     private function createVenue(Request $request)
     {
-        $required = array('venue_id', 'name', 'type', 'has_room', 'street', 'city', 'state', 'country', 'longitude', 'latitude');
+        $required = array('name', 'type', 'has_room', 'street', 'city', 'state', 'country', 'longitude', 'latitude');
 
         if ($request->has($required)) {
             return Venue::insert($request->except(['method']));

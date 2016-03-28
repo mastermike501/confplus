@@ -43,7 +43,7 @@ class Venue extends Model
 
     public static function edit($primaryKey, array $data)
     {
-        $success = DB::table('venue')
+        $success = DB::table('venues')
             ->where('venue_id', $primaryKey)
             ->update($data);
 
