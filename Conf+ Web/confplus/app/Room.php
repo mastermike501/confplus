@@ -63,9 +63,9 @@ class Room extends Model
             ->update($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Venue successfully updated.'));
+            return JSONUtilities::returnData(array('message' => 'Room successfully updated.'));
         } else {
-            return JSONUtilities::returnError('Could not update venue.');
+            return JSONUtilities::returnError('Could not update room.');
         }
     }
 }
