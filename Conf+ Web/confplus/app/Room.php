@@ -22,13 +22,14 @@ class Room extends Model
             ->where('name', $data['name'])
             ->get();
 
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
         //there must ever be only one instance of this record
-        if (count($results) != 1) {
+        if (count($results) > 1) {
             return JSONUtilities::returnError('More than one record exists. Contact backend support.');
         }
-        // if (count($results) != 1) {
-        //     return JSONUtilities::returnError('More than one record exists. Contact backend support.');
-        // }
 
         return JSONUtilities::returnData($results);
     }
