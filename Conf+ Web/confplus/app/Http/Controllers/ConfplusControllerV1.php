@@ -14,6 +14,11 @@ use App\EventAttended;
 use App\Payment;
 use App\Venue;
 use App\Room;
+use App\Session;
+use App\Resource;
+use App\UserTag;
+use App\EventTag;
+use App\PaperTag;
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -42,7 +47,19 @@ class ConfplusControllerV1 extends Controller
         'updateRoom' => 'updateRoom', //tested
         'getVenue' => 'getVenue', //tested
         'createVenue' => 'createVenue', //tested
-        'updateVenue' => 'updateVenue' //tested
+        'updateVenue' => 'updateVenue', //tested
+        'getSession' => 'getSession', //tested
+        'createSession' => 'createSession', //tested
+        'updateSession' => 'updateSession', //tested, failed
+        'addUserTag' => 'addUserTag', //tested
+        'addEventTag' => 'addEventTag', //tested
+        'addPaperTag' => 'addPaperTag',
+        'getUsersByTag' => 'getUsersByTag', //tested
+        'getEventsByTag' => 'getEventsByTag', //tested
+        'getPapersByTag' => 'getPapersByTag',
+        'getResource' => 'getResource', //tested
+        'createResource' => 'createResource', //tested
+        'updateResource' => 'updateResource', //tested
     );
 
     public function store(Request $request)
@@ -61,14 +78,47 @@ class ConfplusControllerV1 extends Controller
         var_dump($request->only(['a', 'b', 'c']));
     }
 
-    private function getUser(Request $request)
+    private function getResource(Request $request)
     {
-        if ($request->has('email')) {
-            return User::get($request->except(['method']));
+        $required = array('venue_id', 'room_name', 'name');
+
+        if ($request->has($required)) {
+            return Resource::get($request->only($required));
         } else {
-            return JSONUtilities::returnError('[email] not found');
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function createResource(Request $request)
+    {
+        $required = array('venue_id', 'room_name', 'name', 'type', 'number');
+
+        if ($request->has($required)) {
+            return Resource::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function updateResource(Request $request)
+    {
+        $required = array('venue_id', 'room_name', 'name');
+
+        if (!$request->has($required)) {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
         }
 
+        $data = $request->except(array_merge(['method'], $required));
+
+        if (!empty($data)) {
+            return Resource::edit($request->only($required), $data);
+        } else {
+            return JSONUtilities::returnError('No data to update');
+        }
+    }
+
+    private function getUser(Request $request)
+    {
         $required = array('email');
 
         if ($request->has($required)) {
@@ -352,6 +402,111 @@ class ConfplusControllerV1 extends Controller
             return Venue::edit($request->input('venue_id'), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
+        }
+    }
+
+    private function getSession(Request $request)
+    {
+        $required = array('event_id', 'title', 'speaker_email');
+
+        if ($request->has($required)) {
+            return Session::get($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function createSession(Request $request)
+    {
+        $required = array('event_id', 'title', 'speaker_email', 'start_time', 'end_time');
+
+        if ($request->has($required)) {
+            return Session::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function updateSession(Request $request)
+    {
+        $required = array('event_id', 'title', 'speaker_email');
+
+        if (!$request->has($required)) {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+
+        $data = $request->except(array_merge(['method'], $required));
+
+        if (!empty($data)) {
+            return Session::edit($request->only($required), $data);
+        } else {
+            return JSONUtilities::returnError('No data to update');
+        }
+    }
+
+    private function addUserTag(Request $request)
+    {
+        $required = array('email', 'tag_name');
+
+        if ($request->has($required)) {
+            return UserTag::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function addEventTag(Request $request)
+    {
+        $required = array('event_id', 'tag_name');
+
+        if ($request->has($required)) {
+            return EventTag::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function addPaperTag(Request $request)
+    {
+        $required = array('paper_id', 'tag_name');
+
+        if ($request->has($required)) {
+            return PaperTag::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function getUsersByTag(Request $request)
+    {
+        $required = array('tag_name');
+
+        if ($request->has($required)) {
+            return User::getByTag($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function getEventsByTag(Request $request)
+    {
+        $required = array('tag_name');
+
+        if ($request->has($required)) {
+            return Event::getByTag($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function getPapersByTag(Request $request)
+    {
+        $required = array('tag_name');
+
+        if ($request->has($required)) {
+            return Paper::getByTag($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
         }
     }
 }
