@@ -13,6 +13,7 @@ class CreatePapersTable extends Migration
     public function up()
     {
         Schema::create('papers', function (Blueprint $table) {
+            $table->increments('paper_id');
             $table->string('title');
             $table->timestamp('publish_date');
             $table->timestamp('latest_submit_date')->useCurrent();
@@ -21,7 +22,7 @@ class CreatePapersTable extends Migration
             $table->string('url')->nullable();
             $table->timestamps();
 
-            $table->primary(['title', 'publish_date']);
+            $table->unique(['title', 'publish_date']);
             $table->unique('url');
 
         });

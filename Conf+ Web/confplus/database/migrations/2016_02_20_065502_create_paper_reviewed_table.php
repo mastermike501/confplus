@@ -14,13 +14,13 @@ class CreatePaperReviewedTable extends Migration
     {
         Schema::create('paper_reviewed', function (Blueprint $table) {
             $table->string('email');
-            $table->string('title');
-            $table->timestamp('publish_date');
+            $table->integer('paper_id')->unsigned();
             $table->text('comment')->nullable();
             $table->timestamps();
 
-            $table->primary(['email', 'title', 'publish_date']);
-            $table->foreign(['title', 'publish_date'])->references(['title', 'publish_date'])->on('papers')->onDelete('cascade');
+            $table->primary(['email', 'paper_id']);
+            $table->foreign('email')->references('email')->on('users')->onDelete('cascade');
+            $table->foreign('paper_id')->references('paper_id')->on('papers')->onDelete('cascade');
 
         });
     }
