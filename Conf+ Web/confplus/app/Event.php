@@ -20,7 +20,7 @@ class Event extends Model
         $results = DB::select('select * from events where event_id = ?', [$data['event_id']]);
 
         if (count($results) == 0) {
-            return JSONUtilities::returnError('No record exists for event_id: ' . $data['event_id']);
+            return JSONUtilities::returnError('No record exists');
         }
 
         //there must ever be only one instance of this record
@@ -110,6 +110,20 @@ class Event extends Model
         $dataUrl = $localStorage->get($posterPath);
 
         return JSONUtilities::returnData(array('data_url' => $dataUrl));
+    }
+
+    /**
+     * [getByTag]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getByTag(array $data) {
+        $results = DB::table('events')
+            ->join('events_tag', 'events.event_id', '=', 'events_tag.event_id')
+            ->where('tag_name', $data['tag_name'])
+            ->get();
+
+        return JSONUtilities::returnData($results);
     }
 
 }

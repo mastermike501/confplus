@@ -18,10 +18,14 @@ class User extends Model
     public static function get(array $data) {
         $results = DB::select('select * from users where email = ?', [$data['email']]);
 
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
         //there must ever be only one instance of this record
-        // if (count($results) != 1) {
-        //     return JSONUtilities::returnError('More than one record exists. Contact backend support.');
-        // }
+        if (count($results) > 1) {
+            return JSONUtilities::returnError('More than one record exists. Contact backend support.');
+        }
 
         return JSONUtilities::returnData($results);
     }
@@ -57,6 +61,20 @@ class User extends Model
         } else {
             return JSONUtilities::returnError('Could not update user.');
         }
+    }
+
+    /**
+     * [getByTag]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getByTag(array $data) {
+        $results = DB::table('users')
+            ->join('users_tag', 'users.email', '=', 'users_tag.email')
+            ->where('tag_name', $data['tag_name'])
+            ->get();
+
+        return JSONUtilities::returnData($results);
     }
 
 }
