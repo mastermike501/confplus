@@ -82,8 +82,8 @@ class TicketType extends Model
      */
     public static function edit($primaryKey, array $data) {
         $success = DB::table('ticket_type')
-            ->where('event_id', $primaryKey[0])
-            ->where('name', $primaryKey[1])
+            ->where('event_id', $primaryKey['event_id'])
+            ->where('name', $primaryKey['name'])
             ->update($data);
 
         if ($success) {

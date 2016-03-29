@@ -33,6 +33,11 @@ class Room extends Model
         return JSONUtilities::returnData($results);
     }
 
+    /**
+     * [insert]
+     * @param  array  $data [description]
+     * @return [type]       [description]
+     */
     public static function insert(array $data)
     {
         $success = DB::table('rooms')->insert($data);
@@ -44,16 +49,23 @@ class Room extends Model
         }
     }
 
+    /**
+     * [edit]
+     * @param  [type] $primaryKey [description]
+     * @param  array  $data       [description]
+     * @return [type]             [description]
+     */
     public static function edit($primaryKey, array $data)
     {
-        $success = DB::table('room')
-            ->where('venue_id', $primaryKey)
+        $success = DB::table('rooms')
+            ->where('venue_id', $primaryKey['venue_id'])
+            ->where('name', $primaryKey['name'])
             ->update($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Venue successfully updated.'));
+            return JSONUtilities::returnData(array('message' => 'Room successfully updated.'));
         } else {
-            return JSONUtilities::returnError('Could not update venue.');
+            return JSONUtilities::returnError('Could not update room.');
         }
     }
 }
