@@ -13,13 +13,12 @@ class CreatePapersTagTable extends Migration
     public function up()
     {
         Schema::create('papers_tag', function (Blueprint $table) {
-            $table->string('title');
-            $table->timestamp('publish_date');
+            $table->integer('paper_id')->unsigned();
             $table->string('tag_name');
             $table->timestamps();
 
-            $table->primary(['title', 'publish_date', 'tag_name']);
-            $table->foreign(['title', 'publish_date'])->references(['title', 'publish_date'])->on('papers')->onDelete('cascade');
+            $table->primary(['paper_id', 'tag_name']);
+            $table->foreign('paper_id')->references('paper_id')->on('papers')->onDelete('cascade');
         });
     }
 

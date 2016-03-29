@@ -16,6 +16,7 @@ class CreateEventAttendedTable extends Migration
             $table->string('email');
             $table->integer('event_id')->unsigned();
             $table->string('role');
+            $table->string('seat_num')->nullable();
             $table->timestamps();
 
             $table->primary(['email', 'event_id', 'role']);

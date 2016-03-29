@@ -17,6 +17,7 @@ class CreateSessionAttendedTable extends Migration
             $table->integer('event_id')->unsigned();
             $table->string('title');
             $table->string('speaker_email');
+            $table->string('seat_num')->nullable();
             $table->timestamps();
 
             $table->primary(['email', 'event_id', 'title', 'speaker_email']);
