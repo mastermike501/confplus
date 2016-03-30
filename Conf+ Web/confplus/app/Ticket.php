@@ -8,7 +8,7 @@ use DB;
 
 use App\Http\Helpers\JSONUtilities;
 
-class TicketType extends Model
+class Ticket extends Model
 {
     /**
      * [get]

@@ -8,7 +8,7 @@ use DB;
 
 use App\Http\Helpers\JSONUtilities;
 
-class EventAttended extends Model
+class PaperAuthored extends Model
 {
     /**
      * [get]
@@ -17,8 +17,8 @@ class EventAttended extends Model
      */
     public static function get(array $data)
     {
-        $results = DB::table('event_attended')
-            ->where('event_id', $data['event_id'])
+        $results = DB::table('paper_authored')
+            ->where('paper_id', $data['paper_id'])
             ->get();
 
         return JSONUtilities::returnData($results);
@@ -26,18 +26,17 @@ class EventAttended extends Model
 
     /**
      * [insert]
-     * @param  [type] $data [description]
+     * @param  array  $data [description]
      * @return [type]       [description]
      */
-    public static function insert($data) {
-        $success = DB::table('event_attended')->insert($data);
+    public static function insert(array $data)
+    {
+        $success = DB::table('paper_authored')->insert($data);
 
         if ($success) {
-            return array('message' => 'Event attended successfully created.');
+            return JSONUtilities::returnData(array('message' => 'Author successfully created.'));
         } else {
-            return JSONUtilities::returnError('Could not insert event attended.');
+            return JSONUtilities::returnError('Could not insert author.');
         }
     }
-
-
 }
