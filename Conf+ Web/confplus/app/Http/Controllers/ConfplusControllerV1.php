@@ -7,18 +7,19 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\User;
 use App\Event;
-use App\TicketType;
 use App\EventAttended;
+use App\EventTag;
+use App\PaperAuthored;
+use App\PaperTag;
 use App\Payment;
-use App\Venue;
+use App\Resource;
 use App\Room;
 use App\Session;
-use App\Resource;
+use App\Ticket;
 use App\UserTag;
-use App\EventTag;
-use App\PaperTag;
+use App\User;
+use App\Venue;
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -34,9 +35,9 @@ class ConfplusControllerV1 extends Controller
         'updateEvent' => 'updateEvent', //tested
         'uploadPoster' => 'uploadPoster', //tested
         'getPoster' => 'getPoster', //tested
-        'getTicketTypes' => 'getTicketTypes', //tested
-        'createSingleTicketType' => 'createSingleTicketType', //tested
-        'updateTicketType' => 'updateTicketType', //tested
+        'getTicketTypes' => 'getTicketTypes', //tested, need to change
+        'createSingleTicketType' => 'createSingleTicketType', //tested, need to change
+        'updateTicketType' => 'updateTicketType', //tested, need to change
         'purchaseTicket' => 'purchaseTicket',
         'makePayment' => 'makePayment', //tested
         // 'getPaper' => 'getPaper',
@@ -60,6 +61,11 @@ class ConfplusControllerV1 extends Controller
         'getResource' => 'getResource', //tested
         'createResource' => 'createResource', //tested
         'updateResource' => 'updateResource', //tested
+        'getResourcesByRoom' => 'getResourcesByRoom',
+        'getEventAttendees' => 'getEventAttendees',
+        'getSessionAttendees' => 'getSessionAttendees',
+        'addPaperAuthor' => 'addPaperAuthor',
+        'getPaperAuthors' => 'getPaperAuthors'
     );
 
     public function store(Request $request)
@@ -76,45 +82,6 @@ class ConfplusControllerV1 extends Controller
     private function test(Request $request)
     {
         var_dump($request->only(['a', 'b', 'c']));
-    }
-
-    private function getResource(Request $request)
-    {
-        $required = array('venue_id', 'room_name', 'name');
-
-        if ($request->has($required)) {
-            return Resource::get($request->only($required));
-        } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
-        }
-    }
-
-    private function createResource(Request $request)
-    {
-        $required = array('venue_id', 'room_name', 'name', 'type', 'number');
-
-        if ($request->has($required)) {
-            return Resource::insert($request->except(['method']));
-        } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
-        }
-    }
-
-    private function updateResource(Request $request)
-    {
-        $required = array('venue_id', 'room_name', 'name');
-
-        if (!$request->has($required)) {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
-        }
-
-        $data = $request->except(array_merge(['method'], $required));
-
-        if (!empty($data)) {
-            return Resource::edit($request->only($required), $data);
-        } else {
-            return JSONUtilities::returnError('No data to update');
-        }
     }
 
     private function getUser(Request $request)
@@ -220,7 +187,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('event_id');
 
         if ($request->has($required)) {
-            return TicketType::get($request->except(['method']));
+            return Ticket::get($request->except(['method']));
         } else {
             return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
         }
@@ -231,7 +198,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('event_id', 'name');
 
         if ($request->has($required)) {
-            return TicketType::insertSingle($request->except(['method']));
+            return Ticket::insertSingle($request->except(['method']));
         } else {
             return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
         }
@@ -248,7 +215,7 @@ class ConfplusControllerV1 extends Controller
         $data = $request->except(array_merge(['method'], $required));
 
         if (!empty($data)) {
-            return TicketType::edit($request->only($required), $data);
+            return Ticket::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
         }
@@ -290,41 +257,41 @@ class ConfplusControllerV1 extends Controller
 
     private function getPaper(Request $request)
     {
-        // $required = array('paper_id');
-        //
-        // if ($request->has($required)) {
-        //     return User::get($request->except(['method']));
-        // } else {
-        //     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
-        // }
+        $required = array('paper_id');
+
+        if ($request->has($required)) {
+            return User::get($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
     }
 
     private function createPaper(Request $request)
     {
-        // $required = array('title', 'latest_sub_date');
-        //
-        // if ($request->has($required)) {
-        //     return User::insert($request->except(['method']));
-        // } else {
-        //     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
-        // }
+        $required = array('title', 'publish_date', 'latest_sub_date', 'status');
+
+        if ($request->has($required)) {
+            return User::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
     }
 
     private function updatePaper(Request $request)
     {
-        // $required = array('paper_id');
-        //
-        // if (!$request->has($required)) {
-        //     return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
-        // }
-        //
-        // $data = $request->except(['method', 'paper_id']);
-        //
-        // if (!empty($data)) {
-        //     return User::edit($request->input('paper_id'), $data);
-        // } else {
-        //     return JSONUtilities::returnError('No data to update');
-        // }
+        $required = array('paper_id');
+
+        if (!$request->has($required)) {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+
+        $data = $request->except(array_merge(['method'], $required));
+
+        if (!empty($data)) {
+            return User::edit($request->only($required), $data);
+        } else {
+            return JSONUtilities::returnError('No data to update');
+        }
     }
 
     private function getRoom(Request $request)
@@ -505,6 +472,100 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return Paper::getByTag($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function getResource(Request $request)
+    {
+        $required = array('venue_id', 'room_name', 'name');
+
+        if ($request->has($required)) {
+            return Resource::get($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function createResource(Request $request)
+    {
+        $required = array('venue_id', 'room_name', 'name', 'type', 'number');
+
+        if ($request->has($required)) {
+            return Resource::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function updateResource(Request $request)
+    {
+        $required = array('venue_id', 'room_name', 'name');
+
+        if (!$request->has($required)) {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+
+        $data = $request->except(array_merge(['method'], $required));
+
+        if (!empty($data)) {
+            return Resource::edit($request->only($required), $data);
+        } else {
+            return JSONUtilities::returnError('No data to update');
+        }
+    }
+
+    private function getResourcesByRoom(Request $request)
+    {
+        $required = array('venue_id', 'room_name');
+
+        if ($request->has($required)) {
+            return Resource::getByRoom($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function getEventAttendees(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return EventAttended::get($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function getSessionAttendees(Request $request)
+    {
+        $required = array('event_id', 'title', 'speaker_email');
+
+        if ($request->has($required)) {
+            return SessionAttended::get($request->only($required));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function addPaperAuthor(Request $request)
+    {
+        $required = array('email', 'paper_id');
+
+        if ($request->has($required)) {
+            return PaperAuthored::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+        }
+    }
+
+    private function getPaperAuthors(Request $request)
+    {
+        $required = array('paper_id');
+
+        if ($request->has($required)) {
+            return PaperAuthored::get($request->only($required));
         } else {
             return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
         }
