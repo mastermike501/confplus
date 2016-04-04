@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use DB;
 
 use App\Http\Helpers\JSONUtilities;
+use App\Http\Helpers\FormatUtilities;
 
 class User extends Model
 {
+    private static $timecolumns = [
+        'dob' => 'd-m-Y'
+    ];
+    
     /**
      * [get]
      * @param  [array] $data [User data containing an email]
@@ -36,6 +41,12 @@ class User extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function insert(array $data) {
+        $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
+        
+        if (!$success) {
+            return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
         $success = DB::table('users')->insert($data);
 
         if ($success) {
@@ -52,6 +63,12 @@ class User extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function edit($primaryKey, array $data) {
+        $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
+        
+        if (!$success) {
+            return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
         $success = DB::table('users')
             ->where('email', $primaryKey['email'])
             ->update($data);

@@ -7,9 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use DB;
 
 use App\Http\Helpers\JSONUtilities;
+use App\Http\Helpers\FormatUtilities;
 
 class Paper extends Model
 {
+    private static $timecolumns = [
+        'publish_date' => 'd-m-Y',
+        'latest_sub_date' => 'd-m-Y'
+    ];
+    
     /**
      * [get]
      * @param  array  $data [description]
@@ -40,6 +46,12 @@ class Paper extends Model
      */
     public static function insert(array $data)
     {
+        $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
+        
+        if (!$success) {
+            return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
         $success = DB::table('papers')->insert($data);
 
         if ($success) {
@@ -57,6 +69,12 @@ class Paper extends Model
      */
     public static function edit($primaryKey, array $data)
     {
+        $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
+        
+        if (!$success) {
+            return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
         $success = DB::table('papers')
             ->where('paper_id', $primaryKey['paper_id'])
             ->update($data);
