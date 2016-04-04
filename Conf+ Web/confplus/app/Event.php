@@ -8,9 +8,16 @@ use DB;
 use Storage;
 
 use App\Http\Helpers\JSONUtilities;
+use App\Http\Helpers\FormatUtilities;
 
 class Event extends Model
 {
+    private static $timecolumns = [
+        'from_date' => 'd-m-Y',
+        'to_date' => 'd-m-Y',
+        'paper_deadline' => 'd-m-Y H:i'
+    ];
+
     /**
      * [get]
      * @param  [array] $data [Event data containing an event_id]
@@ -37,6 +44,12 @@ class Event extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function insert(array $data) {
+        $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
+        
+        if (!$success) {
+            return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
         $success = DB::table('events')->insert($data);
 
         if ($success) {
@@ -53,6 +66,13 @@ class Event extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function edit($primaryKey, array $data) {
+        
+        $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
+        
+        if (!$success) {
+            return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
         $success = DB::table('events')
             ->where('event_id', $primaryKey['event_id'])
             ->update($data);

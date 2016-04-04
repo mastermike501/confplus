@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use App\Billing;
 use App\Event;
 use App\EventAttended;
 use App\EventTag;
@@ -40,16 +41,18 @@ class ConfplusControllerV1 extends Controller
         'updateTicketType' => 'updateTicketType', //tested, need to change
         'purchaseTicket' => 'purchaseTicket',
         'makePayment' => 'makePayment', //tested
-        // 'getPaper' => 'getPaper',
-        // 'createPaper' => 'createPaper',
-        // 'updatePaper' => 'updatePaper',
+        'getPaper' => 'getPaper',
+        'createPaper' => 'createPaper',
+        'updatePaper' => 'updatePaper',
         'getRoom' => 'getRoom', //tested
+        'getRooms' => 'getRooms', 
         'createRoom' => 'createRoom', //tested
         'updateRoom' => 'updateRoom', //tested
         'getVenue' => 'getVenue', //tested
         'createVenue' => 'createVenue', //tested
         'updateVenue' => 'updateVenue', //tested
         'getSession' => 'getSession', //tested
+        'getSessions' => 'getSessions',
         'createSession' => 'createSession', //tested
         'updateSession' => 'updateSession', //tested, failed
         'addUserTag' => 'addUserTag', //tested
@@ -65,7 +68,10 @@ class ConfplusControllerV1 extends Controller
         'getEventAttendees' => 'getEventAttendees',
         'getSessionAttendees' => 'getSessionAttendees',
         'addPaperAuthor' => 'addPaperAuthor',
-        'getPaperAuthors' => 'getPaperAuthors'
+        'getPaperAuthors' => 'getPaperAuthors',
+        'getBillingInfo' => 'getBillingInfo',
+        'createBillingInfo' => 'createBillingInfo',
+        'updateBillingInfo' => 'updateBillingInfo'
     );
 
     public function store(Request $request)
@@ -78,7 +84,7 @@ class ConfplusControllerV1 extends Controller
 
         return JSONUtilities::returnError('Method ' . $methodName . ' not found.');
     }
-
+    
     private function test(Request $request)
     {
         var_dump($request->only(['a', 'b', 'c']));
@@ -91,7 +97,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return User::get($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -102,7 +108,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return User::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -125,10 +131,12 @@ class ConfplusControllerV1 extends Controller
 
     private function getEvent(Request $request)
     {
-        if ($request->has('event_id')) {
+        $required = array('event_id');
+        
+        if ($request->has($required)) {
             return Event::get($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[event_id] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -139,7 +147,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Event::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -148,7 +156,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('event_id');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[event_id] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(array_merge(['method'], $required));
@@ -167,7 +175,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Event::uploadPoster($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -178,7 +186,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Event::getPoster($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -189,7 +197,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Ticket::get($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -200,7 +208,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Ticket::insertSingle($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -209,7 +217,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('event_id', 'name');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(array_merge(['method'], $required));
@@ -226,7 +234,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('event_id', 'email', 'role', 'seat_no');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $ticketSuccess = TicketType::purchaseTicket($request->only($required));
@@ -251,7 +259,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Payment::insert($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -262,7 +270,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return User::get($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -273,7 +281,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return User::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -282,7 +290,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('paper_id');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(array_merge(['method'], $required));
@@ -301,7 +309,18 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Room::get($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function getRooms(Request $request)
+    {
+        $required = array('venue_id');
+
+        if ($request->has($required)) {
+            return Room::getRooms($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -312,7 +331,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Room::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -321,7 +340,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('venue_id', 'name');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(array_merge(['method'], $required));
@@ -340,7 +359,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Venue::get($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -351,7 +370,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Venue::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -360,7 +379,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('venue_id');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(array_merge(['method'], $required));
@@ -374,23 +393,34 @@ class ConfplusControllerV1 extends Controller
 
     private function getSession(Request $request)
     {
-        $required = array('event_id', 'title', 'speaker_email');
+        $required = array('event_id', 'title');
 
         if ($request->has($required)) {
             return Session::get($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function getSessions(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Session::getSessions($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
     private function createSession(Request $request)
     {
-        $required = array('event_id', 'title', 'speaker_email', 'start_time', 'end_time');
+        $required = array('event_id', 'title', 'start_time', 'end_time');
 
         if ($request->has($required)) {
             return Session::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -399,7 +429,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('event_id', 'title', 'speaker_email');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(array_merge(['method'], $required));
@@ -418,7 +448,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return UserTag::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -429,7 +459,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return EventTag::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -440,7 +470,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return PaperTag::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -451,7 +481,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return User::getByTag($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -462,7 +492,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Event::getByTag($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -473,7 +503,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Paper::getByTag($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -484,7 +514,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Resource::get($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -495,7 +525,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Resource::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -504,7 +534,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('venue_id', 'room_name', 'name');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(array_merge(['method'], $required));
@@ -523,7 +553,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return Resource::getByRoom($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -534,7 +564,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return EventAttended::get($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -545,7 +575,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return SessionAttended::get($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -556,7 +586,7 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return PaperAuthored::insert($request->except(['method']));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -567,7 +597,46 @@ class ConfplusControllerV1 extends Controller
         if ($request->has($required)) {
             return PaperAuthored::get($request->only($required));
         } else {
-            return JSONUtilities::returnError('[' . implode(', ', $required) . '] not found');
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function getBillingInfo(Request $request)
+    {
+        $required = array('email', 'card#');
+
+        if ($request->has($required)) {
+            return Billing::get($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+
+    private function createBillingInfo(Request $request)
+    {
+        $required = array('email', 'card#', 'card_type', 'expiry_date');
+
+        if ($request->has($required)) {
+            return Billing::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+
+    private function updateBillingInfo(Request $request)
+    {
+        $required = array('email', 'card#');
+
+        if (!$request->has($required)) {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+
+        $data = $request->except(array_merge(['method'], $required));
+
+        if (!empty($data)) {
+            return Billing::edit($request->only($required), $data);
+        } else {
+            return JSONUtilities::returnError('No data to update');
         }
     }
 }

@@ -35,6 +35,24 @@ class Room extends Model
     }
 
     /**
+     * [getRooms]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getRooms(array $data)
+    {
+        $results = DB::table('rooms')
+            ->where('venue_id', $data['venue_id'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results);
+    }
+
+    /**
      * [insert]
      * @param  array  $data [description]
      * @return [type]       [description]
