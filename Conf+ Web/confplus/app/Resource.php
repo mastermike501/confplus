@@ -71,4 +71,19 @@ class Resource extends Model
             return JSONUtilities::returnError('Could not update resource.');
         }
     }
+
+    /**
+     * [getByRoom]
+     * @param  array  $data [description]
+     * @return [type]       [description]
+     */
+    public static function getByRoom(array $data)
+    {
+        $results = DB::table('resources')
+            ->where('venue_id', $data['venue_id'])
+            ->where('room_name', $data['room_name'])
+            ->get();
+
+        return JSONUtilities::returnData($results);
+    }
 }

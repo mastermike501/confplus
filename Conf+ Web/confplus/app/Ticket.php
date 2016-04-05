@@ -7,9 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use DB;
 
 use App\Http\Helpers\JSONUtilities;
+use App\Http\Helpers\FormatUtilities;
 
-class TicketType extends Model
+class Ticket extends Model
 {
+    private static $timecolumns = [
+        'start_time' => 'd-m-Y H:i',
+        'end_time' => 'd-m-Y H:i'
+    ];
+    
     /**
      * [get]
      * @param  array  $data [description]
@@ -36,6 +42,12 @@ class TicketType extends Model
      * @return [JSON]       [description]
      */
     public static function insertSingle(array $data) {
+        $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
+        
+        if (!$success) {
+            return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
         $success = DB::table('ticket_type')->insert($data);
 
         if ($success) {
@@ -85,6 +97,12 @@ class TicketType extends Model
      * @return [JSON]             [description]
      */
     public static function edit($primaryKey, array $data) {
+        $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
+        
+        if (!$success) {
+            return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
         $success = DB::table('ticket_type')
             ->where('event_id', $primaryKey['event_id'])
             ->where('name', $primaryKey['name'])

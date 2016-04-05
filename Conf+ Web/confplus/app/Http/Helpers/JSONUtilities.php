@@ -18,6 +18,16 @@ class JSONUtilities
             )
         );
     }
+    
+    /**
+	 * [returnRequirementsError]
+	 * @param  [string] $message [Error message]
+	 * @return [JSON]          [description]
+	 */
+	public static function returnRequirementsError(array $required)
+    {
+        return static::returnError('[' . implode(', ', $required) . '] not found');
+    }
 
 	/**
 	 * [returnData]
