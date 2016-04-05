@@ -16,7 +16,6 @@ class CreateVenuesTable extends Migration
             $table->increments('venue_id');
             $table->string('name');
             $table->string('type');
-            $table->boolean('has_room');
             $table->string('street');
             $table->string('city');
             $table->string('state');

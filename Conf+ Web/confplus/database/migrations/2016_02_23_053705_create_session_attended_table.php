@@ -16,13 +16,12 @@ class CreateSessionAttendedTable extends Migration
             $table->string('email');
             $table->integer('event_id')->unsigned();
             $table->string('title');
-            $table->string('speaker_email');
             $table->string('seat_num')->nullable();
             $table->timestamps();
 
-            $table->primary(['email', 'event_id', 'title', 'speaker_email']);
+            $table->primary(['email', 'event_id', 'title']);
             $table->foreign('email')->references('email')->on('users')->onDelete('cascade');
-            $table->foreign(['event_id', 'title', 'speaker_email'])->references(['event_id', 'title', 'speaker_email'])->on('sessions')->onDelete('cascade');
+            $table->foreign(['event_id', 'title'])->references(['event_id', 'title'])->on('sessions')->onDelete('cascade');
         });
     }
 
