@@ -29,6 +29,7 @@ class CreateUsersTable extends Migration
             $table->string('linkedin_id')->nullable();
             $table->boolean('active')->nullable();
             $table->boolean('upgraded')->nullable();
+            $table->boolean('review')->default(false)->nullable();
             $table->timestamps();
 
             $table->primary('email');

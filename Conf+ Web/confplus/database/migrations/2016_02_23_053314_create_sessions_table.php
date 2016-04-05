@@ -15,12 +15,12 @@ class CreateSessionsTable extends Migration
         Schema::create('sessions', function (Blueprint $table) {
             $table->integer('event_id')->unsigned();
             $table->string('title');
-            $table->string('speaker_email');
+            $table->string('speaker_email')->nullable();
             $table->timestamp('start_time');
             $table->timestamp('end_time');
             $table->timestamps();
 
-            $table->primary(['event_id', 'title', 'speaker_email']);
+            $table->primary(['event_id', 'title']);
             $table->foreign('event_id')->references('event_id')->on('events')->onDelete('cascade');
             $table->foreign('speaker_email')->references('email')->on('users')->onDelete('cascade');
         });
