@@ -1,6 +1,10 @@
 (function(){
 
+<<<<<<< Updated upstream
 	var app = angular.module('app', ['ngRoute', 'mainCtrl']);
+=======
+	var app = angular.module('app', ['ngRoute', 'mainCtrl', 'cpService']);
+>>>>>>> Stashed changes
 
 	//configure your routes here
 	app.config(function($routeProvider) {
