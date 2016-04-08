@@ -21,7 +21,7 @@ class CreateTicketRecordTable extends Migration
             $table->integer('venue_id')->unsigned();
             $table->string('room_name');
             $table->string('seat_num');
-            $table->string('email');->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
 
             $table->primary(['event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num']);
