@@ -47,12 +47,12 @@ class Ticket extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
-        $success = DB::table('ticket_type')->insert($data);
+        $success = DB::table('ticket')->insert($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Ticket type successfully created.'));
+            return JSONUtilities::returnData(array('message' => 'Ticket successfully created.'));
         } else {
-            return JSONUtilities::returnError('Could not insert ticket type.');
+            return JSONUtilities::returnError('Could not insert ticket.');
         }
     }
 
@@ -62,9 +62,8 @@ class Ticket extends Model
      * @return [JSON|array]             [description]
      */
     public static function purchaseTicket(array $data) {
-        return JSONUtilities::returnError('purchaseTicket not implemented.');
 
-        $results = DB::table('ticket_type')
+        $results = DB::table('ticket')
             ->select('quantity', 'num_purchased', 'price')
             ->where('event_id', $data['event_id'])
             ->where('name', $data['name'])
@@ -78,7 +77,7 @@ class Ticket extends Model
         $results['num_purchased']++;
 
         //update ticket_type table
-        DB::table('ticket_type')
+        DB::table('ticket')
             ->where('event_id', $data['event_id'])
             ->where('name', $data['name'])
             ->update(['num_purchased' => $results['num_purchased']]);
@@ -102,15 +101,18 @@ class Ticket extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
-        $success = DB::table('ticket_type')
+        $success = DB::table('ticket')
             ->where('event_id', $primaryKey['event_id'])
+            ->where('title', $primaryKey['title'])
             ->where('name', $primaryKey['name'])
+            ->where('class', $primaryKey['class'])
+            ->where('type', $primaryKey['type'])
             ->update($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Ticket type successfully updated.'));
+            return JSONUtilities::returnData(array('message' => 'Ticket successfully updated.'));
         } else {
-            return JSONUtilities::returnError('Could not update ticket type.');
+            return JSONUtilities::returnError('Could not update ticket.');
         }
     }
 }

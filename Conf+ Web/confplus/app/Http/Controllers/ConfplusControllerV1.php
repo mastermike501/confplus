@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 
 use App\Billing;
 use App\Event;
-use App\EventAttended;
 use App\EventTag;
 use App\PaperAuthored;
 use App\PaperTag;
@@ -36,9 +35,9 @@ class ConfplusControllerV1 extends Controller
         'updateEvent' => 'updateEvent', //tested
         'uploadPoster' => 'uploadPoster', //tested
         'getPoster' => 'getPoster', //tested
-        'getTicketTypes' => 'getTicketTypes', //tested, need to change
-        'createSingleTicketType' => 'createSingleTicketType', //tested, need to change
-        'updateTicketType' => 'updateTicketType', //tested, need to change
+        'getTicketCategories' => 'getTicketCategories', //tested, need to change
+        'createTicketCategory' => 'createTicketCategory', //tested, need to change
+        'updateTicketCategory' => 'updateTicketCategory', //tested, need to change
         'purchaseTicket' => 'purchaseTicket',
         'makePayment' => 'makePayment', //tested
         'getPaper' => 'getPaper',
@@ -65,8 +64,8 @@ class ConfplusControllerV1 extends Controller
         'createResource' => 'createResource', //tested
         'updateResource' => 'updateResource', //tested
         'getResourcesByRoom' => 'getResourcesByRoom',
-        'getEventAttendees' => 'getEventAttendees',
-        'getSessionAttendees' => 'getSessionAttendees',
+        // 'getEventAttendees' => 'getEventAttendees', 
+        // 'getSessionAttendees' => 'getSessionAttendees',
         'addPaperAuthor' => 'addPaperAuthor',
         'getPaperAuthors' => 'getPaperAuthors',
         'getPapersByAuthor' => 'getPapersByAuthor',
@@ -195,9 +194,9 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-    private function getTicketTypes(Request $request)
+    private function getTicketCategories(Request $request)
     {
-        $required = array('event_id', 'title', 'name', 'class', 'type');
+        $required = array('event_id', 'title');
 
         if ($request->has($required)) {
             return Ticket::getTypes($request->except(['method']));
@@ -206,7 +205,7 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-    private function createSingleTicketType(Request $request)
+    private function createTicketCategory(Request $request)
     {
         $required = array('event_id', 'title', 'name', 'class',
             'type', 'price', 'desc', 'start_date', 'end_date', 'quantity', 'num_purchased');
@@ -218,9 +217,9 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-    private function updateTicketType(Request $request)
+    private function updateTicketCategory(Request $request)
     {
-        $required = array('event_id', 'name');
+        $required = array('event_id', 'title', 'name', 'class', 'type');
 
         if (!$request->has($required)) {
             return JSONUtilities::returnRequirementsError($required);
@@ -237,19 +236,21 @@ class ConfplusControllerV1 extends Controller
 
     private function purchaseTicket(Request $request)
     {
+        return JSONUtilities::returnError('purchaseTicket not implemented.');
+        // 
         $required = array('event_id', 'email', 'role', 'seat_no');
 
         if (!$request->has($required)) {
             return JSONUtilities::returnRequirementsError($required);
         }
 
-        $ticketSuccess = TicketType::purchaseTicket($request->only($required));
+        //$ticketSuccess = TicketType::purchaseTicket($request->only($required));
 
         if (!is_array($ticketSuccess)) {
             return $ticketSuccess;
         }
 
-        $eventAttendedSuccess = EventAttended::insert($request->only($required));
+        //$eventAttendedSuccess = EventAttended::insert($request->only($required));
 
         if (!is_array($eventAttendedSuccess)) {
             return $eventAttendedSuccess;
@@ -565,6 +566,8 @@ class ConfplusControllerV1 extends Controller
 
     private function getEventAttendees(Request $request)
     {
+        return JSONUtilities::returnError('getEventAttendees not implemented');
+        
         $required = array('event_id');
 
         if ($request->has($required)) {
@@ -576,6 +579,8 @@ class ConfplusControllerV1 extends Controller
 
     private function getSessionAttendees(Request $request)
     {
+        return JSONUtilities::returnError('getSessionAttendees not implemented');
+        
         $required = array('event_id', 'title', 'speaker_email');
 
         if ($request->has($required)) {
