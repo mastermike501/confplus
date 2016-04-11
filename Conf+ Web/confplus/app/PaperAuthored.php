@@ -23,6 +23,20 @@ class PaperAuthored extends Model
 
         return JSONUtilities::returnData($results);
     }
+    
+    /**
+     * [getByAuthor]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getByAuthor(array $data)
+    {
+        $results = DB::table('paper_authored')
+            ->where('email', $data['email'])
+            ->get();
+
+        return JSONUtilities::returnData($results);
+    }
 
     /**
      * [insert]

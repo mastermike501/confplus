@@ -69,9 +69,14 @@ class ConfplusControllerV1 extends Controller
         'getSessionAttendees' => 'getSessionAttendees',
         'addPaperAuthor' => 'addPaperAuthor',
         'getPaperAuthors' => 'getPaperAuthors',
+        'getPapersByAuthor' => 'getPapersByAuthor',
         'getBillingInfo' => 'getBillingInfo',
         'createBillingInfo' => 'createBillingInfo',
-        'updateBillingInfo' => 'updateBillingInfo'
+        'updateBillingInfo' => 'updateBillingInfo',
+        'getPapersReviewedByEmail' => 'getPapersReviewedByEmail',
+        'getReviewersByPaperId' => 'getReviewersByPaperId',
+        'addPaperReviewed' => 'addPaperReviewed',
+        
     );
 
     public function store(Request $request)
@@ -117,7 +122,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('email');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[email] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(['method', 'email']);
@@ -192,10 +197,10 @@ class ConfplusControllerV1 extends Controller
 
     private function getTicketTypes(Request $request)
     {
-        $required = array('event_id');
+        $required = array('event_id', 'title');
 
         if ($request->has($required)) {
-            return Ticket::get($request->except(['method']));
+            return Ticket::getTypes($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -203,7 +208,8 @@ class ConfplusControllerV1 extends Controller
 
     private function createSingleTicketType(Request $request)
     {
-        $required = array('event_id', 'name');
+        $required = array('event_id', 'title', 'name', 'class',
+            'type', 'price', 'desc', 'start_date', 'end_date', 'quantity', 'num_purchased');
 
         if ($request->has($required)) {
             return Ticket::insertSingle($request->except(['method']));
@@ -601,6 +607,17 @@ class ConfplusControllerV1 extends Controller
         }
     }
     
+    private function getPapersByAuthor(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return PaperAuthored::getByAuthor($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
     private function getBillingInfo(Request $request)
     {
         $required = array('email', 'card#');
@@ -637,6 +654,39 @@ class ConfplusControllerV1 extends Controller
             return Billing::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
+        }
+    }
+    
+     private function getPapersReviewedByEmail(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return PaperReviewed::getByEmail($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function getReviewersByPaperId(Request $request)
+    {
+        $required = array('paper_id');
+
+        if ($request->has($required)) {
+            return PaperReviewed::getByPaperId($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function addPaperReviewed(Request $request)
+    {
+        $required = array('email', 'paper_id', 'comment');
+
+        if ($request->has($required)) {
+            return PaperReviewed::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 }
