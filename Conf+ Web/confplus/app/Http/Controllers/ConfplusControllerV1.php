@@ -76,7 +76,7 @@ class ConfplusControllerV1 extends Controller
         'getPapersReviewedByEmail' => 'getPapersReviewedByEmail',
         'getReviewersByPaperId' => 'getReviewersByPaperId',
         'addPaperReviewed' => 'addPaperReviewed',
-        
+        'getPaperAuthors' => 'getPaperAuthors'
     );
 
     public function store(Request $request)
@@ -89,7 +89,7 @@ class ConfplusControllerV1 extends Controller
 
         return JSONUtilities::returnError('Method ' . $methodName . ' not found.');
     }
-    
+
     private function test(Request $request)
     {
         var_dump($request->only(['a', 'b', 'c']));
@@ -197,7 +197,7 @@ class ConfplusControllerV1 extends Controller
 
     private function getTicketTypes(Request $request)
     {
-        $required = array('event_id', 'title');
+        $required = array('event_id', 'title', 'name', 'class', 'type');
 
         if ($request->has($required)) {
             return Ticket::getTypes($request->except(['method']));
@@ -318,7 +318,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function getRooms(Request $request)
     {
         $required = array('venue_id');
@@ -329,7 +329,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-
+    
     private function createRoom(Request $request)
     {
         $required = array('venue_id', 'name', 'type', 'capacity');
@@ -654,6 +654,9 @@ class ConfplusControllerV1 extends Controller
             return Billing::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
+=======
+            return JSONUtilities::returnRequirementsError($required);
+>>>>>>> Stashed changes
         }
     }
     
