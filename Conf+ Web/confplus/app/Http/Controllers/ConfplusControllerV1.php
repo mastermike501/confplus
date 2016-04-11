@@ -654,9 +654,6 @@ class ConfplusControllerV1 extends Controller
             return Billing::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
-=======
-            return JSONUtilities::returnRequirementsError($required);
->>>>>>> Stashed changes
         }
     }
     
