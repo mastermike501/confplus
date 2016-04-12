@@ -35,9 +35,9 @@ class ConfplusControllerV1 extends Controller
         'updateEvent' => 'updateEvent', //tested
         'uploadPoster' => 'uploadPoster', //tested
         'getPoster' => 'getPoster', //tested
-        'getTicketCategories' => 'getTicketCategories', //tested, need to change
-        'createTicketCategory' => 'createTicketCategory', //tested, need to change
-        'updateTicketCategory' => 'updateTicketCategory', //tested, need to change
+        'getTicketCategories' => 'getTicketCategories', //tested
+        'createTicketCategory' => 'createTicketCategory', //tested
+        'updateTicketCategory' => 'updateTicketCategory', //tested
         'purchaseTicket' => 'purchaseTicket',
         'makePayment' => 'makePayment', //tested
         'getPaper' => 'getPaper',
@@ -208,7 +208,7 @@ class ConfplusControllerV1 extends Controller
     private function createTicketCategory(Request $request)
     {
         $required = array('event_id', 'title', 'name', 'class',
-            'type', 'price', 'desc', 'start_date', 'end_date', 'quantity', 'num_purchased');
+            'type', 'price', 'description', 'start_date', 'end_date', 'quantity', 'num_purchased');
 
         if ($request->has($required)) {
             return Ticket::insertSingle($request->except(['method']));
