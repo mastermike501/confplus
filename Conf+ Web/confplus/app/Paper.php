@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 use DB;
+use Storage;
 
 use App\Http\Helpers\JSONUtilities;
 use App\Http\Helpers\FormatUtilities;
@@ -35,6 +36,15 @@ class Paper extends Model
         if (count($results) > 1) {
             return JSONUtilities::returnError('More than one record exists. Contact backend support.');
         }
+        
+        $localStorage = Storage::disk('local');
+        
+        $paperPath = 'papers/' . 'paper_' . $data['paper_id'] . '.txt';
+        
+        if ($localStorage->exists($paperPath)) {
+            $dataUrl = $localStorage->get($paperPath);
+            $results['paper_data_url'] = $dataUrl;
+        }
 
         return JSONUtilities::returnData($results);
     }
@@ -52,8 +62,22 @@ class Paper extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
-        $success = DB::table('papers')->insert($data);
+        $dataUrl = $data['paper_data_url'];
+        unset($data['paper_data_url']); //remove this from the array
+        
+        $id = DB::table('papers')->insertGetId($data);
+        
+        $localStorage = Storage::disk('local');
+            
+        $paperPath = 'papers/' . 'paper_' . $id . '.txt';
+        
+        //remove an earlier version of poster, if exists
+        if ($localStorage->exists($paperPath)) {
+            $localStorage->delete($paperPath);
+        }
 
+        $success = $localStorage->put($paperPath, $dataUrl);
+            
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Paper successfully created.'));
         } else {
@@ -73,6 +97,22 @@ class Paper extends Model
         
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
+        }
+        
+        if (array_key_exists('paper_data_url', $data)) {
+            $dataUrl = $data['paper_data_url'];
+            unset($data['paper_data_url']); //remove this from the array
+            
+            $localStorage = Storage::disk('local');
+            
+            $paperPath = 'papers/' . 'paper_' . $primaryKey['paper_id'] . '.txt';
+            
+            //remove an earlier version of poster, if exists
+            if ($localStorage->exists($paperPath)) {
+                $localStorage->delete($paperPath);
+            }
+
+            $localStorage->put($paperPath, $dataUrl);
         }
         
         $success = DB::table('papers')
