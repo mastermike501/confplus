@@ -81,6 +81,8 @@ class ConfplusControllerV1 extends Controller
 
     public function store(Request $request)
     {
+        header("Access-Control-Allow-Origin: *");
+        
         $methodName = $request->input('method');
 
         if (array_key_exists($methodName, $this->requestMethods)) {
