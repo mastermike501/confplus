@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token');
+
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -80,11 +84,7 @@ class ConfplusControllerV1 extends Controller
     );
 
     public function store(Request $request)
-    {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-        header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token');
-        
+    {   
         $methodName = $request->input('method');
 
         if (array_key_exists($methodName, $this->requestMethods)) {
