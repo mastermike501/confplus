@@ -13,7 +13,7 @@
 
 
 
-Route::group(['prefix' => 'api'], function() {
+Route::group(['prefix' => 'api'], ['middleware' => 'cors', function() {
 
     Route::resource('v1', 'ConfplusControllerV1',
         ['only' => ['store']]
@@ -47,4 +47,4 @@ Route::group(['prefix' => 'api'], function() {
     //     ['only' => ['store', 'show']]
     // );
 
-});
+}]);
