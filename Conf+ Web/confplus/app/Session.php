@@ -26,7 +26,6 @@ class Session extends Model
         $results = DB::table('sessions')
             ->where('event_id', $data['event_id'])
             ->where('title', $data['title'])
-            ->where('speaker_email', $data['speaker_email'])
             ->get();
 
         if (count($results) == 0) {
@@ -50,17 +49,10 @@ class Session extends Model
     {
         $results = DB::table('sessions')
             ->where('event_id', $data['event_id'])
-            ->where('title', $data['title'])
-            ->where('speaker_email', $data['speaker_email'])
             ->get();
 
         if (count($results) == 0) {
             return JSONUtilities::returnError('No record exists');
-        }
-
-        //there must ever be only one instance of this record
-        if (count($results) > 1) {
-            return JSONUtilities::returnError('More than one record exists. Contact backend support.');
         }
 
         return JSONUtilities::returnData($results);
@@ -105,7 +97,6 @@ class Session extends Model
         $success = DB::table('sessions')
             ->where('event_id', $primaryKey['event_id'])
             ->where('title', $primaryKey['title'])
-            ->where('speaker_email', $primaryKey['speaker_email'])
             ->update($data);
 
         if ($success) {

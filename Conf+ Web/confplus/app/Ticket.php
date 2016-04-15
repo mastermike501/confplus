@@ -12,8 +12,8 @@ use App\Http\Helpers\FormatUtilities;
 class Ticket extends Model
 {
     private static $timecolumns = [
-        'start_time' => 'd-m-Y H:i',
-        'end_time' => 'd-m-Y H:i'
+        'start_date' => 'd-m-Y H:i',
+        'end_date' => 'd-m-Y H:i'
     ];
     
     /**
@@ -23,7 +23,7 @@ class Ticket extends Model
      */
     public static function getTypes(array $data) {
         
-        $results = DB::table('ticket')
+        $results = DB::table('tickets')
             ->where('event_id', $data['event_id'])
             ->where('title', $data['title'])
             ->get();
@@ -47,7 +47,7 @@ class Ticket extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
-        $success = DB::table('ticket')->insert($data);
+        $success = DB::table('tickets')->insert($data);
 
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Ticket successfully created.'));
@@ -63,7 +63,7 @@ class Ticket extends Model
      */
     public static function purchaseTicket(array $data) {
 
-        $results = DB::table('ticket')
+        $results = DB::table('tickets')
             ->select('quantity', 'num_purchased', 'price')
             ->where('event_id', $data['event_id'])
             ->where('name', $data['name'])
@@ -77,7 +77,7 @@ class Ticket extends Model
         $results['num_purchased']++;
 
         //update ticket_type table
-        DB::table('ticket')
+        DB::table('tickets')
             ->where('event_id', $data['event_id'])
             ->where('name', $data['name'])
             ->update(['num_purchased' => $results['num_purchased']]);
@@ -101,7 +101,7 @@ class Ticket extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
-        $success = DB::table('ticket')
+        $success = DB::table('tickets')
             ->where('event_id', $primaryKey['event_id'])
             ->where('title', $primaryKey['title'])
             ->where('name', $primaryKey['name'])

@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Billing;
 use App\Event;
 use App\EventTag;
+use App\Paper;
 use App\PaperAuthored;
 use App\PaperTag;
 use App\Payment;
@@ -35,23 +36,23 @@ class ConfplusControllerV1 extends Controller
         'updateEvent' => 'updateEvent', //tested
         'uploadPoster' => 'uploadPoster', //tested
         'getPoster' => 'getPoster', //tested
-        'getTicketCategories' => 'getTicketCategories', //tested, need to change
-        'createTicketCategory' => 'createTicketCategory', //tested, need to change
-        'updateTicketCategory' => 'updateTicketCategory', //tested, need to change
+        'getTicketCategories' => 'getTicketCategories', //tested
+        'createTicketCategory' => 'createTicketCategory', //tested
+        'updateTicketCategory' => 'updateTicketCategory', //tested
         'purchaseTicket' => 'purchaseTicket',
         'makePayment' => 'makePayment', //tested
-        'getPaper' => 'getPaper',
-        'createPaper' => 'createPaper',
-        'updatePaper' => 'updatePaper',
+        'getPaper' => 'getPaper', //tested
+        'createPaper' => 'createPaper', //tested
+        'updatePaper' => 'updatePaper', //tested
         'getRoom' => 'getRoom', //tested
-        'getRooms' => 'getRooms', 
+        'getRooms' => 'getRooms', //tested
         'createRoom' => 'createRoom', //tested
         'updateRoom' => 'updateRoom', //tested
         'getVenue' => 'getVenue', //tested
         'createVenue' => 'createVenue', //tested
         'updateVenue' => 'updateVenue', //tested
         'getSession' => 'getSession', //tested
-        'getSessions' => 'getSessions',
+        'getSessions' => 'getSessions', //tested
         'createSession' => 'createSession', //tested
         'updateSession' => 'updateSession', //tested, failed
         'addUserTag' => 'addUserTag', //tested
@@ -80,6 +81,8 @@ class ConfplusControllerV1 extends Controller
 
     public function store(Request $request)
     {
+        header("Access-Control-Allow-Origin: *");
+        
         $methodName = $request->input('method');
 
         if (array_key_exists($methodName, $this->requestMethods)) {
@@ -208,7 +211,7 @@ class ConfplusControllerV1 extends Controller
     private function createTicketCategory(Request $request)
     {
         $required = array('event_id', 'title', 'name', 'class',
-            'type', 'price', 'desc', 'start_date', 'end_date', 'quantity', 'num_purchased');
+            'type', 'price', 'description', 'start_date', 'end_date', 'quantity', 'num_purchased');
 
         if ($request->has($required)) {
             return Ticket::insertSingle($request->except(['method']));
@@ -275,7 +278,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('paper_id');
 
         if ($request->has($required)) {
-            return User::get($request->except(['method']));
+            return Paper::get($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -283,10 +286,10 @@ class ConfplusControllerV1 extends Controller
 
     private function createPaper(Request $request)
     {
-        $required = array('title', 'publish_date', 'latest_sub_date', 'status');
+        $required = array('title', 'publish_date', 'latest_submit_date', 'paper_data_url');
 
         if ($request->has($required)) {
-            return User::insert($request->except(['method']));
+            return Paper::insert($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -303,7 +306,7 @@ class ConfplusControllerV1 extends Controller
         $data = $request->except(array_merge(['method'], $required));
 
         if (!empty($data)) {
-            return User::edit($request->only($required), $data);
+            return Paper::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
         }
@@ -372,7 +375,7 @@ class ConfplusControllerV1 extends Controller
 
     private function createVenue(Request $request)
     {
-        $required = array('name', 'type', 'has_room', 'street', 'city', 'state', 'country', 'longitude', 'latitude');
+        $required = array('name', 'type', 'street', 'city', 'state', 'country', 'longitude', 'latitude');
 
         if ($request->has($required)) {
             return Venue::insert($request->except(['method']));
