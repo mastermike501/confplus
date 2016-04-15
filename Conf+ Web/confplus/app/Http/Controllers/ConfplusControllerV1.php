@@ -79,9 +79,9 @@ class ConfplusControllerV1 extends Controller
         'getPaperAuthors' => 'getPaperAuthors'
     );
 
-    public function __construct(){
-        $this->middleware('cors', ['only' => ['store']]);
-    }
+    // public function __construct(){
+    //     $this->middleware('cors', ['only' => ['store']]);
+    // }
 
     public function store(Request $request)
     {   
