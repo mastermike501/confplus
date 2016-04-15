@@ -13,11 +13,9 @@
 
 
 
-Route::group(['prefix' => 'api'], ['middleware' => 'cors', function() {
+Route::group(['prefix' => 'api'], function() {
 
-    Route::resource('v1', 'ConfplusControllerV1',
-        ['only' => ['store']]
-    );
+    Route::resource('v1', 'ConfplusControllerV1');
 
     // since we will be using this just for CRUD, we won't need create and edit
     // Angular will handle both of those forms
@@ -47,4 +45,4 @@ Route::group(['prefix' => 'api'], ['middleware' => 'cors', function() {
     //     ['only' => ['store', 'show']]
     // );
 
-}]);
+});
