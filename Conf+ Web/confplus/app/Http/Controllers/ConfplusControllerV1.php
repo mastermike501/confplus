@@ -79,12 +79,16 @@ class ConfplusControllerV1 extends Controller
         'getPaperAuthors' => 'getPaperAuthors'
     );
 
-    public function __construct(){
-        $this->middleware('cors', ['only' => ['store']]);
-    }
+    // public function __construct(){
+    //     $this->middleware('cors', ['only' => ['store']]);
+    // }
 
     public function store(Request $request)
     {   
+        // $request->header('Access-Control-Allow-Origin: *');
+        // $request->header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+        // $request->header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token');
+        
         $methodName = $request->input('method');
 
         if (array_key_exists($methodName, $this->requestMethods)) {
