@@ -54,29 +54,28 @@ class ConfplusControllerV1 extends Controller
         'getSession' => 'getSession', //tested
         'getSessions' => 'getSessions', //tested
         'createSession' => 'createSession', //tested
-        'updateSession' => 'updateSession', //tested, failed
+        'updateSession' => 'updateSession', //tested
         'addUserTag' => 'addUserTag', //tested
         'addEventTag' => 'addEventTag', //tested
-        'addPaperTag' => 'addPaperTag',
+        'addPaperTag' => 'addPaperTag', //tested
         'getUsersByTag' => 'getUsersByTag', //tested
         'getEventsByTag' => 'getEventsByTag', //tested
-        'getPapersByTag' => 'getPapersByTag',
+        'getPapersByTag' => 'getPapersByTag', //tested
         'getResource' => 'getResource', //tested
         'createResource' => 'createResource', //tested
         'updateResource' => 'updateResource', //tested
-        'getResourcesByRoom' => 'getResourcesByRoom',
+        'getResourcesByRoom' => 'getResourcesByRoom', //tested
         // 'getEventAttendees' => 'getEventAttendees', 
         // 'getSessionAttendees' => 'getSessionAttendees',
-        'addPaperAuthor' => 'addPaperAuthor',
-        'getPaperAuthors' => 'getPaperAuthors',
-        'getPapersByAuthor' => 'getPapersByAuthor',
-        'getBillingInfo' => 'getBillingInfo',
-        'createBillingInfo' => 'createBillingInfo',
-        'updateBillingInfo' => 'updateBillingInfo',
+        'addPaperAuthor' => 'addPaperAuthor', //tested
+        'getPaperAuthors' => 'getPaperAuthors', //tested
+        'getPapersByAuthor' => 'getPapersByAuthor', //tested
+        'getBillingInfo' => 'getBillingInfo', //tested
+        'createBillingInfo' => 'createBillingInfo', //tested
+        'updateBillingInfo' => 'updateBillingInfo', //tested
         'getPapersReviewedByEmail' => 'getPapersReviewedByEmail',
         'getReviewersByPaperId' => 'getReviewersByPaperId',
-        'addPaperReviewed' => 'addPaperReviewed',
-        'getPaperAuthors' => 'getPaperAuthors'
+        'addPaperReviewed' => 'addPaperReviewed'
     );
 
     public function store(Request $request)
@@ -108,7 +107,7 @@ class ConfplusControllerV1 extends Controller
 
     private function createUser(Request $request)
     {
-        $required = array('email', 'password');
+        $required = array('email', 'password', 'username');
 
         if ($request->has($required)) {
             return User::insert($request->except(['method']));
@@ -434,7 +433,7 @@ class ConfplusControllerV1 extends Controller
 
     private function updateSession(Request $request)
     {
-        $required = array('event_id', 'title', 'speaker_email');
+        $required = array('event_id', 'title');
 
         if (!$request->has($required)) {
             return JSONUtilities::returnRequirementsError($required);
@@ -618,7 +617,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('email');
 
         if ($request->has($required)) {
-            return PaperAuthored::getByAuthor($request->only($required));
+            return Paper::getByAuthor($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -636,7 +635,7 @@ class ConfplusControllerV1 extends Controller
     }
 
     private function createBillingInfo(Request $request)
-    {
+    {e
         $required = array('email', 'card#', 'card_type', 'expiry_date');
 
         if ($request->has($required)) {
