@@ -152,6 +152,44 @@ class Paper extends Model
             ->where('email', $data['email'])
             ->get();
         
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+        
+        $localStorage = Storage::disk('local');
+        
+        $resultsLength = count($results);
+
+        foreach ($results as &$paper) { 
+            $paperPath = 'papers/' . 'paper_' . $paper->paper_id . '.txt';
+            
+            if ($localStorage->exists($paperPath)) {
+                $dataUrl = $localStorage->get($paperPath);
+                $paper->paper_data_url = $dataUrl;
+            }
+        }
+        
+        unset($paper);
+
+        return JSONUtilities::returnData($results);
+    }
+    
+    /**
+     * [getByReviewer]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getByReviewer(array $data)
+    {
+        $results = DB::table('papers')
+            ->join('paper_reviewed', 'papers.paper_id', '=', 'paper_reviewed.paper_id')
+            ->where('email', $data['email'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
         $localStorage = Storage::disk('local');
         
         $resultsLength = count($results);

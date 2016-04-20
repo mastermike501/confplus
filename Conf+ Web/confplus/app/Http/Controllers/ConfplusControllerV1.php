@@ -12,6 +12,7 @@ use App\Event;
 use App\EventTag;
 use App\Paper;
 use App\PaperAuthored;
+use App\PaperReviewed;
 use App\PaperTag;
 use App\Payment;
 use App\Resource;
@@ -73,9 +74,9 @@ class ConfplusControllerV1 extends Controller
         'getBillingInfo' => 'getBillingInfo', //tested
         'createBillingInfo' => 'createBillingInfo', //tested
         'updateBillingInfo' => 'updateBillingInfo', //tested
-        'getPapersReviewedByEmail' => 'getPapersReviewedByEmail',
+        'getPapersByReviewer' => 'getPapersByReviewer', //tested
         'getReviewersByPaperId' => 'getReviewersByPaperId',
-        'addPaperReviewed' => 'addPaperReviewed'
+        'addPaperReviewed' => 'addPaperReviewed' //tested
     );
 
     public function store(Request $request)
@@ -635,7 +636,7 @@ class ConfplusControllerV1 extends Controller
     }
 
     private function createBillingInfo(Request $request)
-    {e
+    {
         $required = array('email', 'card#', 'card_type', 'expiry_date');
 
         if ($request->has($required)) {
@@ -662,12 +663,12 @@ class ConfplusControllerV1 extends Controller
         }
     }
     
-     private function getPapersReviewedByEmail(Request $request)
+     private function getPapersByReviewer(Request $request)
     {
         $required = array('email');
 
         if ($request->has($required)) {
-            return PaperReviewed::getByEmail($request->only($required));
+            return Paper::getByReviewer($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -678,7 +679,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('paper_id');
 
         if ($request->has($required)) {
-            return PaperReviewed::getByPaperId($request->only($required));
+            return User::getReviewersByPaperId($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
