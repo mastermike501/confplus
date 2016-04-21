@@ -125,4 +125,86 @@ class Paper extends Model
             return JSONUtilities::returnError('Could not update paper.');
         }
     }
+    
+    /**
+     * [getByTag]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getByTag(array $data) {
+        $results = DB::table('papers')
+            ->join('papers_tag', 'papers.paper_id', '=', 'papers_tag.paper_id')
+            ->where('tag_name', $data['tag_name'])
+            ->get();
+
+        return JSONUtilities::returnData($results);
+    }
+    
+    /**
+     * [getByAuthor]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getByAuthor(array $data)
+    {
+        $results = DB::table('papers')
+            ->join('paper_authored', 'papers.paper_id', '=', 'paper_authored.paper_id')
+            ->where('email', $data['email'])
+            ->get();
+        
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+        
+        $localStorage = Storage::disk('local');
+        
+        $resultsLength = count($results);
+
+        foreach ($results as &$paper) { 
+            $paperPath = 'papers/' . 'paper_' . $paper->paper_id . '.txt';
+            
+            if ($localStorage->exists($paperPath)) {
+                $dataUrl = $localStorage->get($paperPath);
+                $paper->paper_data_url = $dataUrl;
+            }
+        }
+        
+        unset($paper);
+
+        return JSONUtilities::returnData($results);
+    }
+    
+    /**
+     * [getByReviewer]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getByReviewer(array $data)
+    {
+        $results = DB::table('papers')
+            ->join('paper_reviewed', 'papers.paper_id', '=', 'paper_reviewed.paper_id')
+            ->where('email', $data['email'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        $localStorage = Storage::disk('local');
+        
+        $resultsLength = count($results);
+
+        foreach ($results as &$paper) { 
+            $paperPath = 'papers/' . 'paper_' . $paper->paper_id . '.txt';
+            
+            if ($localStorage->exists($paperPath)) {
+                $dataUrl = $localStorage->get($paperPath);
+                $paper->paper_data_url = $dataUrl;
+            }
+        }
+        
+        unset($paper);
+
+        return JSONUtilities::returnData($results);
+    }
 }
