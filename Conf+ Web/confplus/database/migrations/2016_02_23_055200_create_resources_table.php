@@ -18,7 +18,9 @@ class CreateResourcesTable extends Migration
             $table->string('name');
             $table->string('type');
             $table->integer('number')->unsigned();
-            $table->timestamps();
+            $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            //$table->timestamps();
 
             $table->primary(['venue_id', 'room_name', 'name']);
             $table->foreign(['venue_id', 'room_name'])->references(['venue_id', 'name'])->on('rooms')->onDelete('cascade');
