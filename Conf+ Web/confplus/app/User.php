@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 use DB;
 
@@ -130,6 +131,10 @@ class User extends Model
             return JSONUtilities::returnError('No such email exists');
         }
         
+        //put results into a single dimension array
+        $results1 = collect($results1)->flatten();
+        
+        //retrieve events that were attended by user
         $results2 = DB::table('events')
             ->whereIn('event_id', $results1)
             ->get();
