@@ -67,9 +67,10 @@ class ConfplusControllerV1 extends Controller
         'createResource', //tested
         'updateResource', //tested
         'getResourcesByRoom', //tested
-        'addSessionAttendee', 
-        'getEventAttendees',
-        'getSessionAttendees',
+        'createTicketRecord', //tested
+        'addSessionAttendee', //tested
+        'getEventAttendees', //tested
+        'getSessionAttendees', //tested
         'addPaperAuthor', //tested
         'getPaperAuthors', //tested
         'getPapersByAuthor', //tested
@@ -80,7 +81,8 @@ class ConfplusControllerV1 extends Controller
         'getReviewersByPaperId', //tested
         'addPaperReviewed', //tested
         'createSeat', //tested
-        'getSeatsInRoom' //tested
+        'getSeatsInRoom', //tested
+        'getEventsAttended'
     );
 
     public function store(Request $request)
@@ -103,6 +105,33 @@ class ConfplusControllerV1 extends Controller
         var_dump($request->only(['a', 'b', 'c']));
     }
 
+    /**
+     * @api {post} / getUser
+     * @apiGroup User
+     * @apiName getUser
+     *
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.email
+     * @apiSuccess data.username
+     * @apiSuccess data.password
+     * @apiSuccess data.title
+     * @apiSuccess data.first_name
+     * @apiSuccess data.last_name
+     * @apiSuccess data.dob
+     * @apiSuccess data.street
+     * @apiSuccess data.city
+     * @apiSuccess data.state
+     * @apiSuccess data.country
+     * @apiSuccess data.verified
+     * @apiSuccess data.fb_id
+     * @apiSuccess data.linkedin_id
+     * @apiSuccess data.active
+     * @apiSuccess data.upgraded
+     * @apiSuccess data.review
+     */
     private function getUser(Request $request)
     {
         $required = array('email');
@@ -114,6 +143,19 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createUser
+     * @apiGroup User
+     * @apiName createUser
+     *
+     * @apiParam email The email of the user. Must be unique.
+     * @apiParam password The password of the user.
+     * @apiParam username The username of the user. Must be unique.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createUser(Request $request)
     {
         $required = array('email', 'password', 'username');
@@ -125,6 +167,31 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / updateUser
+     * @apiGroup User
+     * @apiName updateUser
+     *
+     * @apiParam email The email of the user.
+     * @apiParam [title]
+     * @apiParam [first_name]
+     * @apiParam [last_name]
+     * @apiParam [dob] Format: dd-mm-yyyy
+     * @apiParam [street]
+     * @apiParam [city]
+     * @apiParam [state]
+     * @apiParam [country]
+     * @apiParam [verified]
+     * @apiParam [fb_id]
+     * @apiParam [linkedin_id]
+     * @apiParam [active]
+     * @apiParam [upgraded]
+     * @apiParam [review]
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function updateUser(Request $request)
     {
         $required = array('email');
@@ -142,10 +209,37 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getEvent
+     * @apiGroup Event
+     * @apiName getEvent
+     *
+     * @apiParam event_id The event_id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.email
+     * @apiSuccess data.username
+     * @apiSuccess data.password
+     * @apiSuccess data.title
+     * @apiSuccess data.first_name
+     * @apiSuccess data.last_name
+     * @apiSuccess data.dob
+     * @apiSuccess data.street
+     * @apiSuccess data.city
+     * @apiSuccess data.state
+     * @apiSuccess data.country
+     * @apiSuccess data.verified
+     * @apiSuccess data.fb_id
+     * @apiSuccess data.linkedin_id
+     * @apiSuccess data.active
+     * @apiSuccess data.upgraded
+     * @apiSuccess data.review
+     */
     private function getEvent(Request $request)
     {
         $required = array('event_id');
-        
+
         if ($request->has($required)) {
             return Event::get($request->except(['method']));
         } else {
@@ -155,7 +249,7 @@ class ConfplusControllerV1 extends Controller
 
     private function createEvent(Request $request)
     {
-        $required = array('name', 'type', 'from_date', 'to_date', 'description', 'paper_deadline');
+        $required = array('name', 'type', 'from_date', 'to_date', 'description');
 
         if ($request->has($required)) {
             return Event::insert($request->except(['method']));
@@ -246,7 +340,7 @@ class ConfplusControllerV1 extends Controller
     private function purchaseTicket(Request $request)
     {
         return JSONUtilities::returnError('purchaseTicket not implemented.');
-        // 
+        //
         $required = array('event_id', 'email', 'role', 'seat_no');
 
         if (!$request->has($required)) {
@@ -339,7 +433,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function createRoom(Request $request)
     {
         $required = array('venue_id', 'name', 'type', 'capacity');
@@ -417,7 +511,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function getSessions(Request $request)
     {
         $required = array('event_id');
@@ -572,11 +666,22 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
+    private function createTicketRecord(Request $request)
+    {
+        $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num');
+
+        if ($request->has($required)) {
+            return TicketRecord::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+
     private function addSessionAttendee(Request $request)
     {
         $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num', 'email');
-        
+
         if (!$request->has($required)) {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -633,7 +738,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function getPapersByAuthor(Request $request)
     {
         $required = array('email');
@@ -644,7 +749,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function getBillingInfo(Request $request)
     {
         $required = array('email', 'card#');
@@ -683,7 +788,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnError('No data to update');
         }
     }
-    
+
      private function getPapersByReviewer(Request $request)
     {
         $required = array('email');
@@ -694,7 +799,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function getReviewersByPaperId(Request $request)
     {
         $required = array('paper_id');
@@ -705,7 +810,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function addPaperReviewed(Request $request)
     {
         $required = array('email', 'paper_id', 'comment');
@@ -716,7 +821,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function createSeat(Request $request)
     {
         $required = array('venue_id', 'name', 'seat_num');
@@ -738,4 +843,43 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
+    
+    /**
+     * @api {post} / getEventsAttended
+     * @apiGroup User
+     * @apiName getEventsAttended
+     *
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.email
+     * @apiSuccess data.username
+     * @apiSuccess data.password
+     * @apiSuccess data.title
+     * @apiSuccess data.first_name
+     * @apiSuccess data.last_name
+     * @apiSuccess data.dob
+     * @apiSuccess data.street
+     * @apiSuccess data.city
+     * @apiSuccess data.state
+     * @apiSuccess data.country
+     * @apiSuccess data.verified
+     * @apiSuccess data.fb_id
+     * @apiSuccess data.linkedin_id
+     * @apiSuccess data.active
+     * @apiSuccess data.upgraded
+     * @apiSuccess data.review
+     */
+    private function getEventsAttended(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return User::getEventsAttended($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+
 }

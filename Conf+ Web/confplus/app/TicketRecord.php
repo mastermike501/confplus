@@ -39,7 +39,7 @@ class TicketRecord extends Model
         $results = DB::table('users')
             ->join('ticket_record', 'users.email', '=', 'ticket_record.email')
             ->where('event_id', $data['event_id'])
-            ->where('title', $data['title'])
+            ->where('ticket_record.title', $data['title'])
             ->get();
 
         if (count($results) == 0) {
@@ -49,19 +49,18 @@ class TicketRecord extends Model
         return JSONUtilities::returnData($results);
     }
 
-    /**
+     /**
      * [insert]
-     * @param  array  $data [description]
-     * @return [type]       [description]
+     * @param  [array] $data [User data containing user data]
+     * @return [JSON]       [A JSON string containing a success or error body]
      */
-    public static function insert(array $data)
-    {
-        $success = DB::table('resources')->insert($data);
+    public static function insert(array $data) {
+        $success = DB::table('ticket_record')->insert($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Resource successfully created.'));
+            return JSONUtilities::returnData(array('message' => 'Ticket record successfully created.'));
         } else {
-            return JSONUtilities::returnError('Could not insert resource.');
+            return JSONUtilities::returnError('Could not insertticket_recorduser.');
         }
     }
 
