@@ -13,8 +13,8 @@ use App\Http\Helpers\FormatUtilities;
 class Event extends Model
 {
     private static $timecolumns = [
-        'from_date' => 'd-m-Y',
-        'to_date' => 'd-m-Y',
+        'from_date' => 'd-m-Y H:i',
+        'to_date' => 'd-m-Y H:i',
         'paper_deadline' => 'd-m-Y H:i'
     ];
 
@@ -50,13 +50,10 @@ class Event extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
-        $success = DB::table('events')->insert($data);
+        $id = DB::table('events')->insertGetId($data);
+        $results = DB::select('select * from events where event_id = ?', [$id]);
 
-        if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Event successfully created.'));
-        } else {
-            return JSONUtilities::returnError('Could not insert event.');
-        }
+        return JSONUtilities::returnData($results);
     }
 
     /*
