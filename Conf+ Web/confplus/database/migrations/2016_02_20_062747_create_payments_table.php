@@ -18,7 +18,9 @@ class CreatePaymentsTable extends Migration
             $table->string('type');
             $table->decimal('amount', 5, 2);
             $table->timestamp('payment_date')->useCurrent();
-            $table->timestamps();
+            $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            //$table->timestamps();
 
             $table->index('email');
             $table->foreign('email')->references('email')->on('users')->onDelete('cascade');

@@ -16,7 +16,10 @@ class CreatePaperReviewedTable extends Migration
             $table->string('email');
             $table->integer('paper_id')->unsigned();
             $table->text('comment')->nullable();
-            $table->timestamps();
+            $table->integer('rate')->nullable();
+            $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            //$table->timestamps();
 
             $table->primary(['email', 'paper_id']);
             $table->foreign('email')->references('email')->on('users')->onDelete('cascade');

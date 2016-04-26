@@ -17,7 +17,9 @@ class CreateBillingsTable extends Migration
             $table->string('card#');
             $table->string('card_type');
             $table->date('expiry_date');
-            $table->timestamps();
+            $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            //$table->timestamps();
 
             $table->primary(['email', 'card#']);
             $table->foreign('email')->references('email')->on('users')->onDelete('cascade');

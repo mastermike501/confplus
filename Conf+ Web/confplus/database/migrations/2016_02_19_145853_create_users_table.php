@@ -14,7 +14,7 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->string('email');
-            $table->string('username');
+            $table->string('username')->nullable();
             $table->binary('password');
             $table->char('title', 10)->nullable();
             $table->string('first_name')->nullable();
@@ -30,7 +30,9 @@ class CreateUsersTable extends Migration
             $table->boolean('active')->nullable();
             $table->boolean('upgraded')->nullable();
             $table->boolean('review')->default(false)->nullable();
-            $table->timestamps();
+            $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            //$table->timestamps();
 
             $table->primary('email');
             $table->unique('username');
