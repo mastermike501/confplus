@@ -12,25 +12,24 @@ use App\Http\Helpers\FormatUtilities;
 class Ticket extends Model
 {
     private static $timecolumns = [
-        'start_time' => 'd-m-Y H:i',
-        'end_time' => 'd-m-Y H:i'
+        'start_date' => 'd-m-Y H:i',
+        'end_date' => 'd-m-Y H:i'
     ];
     
     /**
-     * [get]
+     * [getTypes]
      * @param  array  $data [description]
      * @return [JSON]       [description]
      */
-    public static function get(array $data) {
-        $results = DB::select('select * from ticket_type where event_id = ?', [$data['event_id']]);
+    public static function getTypes(array $data) {
+        
+        $results = DB::table('tickets')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->get();
 
         if (count($results) == 0) {
             return JSONUtilities::returnError('No record exists');
-        }
-
-        //there must ever be only one instance of this record
-        if (count($results) > 1) {
-            return JSONUtilities::returnError('More than one record exists. Contact backend support.');
         }
 
         return JSONUtilities::returnData($results);
@@ -48,12 +47,12 @@ class Ticket extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
-        $success = DB::table('ticket_type')->insert($data);
+        $success = DB::table('tickets')->insert($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Ticket type successfully created.'));
+            return JSONUtilities::returnData(array('message' => 'Ticket successfully created.'));
         } else {
-            return JSONUtilities::returnError('Could not insert ticket type.');
+            return JSONUtilities::returnError('Could not insert ticket.');
         }
     }
 
@@ -63,9 +62,8 @@ class Ticket extends Model
      * @return [JSON|array]             [description]
      */
     public static function purchaseTicket(array $data) {
-        return JSONUtilities::returnError('purchaseTicket not implemented.');
 
-        $results = DB::table('ticket_type')
+        $results = DB::table('tickets')
             ->select('quantity', 'num_purchased', 'price')
             ->where('event_id', $data['event_id'])
             ->where('name', $data['name'])
@@ -79,7 +77,7 @@ class Ticket extends Model
         $results['num_purchased']++;
 
         //update ticket_type table
-        DB::table('ticket_type')
+        DB::table('tickets')
             ->where('event_id', $data['event_id'])
             ->where('name', $data['name'])
             ->update(['num_purchased' => $results['num_purchased']]);
@@ -103,15 +101,18 @@ class Ticket extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
-        $success = DB::table('ticket_type')
+        $success = DB::table('tickets')
             ->where('event_id', $primaryKey['event_id'])
+            ->where('title', $primaryKey['title'])
             ->where('name', $primaryKey['name'])
+            ->where('class', $primaryKey['class'])
+            ->where('type', $primaryKey['type'])
             ->update($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Ticket type successfully updated.'));
+            return JSONUtilities::returnData(array('message' => 'Ticket successfully updated.'));
         } else {
-            return JSONUtilities::returnError('Could not update ticket type.');
+            return JSONUtilities::returnError('Could not update ticket.');
         }
     }
 }

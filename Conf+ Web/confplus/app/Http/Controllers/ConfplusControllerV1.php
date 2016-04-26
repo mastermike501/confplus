@@ -9,15 +9,18 @@ use App\Http\Controllers\Controller;
 
 use App\Billing;
 use App\Event;
-use App\EventAttended;
 use App\EventTag;
+use App\Paper;
 use App\PaperAuthored;
+use App\PaperReviewed;
 use App\PaperTag;
 use App\Payment;
 use App\Resource;
 use App\Room;
+use App\Seat;
 use App\Session;
 use App\Ticket;
+use App\TicketRecord;
 use App\UserTag;
 use App\User;
 use App\Venue;
@@ -27,64 +30,74 @@ use App\Http\Helpers\JSONUtilities;
 class ConfplusControllerV1 extends Controller
 {
     private $requestMethods = array(
-        'test' => 'test',
-        'getUser' => 'getUser', //tested
-        'createUser' => 'createUser', //tested
-        'updateUser' => 'updateUser', //tested
-        'getEvent' => 'getEvent', //tested
-        'createEvent' => 'createEvent', //tested
-        'updateEvent' => 'updateEvent', //tested
-        'uploadPoster' => 'uploadPoster', //tested
-        'getPoster' => 'getPoster', //tested
-        'getTicketTypes' => 'getTicketTypes', //tested, need to change
-        'createSingleTicketType' => 'createSingleTicketType', //tested, need to change
-        'updateTicketType' => 'updateTicketType', //tested, need to change
-        'purchaseTicket' => 'purchaseTicket',
-        'makePayment' => 'makePayment', //tested
-        'getPaper' => 'getPaper',
-        'createPaper' => 'createPaper',
-        'updatePaper' => 'updatePaper',
-        'getRoom' => 'getRoom', //tested
-        'getRooms' => 'getRooms', 
-        'createRoom' => 'createRoom', //tested
-        'updateRoom' => 'updateRoom', //tested
-        'getVenue' => 'getVenue', //tested
-        'createVenue' => 'createVenue', //tested
-        'updateVenue' => 'updateVenue', //tested
-        'getSession' => 'getSession', //tested
-        'getSessions' => 'getSessions',
-        'createSession' => 'createSession', //tested
-        'updateSession' => 'updateSession', //tested, failed
-        'addUserTag' => 'addUserTag', //tested
-        'addEventTag' => 'addEventTag', //tested
-        'addPaperTag' => 'addPaperTag',
-        'getUsersByTag' => 'getUsersByTag', //tested
-        'getEventsByTag' => 'getEventsByTag', //tested
-        'getPapersByTag' => 'getPapersByTag',
-        'getResource' => 'getResource', //tested
-        'createResource' => 'createResource', //tested
-        'updateResource' => 'updateResource', //tested
-        'getResourcesByRoom' => 'getResourcesByRoom',
-        'getEventAttendees' => 'getEventAttendees',
-        'getSessionAttendees' => 'getSessionAttendees',
-        'addPaperAuthor' => 'addPaperAuthor',
-        'getPaperAuthors' => 'getPaperAuthors',
-        'getBillingInfo' => 'getBillingInfo',
-        'createBillingInfo' => 'createBillingInfo',
-        'updateBillingInfo' => 'updateBillingInfo'
+        'test',
+        'getUser', //tested
+        'createUser', //tested
+        'updateUser', //tested
+        'getEvent', //tested
+        'createEvent', //tested
+        'updateEvent', //tested
+        'uploadPoster', //tested
+        'getPoster', //tested
+        'getTicketCategories', //tested
+        'createTicketCategory', //tested
+        'updateTicketCategory', //tested
+        'makePayment', //tested
+        'getPaper', //tested
+        'createPaper', //tested
+        'updatePaper', //tested
+        'getRoom', //tested
+        'getRooms', //tested
+        'createRoom', //tested
+        'updateRoom', //tested
+        'getVenue', //tested
+        'createVenue', //tested
+        'updateVenue', //tested
+        'getSession', //tested
+        'getSessions', //tested
+        'createSession', //tested
+        'updateSession', //tested
+        'addUserTag', //tested
+        'addEventTag', //tested
+        'addPaperTag', //tested
+        'getUsersByTag', //tested
+        'getEventsByTag', //tested
+        'getPapersByTag', //tested
+        'getResource', //tested
+        'createResource', //tested
+        'updateResource', //tested
+        'getResourcesByRoom', //tested
+        'addSessionAttendee', 
+        'getEventAttendees',
+        'getSessionAttendees',
+        'addPaperAuthor', //tested
+        'getPaperAuthors', //tested
+        'getPapersByAuthor', //tested
+        'getBillingInfo', //tested
+        'createBillingInfo', //tested
+        'updateBillingInfo', //tested
+        'getPapersByReviewer', //tested
+        'getReviewersByPaperId', //tested
+        'addPaperReviewed', //tested
+        'createSeat', //tested
+        'getSeatsInRoom' //tested
     );
 
     public function store(Request $request)
     {
         $methodName = $request->input('method');
 
-        if (array_key_exists($methodName, $this->requestMethods)) {
-            return $this->$methodName($request);
+        if (in_array($methodName, $this->requestMethods)) {
+            try {
+                return $this->$methodName($request);
+            } catch (\Illuminate\Database\QueryException $e) {
+                return JSONUtilities::returnError($e->getMessage());
+            }
         }
 
         return JSONUtilities::returnError('Method ' . $methodName . ' not found.');
     }
-    
+
     private function test(Request $request)
     {
         var_dump($request->only(['a', 'b', 'c']));
@@ -103,7 +116,7 @@ class ConfplusControllerV1 extends Controller
 
     private function createUser(Request $request)
     {
-        $required = array('email', 'password');
+        $required = array('email', 'password', 'username');
 
         if ($request->has($required)) {
             return User::insert($request->except(['method']));
@@ -117,7 +130,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('email');
 
         if (!$request->has($required)) {
-            return JSONUtilities::returnError('[email] not found');
+            return JSONUtilities::returnRequirementsError($required);
         }
 
         $data = $request->except(['method', 'email']);
@@ -190,20 +203,21 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-    private function getTicketTypes(Request $request)
+    private function getTicketCategories(Request $request)
     {
-        $required = array('event_id');
+        $required = array('event_id', 'title');
 
         if ($request->has($required)) {
-            return Ticket::get($request->except(['method']));
+            return Ticket::getTypes($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
     }
 
-    private function createSingleTicketType(Request $request)
+    private function createTicketCategory(Request $request)
     {
-        $required = array('event_id', 'name');
+        $required = array('event_id', 'title', 'name', 'class',
+            'type', 'price', 'description', 'start_date', 'end_date', 'quantity', 'num_purchased');
 
         if ($request->has($required)) {
             return Ticket::insertSingle($request->except(['method']));
@@ -212,9 +226,9 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-    private function updateTicketType(Request $request)
+    private function updateTicketCategory(Request $request)
     {
-        $required = array('event_id', 'name');
+        $required = array('event_id', 'title', 'name', 'class', 'type');
 
         if (!$request->has($required)) {
             return JSONUtilities::returnRequirementsError($required);
@@ -231,19 +245,21 @@ class ConfplusControllerV1 extends Controller
 
     private function purchaseTicket(Request $request)
     {
+        return JSONUtilities::returnError('purchaseTicket not implemented.');
+        // 
         $required = array('event_id', 'email', 'role', 'seat_no');
 
         if (!$request->has($required)) {
             return JSONUtilities::returnRequirementsError($required);
         }
 
-        $ticketSuccess = TicketType::purchaseTicket($request->only($required));
+        //$ticketSuccess = TicketType::purchaseTicket($request->only($required));
 
         if (!is_array($ticketSuccess)) {
             return $ticketSuccess;
         }
 
-        $eventAttendedSuccess = EventAttended::insert($request->only($required));
+        //$eventAttendedSuccess = EventAttended::insert($request->only($required));
 
         if (!is_array($eventAttendedSuccess)) {
             return $eventAttendedSuccess;
@@ -268,7 +284,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('paper_id');
 
         if ($request->has($required)) {
-            return User::get($request->except(['method']));
+            return Paper::get($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -276,10 +292,10 @@ class ConfplusControllerV1 extends Controller
 
     private function createPaper(Request $request)
     {
-        $required = array('title', 'publish_date', 'latest_sub_date', 'status');
+        $required = array('title', 'publish_date', 'latest_submit_date', 'paper_data_url');
 
         if ($request->has($required)) {
-            return User::insert($request->except(['method']));
+            return Paper::insert($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -296,7 +312,7 @@ class ConfplusControllerV1 extends Controller
         $data = $request->except(array_merge(['method'], $required));
 
         if (!empty($data)) {
-            return User::edit($request->only($required), $data);
+            return Paper::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
         }
@@ -312,7 +328,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     private function getRooms(Request $request)
     {
         $required = array('venue_id');
@@ -323,7 +339,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-
+    
     private function createRoom(Request $request)
     {
         $required = array('venue_id', 'name', 'type', 'capacity');
@@ -365,7 +381,7 @@ class ConfplusControllerV1 extends Controller
 
     private function createVenue(Request $request)
     {
-        $required = array('name', 'type', 'has_room', 'street', 'city', 'state', 'country', 'longitude', 'latitude');
+        $required = array('name', 'type', 'street', 'city', 'state', 'country', 'longitude', 'latitude');
 
         if ($request->has($required)) {
             return Venue::insert($request->except(['method']));
@@ -426,7 +442,7 @@ class ConfplusControllerV1 extends Controller
 
     private function updateSession(Request $request)
     {
-        $required = array('event_id', 'title', 'speaker_email');
+        $required = array('event_id', 'title');
 
         if (!$request->has($required)) {
             return JSONUtilities::returnRequirementsError($required);
@@ -556,13 +572,30 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
+    
+    private function addSessionAttendee(Request $request)
+    {
+        $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num', 'email');
+        
+        if (!$request->has($required)) {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+
+        $data = $request->only('email');
+
+        if (!empty($data)) {
+            return TicketRecord::addSessionAttendee($request->only($required), $data);
+        } else {
+            return JSONUtilities::returnError('No data to update');
+        }
+    }
 
     private function getEventAttendees(Request $request)
     {
         $required = array('event_id');
 
         if ($request->has($required)) {
-            return EventAttended::get($request->only($required));
+            return TicketRecord::getEventAttendees($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -570,10 +603,10 @@ class ConfplusControllerV1 extends Controller
 
     private function getSessionAttendees(Request $request)
     {
-        $required = array('event_id', 'title', 'speaker_email');
+        $required = array('event_id', 'title');
 
         if ($request->has($required)) {
-            return SessionAttended::get($request->only($required));
+            return TicketRecord::getSessionAttendees($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -596,6 +629,17 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return PaperAuthored::get($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function getPapersByAuthor(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return Paper::getByAuthor($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -637,6 +681,61 @@ class ConfplusControllerV1 extends Controller
             return Billing::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
+        }
+    }
+    
+     private function getPapersByReviewer(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return Paper::getByReviewer($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function getReviewersByPaperId(Request $request)
+    {
+        $required = array('paper_id');
+
+        if ($request->has($required)) {
+            return User::getReviewersByPaperId($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function addPaperReviewed(Request $request)
+    {
+        $required = array('email', 'paper_id', 'comment');
+
+        if ($request->has($required)) {
+            return PaperReviewed::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    private function createSeat(Request $request)
+    {
+        $required = array('venue_id', 'name', 'seat_num');
+
+        if ($request->has($required)) {
+            return Seat::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+
+    private function getSeatsInRoom(Request $request)
+    {
+        $required = array('venue_id', 'name');
+
+        if ($request->has($required)) {
+            return Seat::getSeatsInRoom($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 }

@@ -94,4 +94,23 @@ class User extends Model
         return JSONUtilities::returnData($results);
     }
 
+    /**
+     * [getByPaperId]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getReviewersByPaperId(array $data)
+    {
+        $results = DB::table('users')
+            ->join('paper_reviewed', 'users.email', '=', 'paper_reviewed.email')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results);
+    }
+
 }
