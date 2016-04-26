@@ -15,7 +15,9 @@ class CreatePaperAuthoredTable extends Migration
         Schema::create('paper_authored', function (Blueprint $table) {
             $table->string('email');
             $table->integer('paper_id')->unsigned();
-            $table->timestamps();
+            $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            //$table->timestamps();
 
             $table->primary(['email', 'paper_id']);
             $table->foreign('email')->references('email')->on('users')->onDelete('cascade');
