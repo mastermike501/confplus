@@ -37,8 +37,6 @@ class ConfplusControllerV1 extends Controller
         'getEvent', //tested
         'createEvent', //tested
         'updateEvent', //tested
-        'uploadPoster', //tested
-        'getPoster', //tested
         'getTicketCategories', //tested
         'createTicketCategory', //tested
         'updateTicketCategory', //tested
@@ -218,23 +216,17 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
-     * @apiSuccess data.email
-     * @apiSuccess data.username
-     * @apiSuccess data.password
-     * @apiSuccess data.title
-     * @apiSuccess data.first_name
-     * @apiSuccess data.last_name
-     * @apiSuccess data.dob
-     * @apiSuccess data.street
-     * @apiSuccess data.city
-     * @apiSuccess data.state
-     * @apiSuccess data.country
-     * @apiSuccess data.verified
-     * @apiSuccess data.fb_id
-     * @apiSuccess data.linkedin_id
-     * @apiSuccess data.active
-     * @apiSuccess data.upgraded
-     * @apiSuccess data.review
+     * @apiSuccess data.event_id
+     * @apiSuccess data.name
+     * @apiSuccess data.type
+     * @apiSuccess data.from_date
+     * @apiSuccess data.to_date
+     * @apiSuccess data.description
+     * @apiSuccess data.url
+     * @apiSuccess data.poster_url
+     * @apiSuccess data.paper_deadline
+     * @apiSuccess data.language
+     * @apiSuccess data.reminder
      */
     private function getEvent(Request $request)
     {
@@ -247,6 +239,21 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createEvent
+     * @apiGroup Event
+     * @apiName createEvent
+     *
+     * @apiParam name The name of the event.
+     * @apiParam type The type of the event. Must be either [event | conference]
+     * @apiParam from_date The date that the event starts. Format: dd-mm-yyyy hh:mm
+     * @apiParam to_date The date that the event ends. Format: dd-mm-yyyy hh:mm
+     * @apiParam description A description of the event that provides additional information about the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.<data> Returns the event that was created. Refer to getEvent method for attributes.
+     */
     private function createEvent(Request $request)
     {
         $required = array('name', 'type', 'from_date', 'to_date', 'description');
@@ -258,6 +265,26 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / updateEvent
+     * @apiGroup Event
+     * @apiName updateEvent
+     *
+     * @apiParam event_id The event id of the event.
+     * @apiParam [name]
+     * @apiParam [type]
+     * @apiParam [from_date] Format: dd-mm-yyyy hh:mm
+     * @apiParam [to_date] Format: dd-mm-yyyy hh:mm
+     * @apiParam [description]
+     * @apiParam [poster_url] Data URL formst
+     * @apiParam [paper_deadline] Format: dd-mm-yyyy hh:mm
+     * @apiParam [language]
+     * @apiParam [reminder]
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function updateEvent(Request $request)
     {
         $required = array('event_id');
@@ -272,28 +299,6 @@ class ConfplusControllerV1 extends Controller
             return Event::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
-        }
-    }
-
-    private function uploadPoster(Request $request)
-    {
-        $required = array('event_id', 'poster_data_url');
-
-        if ($request->has($required)) {
-            return Event::uploadPoster($request->except(['method']));
-        } else {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-    }
-
-    private function getPoster(Request $request)
-    {
-        $required = array('event_id');
-
-        if ($request->has($required)) {
-            return Event::getPoster($request->except(['method']));
-        } else {
-            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -843,7 +848,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-    
+
     /**
      * @api {post} / getEventsAttended
      * @apiGroup User
