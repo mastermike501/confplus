@@ -37,9 +37,9 @@ class ConfplusControllerV1 extends Controller
         'getEvent', //tested
         'createEvent', //tested
         'updateEvent', //tested
-        'getTicketCategories', //tested
-        'createTicketCategory', //tested
-        'updateTicketCategory', //tested
+        'getTickets', //tested
+        'createTicket', //tested
+        'updateTicket', //tested
         'makePayment', //tested
         'getPaper', //tested
         'createPaper', //tested
@@ -246,8 +246,8 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiParam name The name of the event.
      * @apiParam type The type of the event. Must be either [event | conference]
-     * @apiParam from_date The date that the event starts. Format: dd-mm-yyyy hh:mm
-     * @apiParam to_date The date that the event ends. Format: dd-mm-yyyy hh:mm
+     * @apiParam from_date The date that the event starts. Format: yyyy-mm-yyhh:mm
+     * @apiParam to_date The date that the event ends. Format: yyyy-mm-yyhh:mm
      * @apiParam description A description of the event that provides additional information about the event.
      *
      * @apiSuccess success Returns true upon success.
@@ -273,11 +273,11 @@ class ConfplusControllerV1 extends Controller
      * @apiParam event_id The event id of the event.
      * @apiParam [name]
      * @apiParam [type]
-     * @apiParam [from_date] Format: dd-mm-yyyy hh:mm
-     * @apiParam [to_date] Format: dd-mm-yyyy hh:mm
+     * @apiParam [from_date] Format: yyyy-mm-yyhh:mm
+     * @apiParam [to_date] Format: yyyy-mm-yyhh:mm
      * @apiParam [description]
      * @apiParam [poster_url] Data URL formst
-     * @apiParam [paper_deadline] Format: dd-mm-yyyy hh:mm
+     * @apiParam [paper_deadline] Format: yyyy-mm-yyhh:mm
      * @apiParam [language]
      * @apiParam [reminder]
      *
@@ -302,7 +302,29 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-    private function getTicketCategories(Request $request)
+    /**
+     * @api {post} / getTickets
+     * @apiGroup Ticket
+     * @apiName getTickets
+     *
+     * @apiParam event_id The event_id of the event.
+     * @apiParam title The title of the session that this ticket will be linked to.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.event_id
+     * @apiSuccess data.title
+     * @apiSuccess data.name The name of the ticket.
+     * @apiSuccess data.class
+     * @apiSuccess data.type
+     * @apiSuccess data.price
+     * @apiSuccess data.description A brief description of the ticket.
+     * @apiSuccess data.start_date
+     * @apiSuccess data.end_date
+     * @apiSuccess data.quantity
+     * @apiSuccess data.num_purchased
+     */
+    private function getTickets(Request $request)
     {
         $required = array('event_id', 'title');
 
@@ -313,10 +335,30 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-    private function createTicketCategory(Request $request)
+    /**
+     * @api {post} / createTicket
+     * @apiGroup Ticket
+     * @apiName createTicket
+     *
+     * @apiParam event_id The event_id of the event.
+     * @apiParam title The title of the session that this ticket will be linked to.
+     * @apiParam name The name of the ticket.
+     * @apiParam class The class of the ticket.
+     * @apiParam type The type of the ticket.
+     * @apiParam price The price of the ticket. Format: XX.xx
+     * @apiParam description A brief description of the ticket.
+     * @apiParam start_date The start date of the ticket. Format: yyyy-mm-yyhh:mm
+     * @apiParam end_date The end date of the ticket. Format: yyyy-mm-yyhh:mm
+     * @apiParam quantity The number of tickets of this category.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function createTicket(Request $request)
     {
         $required = array('event_id', 'title', 'name', 'class',
-            'type', 'price', 'description', 'start_date', 'end_date', 'quantity', 'num_purchased');
+            'type', 'price', 'description', 'start_date', 'end_date', 'quantity');
 
         if ($request->has($required)) {
             return Ticket::insertSingle($request->except(['method']));
@@ -325,7 +367,28 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-    private function updateTicketCategory(Request $request)
+    /**
+     * @api {post} / updateTicket
+     * @apiGroup Ticket
+     * @apiName updateTicket
+     *
+     * @apiParam event_id The event id of the event.
+     * @apiParam title The title of the session.
+     * @apiParam name The name of the ticket.
+     * @apiParam class The class of the ticket.
+     * @apiParam type The type of the ticket.
+     * @apiParam [price]
+     * @apiParam [description]
+     * @apiParam [start_date]
+     * @apiParam [end_date]
+     * @apiParam [quantity]
+     * @apiParam [num_purchased]
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function updateTicket(Request $request)
     {
         $required = array('event_id', 'title', 'name', 'class', 'type');
 
@@ -367,6 +430,20 @@ class ConfplusControllerV1 extends Controller
         return JSONUtilities::returnData(array_merge($ticketSuccess, $eventAttendedSuccess));
     }
 
+    /**
+     * @api {post} / makePayment
+     * @apiGroup Payment
+     * @apiName makePayment
+     *
+     * @apiParam email The name of the payee.
+     * @apiParam type The type of the payment. Eg: upgrade, ticket purchase, etc.
+     * @apiParam amount The amount that is being paid. Format: XX.xx
+     * @apiParam payment_date The date that the payment is made. Format: yyyy-mm-yyhh:mm
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function makePayment(Request $request)
     {
         $required = array('email', 'type', 'amount', 'payment_date');
@@ -378,6 +455,24 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getPaper
+     * @apiGroup Paper
+     * @apiName getPaper
+     *
+     * @apiParam paper_id The paper id of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.paper_id
+     * @apiSuccess data.title
+     * @apiSuccess data.publish_date Format: yyyy-mm-yyhh:mm
+     * @apiSuccess data.latest_submit_date Format: yyyy-mm-yyhh:mm
+     * @apiSuccess data.status
+     * @apiSuccess data.accept
+     * @apiSuccess data.final_rate Rating given to this paper.
+     * @apiSuccess data.url
+     */
     private function getPaper(Request $request)
     {
         $required = array('paper_id');
@@ -389,6 +484,20 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createPaper
+     * @apiGroup Paper
+     * @apiName createPaper
+     *
+     * @apiParam title The title of the paper.
+     * @apiParam publish_date The publish date of the paper. Format: yyyy-mm-yyhh:mm
+     * @apiParam latest_submit_date The latest submit date date of the paper. Format: yyyy-mm-yyhh:mm
+     * @apiParam paper_data_url The paper in a data URL format.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createPaper(Request $request)
     {
         $required = array('title', 'publish_date', 'latest_submit_date', 'paper_data_url');
@@ -400,6 +509,21 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / updatePaper
+     * @apiGroup Paper
+     * @apiName updatePaper
+     *
+     * @apiParam paper_id The event id of the event.
+     * @apiParam [title] The title of the paper.
+     * @apiParam [publish_date] The publish date of the paper. Format: yyyy-mm-yyhh:mm
+     * @apiParam [latest_submit_date] The latest submit date date of the paper. Format: yyyy-mm-yyhh:mm
+     * @apiParam [paper_data_url] The paper in a data URL format.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function updatePaper(Request $request)
     {
         $required = array('paper_id');
@@ -417,6 +541,22 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getRoom
+     * @apiGroup Room
+     * @apiName getRoom
+     * @apiDescription Gets a particular room of a venue.
+     *
+     * @apiParam venue_id The venue id of the venue.
+     * @apiParam name The name of the room.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.venue_id
+     * @apiSuccess data.name
+     * @apiSuccess data.type The type of the room. Eg: concert hall, room, stadium, lecture hall, etc.
+     * @apiSuccess data.capacity Room's capacity
+     */
     private function getRoom(Request $request)
     {
         $required = array('venue_id', 'name');
@@ -428,6 +568,21 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getRooms
+     * @apiGroup Room
+     * @apiName getRooms
+     * @apiDescription Gets all rooms of a venue.
+     *
+     * @apiParam venue_id The venue id of the venue.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.venue_id
+     * @apiSuccess data.name
+     * @apiSuccess data.type The type of the room. Eg: concert hall, room, stadium, lecture hall, etc.
+     * @apiSuccess data.capacity The room's capacity.
+     */
     private function getRooms(Request $request)
     {
         $required = array('venue_id');
@@ -439,6 +594,20 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createRoom
+     * @apiGroup Room
+     * @apiName createRoom
+     *
+     * @apiParam venue_id The venue that the room is to be associated with.
+     * @apiParam name The name of the room. Must be unique per venue.
+     * @apiParam type The type of the room. Eg: concert hall, room, stadium, lecture hall, etc.
+     * @apiParam capacity The room's capacity.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createRoom(Request $request)
     {
         $required = array('venue_id', 'name', 'type', 'capacity');
@@ -450,6 +619,20 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / updateRoom
+     * @apiGroup Room
+     * @apiName updateRoom
+     *
+     * @apiParam venue_id The venue id of the venue.
+     * @apiParam name The name of the room.
+     * @apiParam [type] The type of the room. Eg: concert hall, room, stadium, lecture hall, etc.
+     * @apiParam [capacity] The room's capacity.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function updateRoom(Request $request)
     {
         $required = array('venue_id', 'name');
@@ -467,6 +650,25 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getVenue
+     * @apiGroup Venue
+     * @apiName getVenue
+     *
+     * @apiParam venue_id The venue id of the venue.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.venue_id
+     * @apiSuccess data.name The name of the venue.
+     * @apiSuccess data.type The type of the venue.
+     * @apiSuccess data.street
+     * @apiSuccess data.city
+     * @apiSuccess data.state
+     * @apiSuccess data.country
+     * @apiSuccess data.longitude
+     * @apiSuccess data.latitude
+     */
     private function getVenue(Request $request)
     {
         $required = array('venue_id');
@@ -478,6 +680,24 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createVenue
+     * @apiGroup Venue
+     * @apiName createVenue
+     *
+     * @apiParam name The name of the venue.
+     * @apiParam type The type of the venue.
+     * @apiParam street
+     * @apiParam city
+     * @apiParam state
+     * @apiParam country
+     * @apiParam longitude
+     * @apiParam latitude
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createVenue(Request $request)
     {
         $required = array('name', 'type', 'street', 'city', 'state', 'country', 'longitude', 'latitude');
@@ -489,6 +709,25 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / updateVenue
+     * @apiGroup Venue
+     * @apiName updateVenue
+     *
+     * @apiParam venue_id The venue id of the venue.
+     * @apiParam [name] The name of the venue.
+     * @apiParam [type] The type of the venue.
+     * @apiParam [street]
+     * @apiParam [city]
+     * @apiParam [state]
+     * @apiParam [country]
+     * @apiParam [longitude]
+     * @apiParam [latitude]
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function updateVenue(Request $request)
     {
         $required = array('venue_id');
@@ -506,6 +745,22 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getSession
+     * @apiGroup Session
+     * @apiName getSession
+     *
+     * @apiParam event_id The event id that this session is associated with.
+     * @apiParam title The title of the session.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.event_id
+     * @apiSuccess data.title
+     * @apiSuccess data.speaker_email
+     * @apiSuccess data.start_time Format: yyyy-mm-dd hh:mm
+     * @apiSuccess data.end_time
+     */
     private function getSession(Request $request)
     {
         $required = array('event_id', 'title');
@@ -517,6 +772,21 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getSessions
+     * @apiGroup Session
+     * @apiName getSessions
+     *
+     * @apiParam event_id The event id that this session is associated with.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.event_id
+     * @apiSuccess data.title
+     * @apiSuccess data.speaker_email
+     * @apiSuccess data.start_time Format: yyyy-mm-dd hh:mm
+     * @apiSuccess data.end_time Format: yyyy-mm-dd hh:mm
+     */
     private function getSessions(Request $request)
     {
         $required = array('event_id');
@@ -528,6 +798,20 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createSession
+     * @apiGroup Venue
+     * @apiName createSession
+     *
+     * @apiParam event_id The name of the venue.
+     * @apiParam title The type of the venue.
+     * @apiParam start_time Format: yyyy-mm-dd hh:mm
+     * @apiParam end_time Format: yyyy-mm-dd hh:mm
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createSession(Request $request)
     {
         $required = array('event_id', 'title', 'start_time', 'end_time');
@@ -539,6 +823,20 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / updateSession
+     * @apiGroup Session
+     * @apiName updateSession
+     *
+     * @apiParam event_id The name of the venue.
+     * @apiParam title The type of the venue.
+     * @apiParam [start_time] Format: yyyy-mm-dd hh:mm
+     * @apiParam [end_time] Format: yyyy-mm-dd hh:mm
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function updateSession(Request $request)
     {
         $required = array('event_id', 'title');
@@ -556,6 +854,18 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / addUserTag
+     * @apiGroup User
+     * @apiName addUserTag
+     *
+     * @apiParam email The email of the user.
+     * @apiParam tag_name The tag to associate this user with.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function addUserTag(Request $request)
     {
         $required = array('email', 'tag_name');
@@ -567,6 +877,18 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / addEventTag
+     * @apiGroup Event
+     * @apiName addEventTag
+     *
+     * @apiParam event_id The event id of the event.
+     * @apiParam tag_name The tag to associate this event with.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function addEventTag(Request $request)
     {
         $required = array('event_id', 'tag_name');
@@ -578,6 +900,18 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / addPaperTag
+     * @apiGroup Paper
+     * @apiName addPaperTag
+     *
+     * @apiParam paper_id The paper id of the paper.
+     * @apiParam tag_name The tag to associate this paper with.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function addPaperTag(Request $request)
     {
         $required = array('paper_id', 'tag_name');
@@ -589,6 +923,17 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getUsersByTag
+     * @apiGroup User
+     * @apiName getUsersByTag
+     *
+     * @apiParam tag_name The tag to associate this paper with.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getUser method for attributes.
+     */
     private function getUsersByTag(Request $request)
     {
         $required = array('tag_name');
@@ -600,6 +945,17 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getEventsByTag
+     * @apiGroup Event
+     * @apiName getEventsByTag
+     *
+     * @apiParam tag_name The tag to associate this paper with.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getEvent method for attributes.
+     */
     private function getEventsByTag(Request $request)
     {
         $required = array('tag_name');
@@ -611,6 +967,17 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getPapersByTag
+     * @apiGroup Paper
+     * @apiName getPapersByTag
+     *
+     * @apiParam tag_name The tag to associate this paper with.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getPaper method for attributes.
+     */
     private function getPapersByTag(Request $request)
     {
         $required = array('tag_name');
@@ -622,6 +989,23 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getResource
+     * @apiGroup Resource
+     * @apiName getResource
+     *
+     * @apiParam venue_id The venue that the room is to be associated with.
+     * @apiParam room_name The name of the room.
+     * @apiParam name The name of the resource. Must be unique per room.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.venue_id
+     * @apiSuccess data.room_name
+     * @apiSuccess data.name
+     * @apiSuccess data.type
+     * @apiSuccess data.number
+     */
     private function getResource(Request $request)
     {
         $required = array('venue_id', 'room_name', 'name');
@@ -633,6 +1017,21 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createResource
+     * @apiGroup Resource
+     * @apiName createResource
+     *
+     * @apiParam venue_id The venue that the room is to be associated with.
+     * @apiParam room_name The name of the room.
+     * @apiParam name The name of the resource. Must be unique per room.
+     * @apiParam type The type of resource. Eg: Stationery, electronics, etc.
+     * @apiParam number Number of this resource in this room.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createResource(Request $request)
     {
         $required = array('venue_id', 'room_name', 'name', 'type', 'number');
@@ -644,6 +1043,21 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / updateResource
+     * @apiGroup Resource
+     * @apiName updateResource
+     *
+     * @apiParam venue_id The id of the venue.
+     * @apiParam room_name The name of the room in the given venue.
+     * @apiParam name The name of the resource to update.
+     * @apiParam [type]
+     * @apiParam [number]
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function updateResource(Request $request)
     {
         $required = array('venue_id', 'room_name', 'name');
@@ -661,6 +1075,22 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getResourcesByRoom
+     * @apiGroup Resource
+     * @apiName getResourcesByRoom
+     *
+     * @apiParam venue_id The venue that the room is to be associated with.
+     * @apiParam room_name The name of the room.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.venue_id
+     * @apiSuccess data.room_name
+     * @apiSuccess data.name
+     * @apiSuccess data.type
+     * @apiSuccess data.number
+     */
     private function getResourcesByRoom(Request $request)
     {
         $required = array('venue_id', 'room_name');
@@ -672,6 +1102,24 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createTicketRecord
+     * @apiGroup TicketRecord
+     * @apiName createTicketRecord
+     *
+     * @apiParam event_id The event_id of the event.
+     * @apiParam title The title of the session that this ticket will be linked to.
+     * @apiParam ticket_name The name of the ticket.
+     * @apiParam class The class of the ticket.
+     * @apiParam type The type of the ticket.
+     * @apiParam venue_id The id of the venue.
+     * @apiParam room_name The name of the room in the given venue.
+     * @apiParam seat_num The seat number.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createTicketRecord(Request $request)
     {
         $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num');
@@ -683,6 +1131,25 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / addSessionAttendee
+     * @apiGroup TicketRecord
+     * @apiName addSessionAttendee
+     *
+     * @apiParam event_id The event_id of the event.
+     * @apiParam title The title of the session that this ticket will be linked to.
+     * @apiParam ticket_name The name of the ticket.
+     * @apiParam class The class of the ticket.
+     * @apiParam type The type of the ticket.
+     * @apiParam venue_id The id of the venue.
+     * @apiParam room_name The name of the room in the given venue.
+     * @apiParam seat_num The seat number.
+     * @apiParam email The email of the attendee.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function addSessionAttendee(Request $request)
     {
         $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num', 'email');
@@ -700,6 +1167,17 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getEventAttendees
+     * @apiGroup TicketRecord
+     * @apiName getEventAttendees
+     *
+     * @apiParam event_id The event_id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getUser method for attributes.
+     */
     private function getEventAttendees(Request $request)
     {
         $required = array('event_id');
@@ -711,6 +1189,18 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getSessionAttendees
+     * @apiGroup TicketRecord
+     * @apiName getSessionAttendees
+     *
+     * @apiParam event_id The event_id of the event.
+     * @apiParam title The title of the session.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getUser method for attributes.
+     */
     private function getSessionAttendees(Request $request)
     {
         $required = array('event_id', 'title');
@@ -722,6 +1212,18 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / addPaperAuthor
+     * @apiGroup Paper
+     * @apiName addPaperAuthor
+     *
+     * @apiParam email The email of the author.
+     * @apiParam paper_id The id of the paper to associate the author with.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function addPaperAuthor(Request $request)
     {
         $required = array('email', 'paper_id');
@@ -733,6 +1235,17 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getPaperAuthors
+     * @apiGroup Paper
+     * @apiName getPaperAuthors
+     *
+     * @apiParam paper_id The id of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getUser method for attributes.
+     */
     private function getPaperAuthors(Request $request)
     {
         $required = array('paper_id');
@@ -744,6 +1257,17 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getPapersByAuthor
+     * @apiGroup Paper
+     * @apiName getPapersByAuthor
+     *
+     * @apiParam email The email of an author.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getPaper method for attributes.
+     */
     private function getPapersByAuthor(Request $request)
     {
         $required = array('email');
@@ -755,6 +1279,18 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getBillingInfo
+     * @apiGroup BillingInfo
+     * @apiName getBillingInfo
+     *
+     * @apiParam email The email of a user.
+     * @apiParam card# The card number of the user's credit card.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getPaper method for attributes.
+     */
     private function getBillingInfo(Request $request)
     {
         $required = array('email', 'card#');
@@ -766,6 +1302,20 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createBillingInfo
+     * @apiGroup BillingInfo
+     * @apiName createBillingInfo
+     *
+     * @apiParam email The email of a user.
+     * @apiParam card# The card number of the user's credit card.
+     * @apiParam card_type The card type of the credit card. Eg: Visa, Mastercard
+     * @apiParam expiry_date The credit card's expiry date. Format: yyyy-mm-dd hh:mm
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createBillingInfo(Request $request)
     {
         $required = array('email', 'card#', 'card_type', 'expiry_date');
@@ -777,6 +1327,18 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / updateBillingInfo
+     * @apiGroup BillingInfo
+     * @apiName updateBillingInfo
+     *
+     * @apiParam email The email of a user.
+     * @apiParam card# The card number of the user's credit card.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function updateBillingInfo(Request $request)
     {
         $required = array('email', 'card#');
@@ -794,7 +1356,18 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
-     private function getPapersByReviewer(Request $request)
+    /**
+     * @api {post} / getPapersByReviewer
+     * @apiGroup Paper
+     * @apiName getPapersByReviewer
+     *
+     * @apiParam email The email of a reviewer.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getPaper method for attributes.
+     */
+    private function getPapersByReviewer(Request $request)
     {
         $required = array('email');
 
@@ -805,6 +1378,17 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getReviewersByPaperId
+     * @apiGroup Paper
+     * @apiName getReviewersByPaperId
+     *
+     * @apiParam paper_id The id of a paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getUser method for attributes.
+     */
     private function getReviewersByPaperId(Request $request)
     {
         $required = array('paper_id');
@@ -816,6 +1400,19 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / addPaperReviewed
+     * @apiGroup Paper
+     * @apiName addPaperReviewed
+     *
+     * @apiParam email The email of a reviewer.
+     * @apiParam card# The id of a paper.
+     * @apiParam comment The comment on a paper by the reviewer.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function addPaperReviewed(Request $request)
     {
         $required = array('email', 'paper_id', 'comment');
@@ -827,6 +1424,19 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / createSeat
+     * @apiGroup Seat
+     * @apiName createSeat
+     *
+     * @apiParam venue_id The id of a venue.
+     * @apiParam name The name of a room in the venue.
+     * @apiParam seat_num The seat number to insert.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
     private function createSeat(Request $request)
     {
         $required = array('venue_id', 'name', 'seat_num');
@@ -838,6 +1448,20 @@ class ConfplusControllerV1 extends Controller
         }
     }
 
+    /**
+     * @api {post} / getSeatsInRoom
+     * @apiGroup Seat
+     * @apiName getSeatsInRoom
+     *
+     * @apiParam venue_id The id of a venue.
+     * @apiParam name The name of a room in the venue.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.venue_id
+     * @apiSuccess data.name
+     * @apiSuccess data.seat_num
+     */
     private function getSeatsInRoom(Request $request)
     {
         $required = array('venue_id', 'name');
@@ -857,24 +1481,18 @@ class ConfplusControllerV1 extends Controller
      * @apiParam email The email of the user.
      *
      * @apiSuccess success Returns true upon success.
-     * @apiSuccess data JSON containing the following data:
-     * @apiSuccess data.email
-     * @apiSuccess data.username
-     * @apiSuccess data.password
-     * @apiSuccess data.title
-     * @apiSuccess data.first_name
-     * @apiSuccess data.last_name
-     * @apiSuccess data.dob
-     * @apiSuccess data.street
-     * @apiSuccess data.city
-     * @apiSuccess data.state
-     * @apiSuccess data.country
-     * @apiSuccess data.verified
-     * @apiSuccess data.fb_id
-     * @apiSuccess data.linkedin_id
-     * @apiSuccess data.active
-     * @apiSuccess data.upgraded
-     * @apiSuccess data.review
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.event_id
+     * @apiSuccess data.name
+     * @apiSuccess data.type
+     * @apiSuccess data.from_date
+     * @apiSuccess data.to_date
+     * @apiSuccess data.description
+     * @apiSuccess data.url
+     * @apiSuccess data.poster_url
+     * @apiSuccess data.paper_deadline
+     * @apiSuccess data.language
+     * @apiSuccess data.reminder
      */
     private function getEventsAttended(Request $request)
     {
