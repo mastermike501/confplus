@@ -16,7 +16,7 @@ class Paper extends Model
         'publish_date' => 'd-m-Y',
         'latest_sub_date' => 'd-m-Y'
     ];
-    
+
     /**
      * [get]
      * @param  array  $data [description]
@@ -36,14 +36,14 @@ class Paper extends Model
         if (count($results) > 1) {
             return JSONUtilities::returnError('More than one record exists. Contact backend support.');
         }
-        
+
         $localStorage = Storage::disk('local');
-        
+
         $paperPath = 'papers/' . 'paper_' . $data['paper_id'] . '.txt';
-        
+
         if ($localStorage->exists($paperPath)) {
             $dataUrl = $localStorage->get($paperPath);
-            $results['paper_data_url'] = $dataUrl;
+            $results[0]->paper_data_url = $dataUrl;
         }
 
         return JSONUtilities::returnData($results);
@@ -57,27 +57,27 @@ class Paper extends Model
     public static function insert(array $data)
     {
         $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
-        
+
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
-        
+
         $dataUrl = $data['paper_data_url'];
         unset($data['paper_data_url']); //remove this from the array
-        
+
         $id = DB::table('papers')->insertGetId($data);
-        
+
         $localStorage = Storage::disk('local');
-            
+
         $paperPath = 'papers/' . 'paper_' . $id . '.txt';
-        
+
         //remove an earlier version of poster, if exists
         if ($localStorage->exists($paperPath)) {
             $localStorage->delete($paperPath);
         }
 
         $success = $localStorage->put($paperPath, $dataUrl);
-            
+
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Paper successfully created.'));
         } else {
@@ -94,19 +94,19 @@ class Paper extends Model
     public static function edit($primaryKey, array $data)
     {
         $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
-        
+
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
-        
+
         if (array_key_exists('paper_data_url', $data)) {
             $dataUrl = $data['paper_data_url'];
             unset($data['paper_data_url']); //remove this from the array
-            
+
             $localStorage = Storage::disk('local');
-            
+
             $paperPath = 'papers/' . 'paper_' . $primaryKey['paper_id'] . '.txt';
-            
+
             //remove an earlier version of poster, if exists
             if ($localStorage->exists($paperPath)) {
                 $localStorage->delete($paperPath);
@@ -114,7 +114,7 @@ class Paper extends Model
 
             $localStorage->put($paperPath, $dataUrl);
         }
-        
+
         $success = DB::table('papers')
             ->where('paper_id', $primaryKey['paper_id'])
             ->update($data);
@@ -125,7 +125,7 @@ class Paper extends Model
             return JSONUtilities::returnError('Could not update paper.');
         }
     }
-    
+
     /**
      * [getByTag]
      * @param  array  $data [description]
@@ -139,7 +139,7 @@ class Paper extends Model
 
         return JSONUtilities::returnData($results);
     }
-    
+
     /**
      * [getByAuthor]
      * @param  array  $data [description]
@@ -151,29 +151,29 @@ class Paper extends Model
             ->join('paper_authored', 'papers.paper_id', '=', 'paper_authored.paper_id')
             ->where('email', $data['email'])
             ->get();
-        
+
         if (count($results) == 0) {
             return JSONUtilities::returnError('No record exists');
         }
-        
+
         $localStorage = Storage::disk('local');
-        
+
         $resultsLength = count($results);
 
-        foreach ($results as &$paper) { 
+        foreach ($results as &$paper) {
             $paperPath = 'papers/' . 'paper_' . $paper->paper_id . '.txt';
-            
+
             if ($localStorage->exists($paperPath)) {
                 $dataUrl = $localStorage->get($paperPath);
                 $paper->paper_data_url = $dataUrl;
             }
         }
-        
+
         unset($paper);
 
         return JSONUtilities::returnData($results);
     }
-    
+
     /**
      * [getByReviewer]
      * @param  array  $data [description]
@@ -191,18 +191,18 @@ class Paper extends Model
         }
 
         $localStorage = Storage::disk('local');
-        
+
         $resultsLength = count($results);
 
-        foreach ($results as &$paper) { 
+        foreach ($results as &$paper) {
             $paperPath = 'papers/' . 'paper_' . $paper->paper_id . '.txt';
-            
+
             if ($localStorage->exists($paperPath)) {
                 $dataUrl = $localStorage->get($paperPath);
                 $paper->paper_data_url = $dataUrl;
             }
         }
-        
+
         unset($paper);
 
         return JSONUtilities::returnData($results);
