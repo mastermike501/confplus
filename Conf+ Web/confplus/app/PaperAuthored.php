@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use DB;
 
 use App\Http\Helpers\JSONUtilities;
+use Illuminate\Support\Collection;
 
 class PaperAuthored extends Model
 {
@@ -17,11 +18,28 @@ class PaperAuthored extends Model
      */
     public static function get(array $data)
     {
-        $results = DB::table('paper_authored')
+        $results1 = DB::table('paper_authored')
+            ->select('email')
             ->where('paper_id', $data['paper_id'])
             ->get();
 
-        return JSONUtilities::returnData($results);
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No such paper exists');
+        }
+        
+        //put results into a single dimension array
+        $results1 = collect($results1)->flatten();
+        
+        //retrieve events that were attended by user
+        $results2 = DB::table('users')
+            ->whereIn('email', $results1)
+            ->get();
+
+        if (count($results2) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results2);
     }
 
     /**

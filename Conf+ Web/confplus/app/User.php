@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 use DB;
 
@@ -111,6 +112,38 @@ class User extends Model
         }
 
         return JSONUtilities::returnData($results);
+    }
+    
+    /**
+     * [getEventsAttended]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getEventsAttended(array $data)
+    {
+        $results1 = DB::table('ticket_record')
+            ->select('event_id')
+            ->distinct()
+            ->where('email', $data['email'])
+            ->get();
+        
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No such email exists');
+        }
+        
+        //put results into a single dimension array
+        $results1 = collect($results1)->flatten();
+        
+        //retrieve events that were attended by user
+        $results2 = DB::table('events')
+            ->whereIn('event_id', $results1)
+            ->get();
+
+        if (count($results2) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results2);
     }
 
 }
