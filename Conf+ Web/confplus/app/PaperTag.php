@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 use DB;
 
@@ -23,5 +24,19 @@ class PaperTag extends Model
         } else {
             return JSONUtilities::returnError('Could not insert paper tag.');
         }
+    }
+    
+    public static function getPaperTags(array $data) {
+        $results = DB::table('paper_tag')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+        
+        $results = collect($results)->pluck('tag_name')->all();
+        
+        return JSONUtilities::returnData($results);
     }
 }
