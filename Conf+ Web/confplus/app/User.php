@@ -114,21 +114,35 @@ class User extends Model
         return JSONUtilities::returnData($results);
     }
     
-    /**
-     * [getEventsAttended]
-     * @param  array  $data [description]
-     * @return [JSON]       [description]
-     */
-    public static function getEventsAttended(array $data)
+    public static function getEventsAttending(array $data)
     {
-        $results1 = DB::table('ticket_record')
+        $query = DB::table('ticket_record')
             ->select('event_id')
             ->distinct()
-            ->where('email', $data['email'])
-            ->get();
+            ->where('email', $data['email']);
+        
+        switch ($data['criteria']) {
+            case 'past':
+                $query->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'));
+                break;
+            
+            case 'future':
+                $query->where('to_date', '<', DB::raw('CURRENT_TIMESTAMP'));
+                break;
+            
+            case 'all':
+                //do nothing
+                break;
+            
+            default:
+                //do nothing
+                break;
+        }
+        
+        $results1 = $query->get();
         
         if (count($results1) == 0) {
-            return JSONUtilities::returnError('No such email exists');
+            return JSONUtilities::returnError('No results');
         }
         
         //put results into a single dimension array
