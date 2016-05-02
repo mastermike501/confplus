@@ -350,9 +350,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
 
-        $data = $request->except(array_merge(['method'], $required));
-
-        return Event::uploadPoster($data);
+        return Event::uploadPoster($request->except(['method']));
     }
     
     /**
