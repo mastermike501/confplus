@@ -26,7 +26,8 @@ class ChangeLonLatOfVenuesTable extends Migration
     public function down()
     {
         Schema::table('venues', function (Blueprint $table) {
-            //
+          $table->decimal('longitude', 6, 3)->change();
+          $table->decimal('latitude', 6, 2)->change();
         });
     }
 }
