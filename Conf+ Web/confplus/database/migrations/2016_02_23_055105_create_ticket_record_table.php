@@ -31,7 +31,7 @@ class CreateTicketRecordTable extends Migration
             $table->index(['event_id', 'title', 'ticket_name', 'class', 'type']);
             $table->index(['venue_id', 'room_name', 'seat_num']);
             $table->foreign(['event_id', 'title', 'ticket_name', 'class', 'type'])->references(['event_id', 'title', 'name', 'class', 'type'])->on('tickets')->onDelete('cascade');
-            $table->foreign(['venue_id', 'room_name', 'seat_num'])->references(['venue_id', 'name', 'seat_num'])->on('seats')->onDelete('cascade');
+            $table->foreign(['venue_id', 'room_name', 'seat_num'])->references(['venue_id', 'room_name', 'seat_num'])->on('seats')->onDelete('cascade');
             $table->foreign('email')->references('email')->on('users')->onDelete('cascade');
 
         });
