@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 use DB;
 use Storage;
@@ -49,9 +50,19 @@ class Event extends Model
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
+        
+        $manager = $data['email'];
+        unset($data['email']);
 
         $id = DB::table('events')->insertGetId($data);
         $results = DB::select('select * from events where event_id = ?', [$id]);
+
+        DB::table('event_roles')
+            ->insert([
+                'email' => $manager,
+                'event_id' => $id,
+                'role_name' => 'manager'
+            ]);
 
         return JSONUtilities::returnData($results);
     }
@@ -142,5 +153,42 @@ class Event extends Model
 
         return JSONUtilities::returnData($results);
     }
+    
+    public static function getByCountry(array $data) {
+        
+        $results1 = DB::table('venues')
+            ->select('venue_id')
+            ->distinct()
+            ->where('country', $data['country'])
+            ->get();
+        
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No such venues exist in this country');
+        }
+        
+        //put results into a single dimension array
+        $results1 = collect($results1)->flatten();
+        
+        $results2 = DB::table('events')
+            ->whereIn('venue_id', $results1)
+            ->get();
 
+        if (count($results2) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results2);
+    }
+
+    public static function getByKeyword(array $data) {
+        
+        $keyword = '%' . $data['keyword'] . '%';
+        
+        $results = DB::table('events')
+            ->where('name', 'like', $keyword)
+            ->orWhere('description', 'like', $keyword)
+            ->get();
+
+        return JSONUtilities::returnData($results);
+    }
 }
