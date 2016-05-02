@@ -39,6 +39,8 @@ class ConfplusControllerV1 extends Controller
         'getEvent', //tested
         'createEvent', //tested
         'updateEvent', //tested
+        'uploadPoster',
+        'getPoster',
         'getTickets', //tested
         'createTicket', //tested
         'updateTicket', //tested
@@ -91,6 +93,10 @@ class ConfplusControllerV1 extends Controller
         'getConversation',
         'getEventsByKeyword', //tested
         'getEventsManaged', //tested
+        'getVenuesByLocation',
+        'getUserTags', //tested
+        'getEventTags', //tested
+        'getPaperTags', //tested
         // 'acceptPaper'
     );
 
@@ -321,6 +327,53 @@ class ConfplusControllerV1 extends Controller
             return Event::edit($request->only($required), $data);
         } else {
             return JSONUtilities::returnError('No data to update');
+        }
+    }
+
+    /**
+     * @api {post} / uploadPoster
+     * @apiGroup Event
+     * @apiName uploadPoster
+     *
+     * @apiParam event_id The event_id of the event.
+     * @apiParam poster_data_url The poster data url.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.poster_data_url Poster data url.
+     */
+    private function uploadPoster(Request $request)
+    {
+        $required = array('event_id', 'poster_data_url');
+
+        if (!$request->has($required)) {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+
+        $data = $request->except(array_merge(['method'], $required));
+
+        return Event::uploadPoster($data);
+    }
+    
+    /**
+     * @api {post} / getPoster
+     * @apiGroup Event
+     * @apiName getPoster
+     *
+     * @apiParam event_id The event_id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.poster_data_url The poster data url.
+     */
+    private function getPoster(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Event::getPoster($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -1701,6 +1754,93 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return EventRole::getEventsManaged($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getVenuesByLocation
+     * @apiGroup Venue
+     * @apiName getVenuesByLocation
+     *
+     * @apiParam country The country to search in.
+     * @apiParam [state] The state to search in.
+     * @apiParam [city] The city to search in.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getEvent method for attributes.
+     */
+    private function getVenuesByLocation(Request $request)
+    {
+        $required = array('country');
+
+        if ($request->has($required)) {
+            return Venue::getByLocation($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getUserTags
+     * @apiGroup User
+     * @apiName getUserTags
+     *
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the tag names.
+     */
+    private function getUserTags(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return UserTag::getUserTags($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getEventTags
+     * @apiGroup Event
+     * @apiName getEventTags
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the tag names.
+     */
+    private function getEventTags(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return EventTag::getEventTags($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getPaperTags
+     * @apiGroup Paper
+     * @apiName getPaperTags
+     *
+     * @apiParam paper_id The id of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the tag names.
+     */
+    private function getPaperTags(Request $request)
+    {
+        $required = array('paper_id');
+
+        if ($request->has($required)) {
+            return PaperTag::getPaperTags($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

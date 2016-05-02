@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 use DB;
 
@@ -23,5 +24,19 @@ class UserTag extends Model
         } else {
             return JSONUtilities::returnError('Could not insert user tag.');
         }
+    }
+    
+    public static function getUserTags(array $data) {
+        $results = DB::table('users_tag')
+            ->where('email', $data['email'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+        
+        $results = collect($results)->pluck('tag_name')->all();
+        
+        return JSONUtilities::returnData($results);
     }
 }

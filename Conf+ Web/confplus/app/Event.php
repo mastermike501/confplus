@@ -63,8 +63,8 @@ class Event extends Model
                 'event_id' => $id,
                 'role_name' => 'manager'
             ]);
-
-        return JSONUtilities::returnData($results);
+       
+       return JSONUtilities::returnData($results);
     }
 
     /*
@@ -80,11 +80,11 @@ class Event extends Model
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
-
+        
         $success = DB::table('events')
             ->where('event_id', $primaryKey['event_id'])
             ->update($data);
-
+       
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Event successfully updated.'));
         } else {
@@ -92,53 +92,53 @@ class Event extends Model
         }
     }
 
-    // /**
-    //  * [uploadPoster]
-    //  * @param  array  $data [Poster data to upload]
-    //  * @return [JSON]       [A JSON string containing a success or error body]]
-    //  */
-    // public static function uploadPoster(array $data) {
-    //     // return JSONUtilities::returnError('uploadPoster not implemented');
-    //
-    //     $localStorage = Storage::disk('local');
-    //
-    //     //example path: posters/poster_628.txt
-    //     $posterPath = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
-    //
-    //     //remove an earlier version of poster, if exists
-    //     if ($localStorage->exists($posterPath)) {
-    //         $localStorage->delete($posterPath);
-    //     }
-    //
-    //     $success = $localStorage->put($posterPath, $data['poster_data_url']);
-    //
-    //     if ($success) {
-    //         return JSONUtilities::returnData(array('message' => 'Event poster successfully uploaded.'));
-    //     } else {
-    //         return JSONUtilities::returnError('Could not upload event poster.');
-    //     }
-    // }
-    //
-    // /**
-    //  * [getPoster]
-    //  * @param  array  $data [Poster data to retrieve]
-    //  * @return [JSON]       [A JSON string containing a success or error body]]
-    //  */
-    // public static function getPoster(array $data) {
-    //     $localStorage = Storage::disk('local');
-    //
-    //     //example path: posters/poster_628.txt
-    //     $posterPath = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
-    //
-    //     //return an error if poster is not found
-    //     if (!$localStorage->exists($posterPath)) {
-    //         return JSONUtilities::returnError('Could not find event poster.');
-    //     }
-    //
-    //     $dataUrl = $localStorage->get($posterPath);
-    //
-    //     return JSONUtilities::returnData(array('poster_data_url' => $dataUrl));
-    // }
+    /**
+     * [uploadPoster]
+     * @param  array  $data [Poster data to upload]
+     * @return [JSON]       [A JSON string containing a success or error body]]
+     */
+    public static function uploadPoster(array $data) {
+        // return JSONUtilities::returnError('uploadPoster not implemented');
+    
+        $localStorage = Storage::disk('local');
+    
+        //example path: posters/poster_628.txt
+        $posterPath = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
+    
+        //remove an earlier version of poster, if exists
+        if ($localStorage->exists($posterPath)) {
+            $localStorage->delete($posterPath);
+        }
+    
+        $success = $localStorage->put($posterPath, $data['poster_data_url']);
+    
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Event poster successfully uploaded.'));
+        } else {
+            return JSONUtilities::returnError('Could not upload event poster.');
+        }
+    }
+    
+    /**
+     * [getPoster]
+     * @param  array  $data [Poster data to retrieve]
+     * @return [JSON]       [A JSON string containing a success or error body]]
+     */
+    public static function getPoster(array $data) {
+        $localStorage = Storage::disk('local');
+    
+        //example path: posters/poster_628.txt
+        $posterPath = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
+    
+        //return an error if poster is not found
+        if (!$localStorage->exists($posterPath)) {
+            return JSONUtilities::returnError('Could not find event poster.');
+        }
+    
+        $dataUrl = $localStorage->get($posterPath);
+    
+        return JSONUtilities::returnData(array('poster_data_url' => $dataUrl));
+    }
 
     /**
      * [getByTag]
@@ -154,12 +154,13 @@ class Event extends Model
         return JSONUtilities::returnData($results);
     }
     
-    public static function getByCountry(array $data) {
+    public static function getUpcomingByCountry(array $data) {
         
         $results1 = DB::table('venues')
             ->select('venue_id')
             ->distinct()
             ->where('country', $data['country'])
+            ->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'))
             ->get();
         
         if (count($results1) == 0) {

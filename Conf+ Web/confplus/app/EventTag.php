@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 use DB;
 
@@ -23,5 +24,19 @@ class EventTag extends Model
         } else {
             return JSONUtilities::returnError('Could not insert event tag.');
         }
+    }
+    
+    public static function getEventTags(array $data) {
+        $results = DB::table('event_tag')
+            ->where('event_id', $data['event_id'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+        
+        $results = collect($results)->pluck('tag_name')->all();
+        
+        return JSONUtilities::returnData($results);
     }
 }

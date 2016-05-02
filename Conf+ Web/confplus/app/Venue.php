@@ -54,4 +54,26 @@ class Venue extends Model
             return JSONUtilities::returnError('Could not update venue.');
         }
     }
+    
+    public static function getByLocation(array $data)
+    {
+        $query = DB::table('venues')
+            ->where('country', $data['country']);
+        
+        if (array_key_exists($data['state'])) {
+            $query->where('state', $data['state']);
+        }
+        if (array_key_exists($data['city'])) {
+            $query->where('city', $data['city']);
+        }
+        
+        $results = $query->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results);
+    }
+    
 }
