@@ -571,7 +571,7 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
-     * @apiSuccess data.message Message denoting success.
+     * @apiSuccess data.id Id of the paper.
      */
     private function createPaper(Request $request)
     {
@@ -771,7 +771,7 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
-     * @apiSuccess data.message Message denoting success.
+     * @apiSuccess data.id Id of the venue.
      */
     private function createVenue(Request $request)
     {
