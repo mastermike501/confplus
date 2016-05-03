@@ -60,10 +60,10 @@ class Venue extends Model
         $query = DB::table('venues')
             ->where('country', $data['country']);
         
-        if (array_key_exists($data['state'])) {
+        if (array_key_exists('state', $data)) {
             $query->where('state', $data['state']);
         }
-        if (array_key_exists($data['city'])) {
+        if (array_key_exists('city', $data)) {
             $query->where('city', $data['city']);
         }
         
