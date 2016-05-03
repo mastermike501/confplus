@@ -33,10 +33,10 @@ class Venue extends Model
 
     public static function insert(array $data)
     {
-        $success = DB::table('venues')->insert($data);
+        $id = DB::table('venues')->insertGetId($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Venue successfully created.'));
+            return JSONUtilities::returnData(array('id' => $id));
         } else {
             return JSONUtilities::returnError('Could not insert venue.');
         }

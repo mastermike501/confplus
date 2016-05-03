@@ -79,7 +79,7 @@ class Paper extends Model
         $success = $localStorage->put($paperPath, $dataUrl);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Paper successfully created.'));
+            return JSONUtilities::returnData(array('id' => $id));
         } else {
             return JSONUtilities::returnError('Could not insert paper.');
         }
