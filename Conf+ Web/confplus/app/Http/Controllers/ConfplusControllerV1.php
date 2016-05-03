@@ -81,7 +81,9 @@ class ConfplusControllerV1 extends Controller
         'updateBillingInfo', //tested
         'getPapersByReviewer', //tested
         'getReviewersByPaperId', //tested
-        'addPaperReviewed', //tested
+        'addReviewer',
+        'addReview', //tested
+        'deleteReview',
         'createSeat', //tested
         'getSeatsInRoom', //tested
         'getEventsAttending',
@@ -1459,6 +1461,7 @@ class ConfplusControllerV1 extends Controller
      * @apiName getReviewersByPaperId
      *
      * @apiParam paper_id The id of a paper.
+     * @apiParam [event_id] The id of an event. 
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
@@ -1474,26 +1477,82 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
-
-    /**
-     * @api {post} / addPaperReviewed
+    
+     /**
+     * @api {post} / addReviewer
      * @apiGroup Paper
-     * @apiName addPaperReviewed
+     * @apiName addReviewer
      *
      * @apiParam email The email of a reviewer.
-     * @apiParam card# The id of a paper.
-     * @apiParam comment The comment on a paper by the reviewer.
+     * @apiParam paper_id The id of a paper.
+     * @apiParam event_id The id of an event.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
      * @apiSuccess data.message Message denoting success.
      */
-    private function addPaperReviewed(Request $request)
+    private function addReviewer(Request $request)
     {
-        $required = array('email', 'paper_id', 'comment');
+        $required = array('email', 'paper_id', 'event_id');
 
         if ($request->has($required)) {
-            return PaperReviewed::insert($request->except(['method']));
+            return PaperReviewed::addReviewer($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+
+    /**
+     * @api {post} / addReview
+     * @apiGroup Paper
+     * @apiName addReview
+     *
+     * @apiParam email The email of a reviewer.
+     * @apiParam paper_id The id of a paper.
+     * @apiParam event_id The id of an event.
+     * @apiParam comment The comment on a paper by the reviewer.
+     * @apiParam rate The rate given to the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function addReview(Request $request)
+    {
+        $required = array('email', 'paper_id', 'event_id', 'comment', 'rate');
+
+        if (!$request->has($required)) {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+
+        $data = $request->except(array_merge(['method'], $required));
+
+        if (!empty($data)) {
+            return PaperReviewed::addReview($request->only($required), $data);
+        } else {
+            return JSONUtilities::returnError('No data to update');
+        }
+    }
+
+    /**
+     * @api {post} / deleteReview
+     * @apiGroup Paper
+     * @apiName deleteReview
+     *
+     * @apiParam email The email of the reviewer.
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function deleteReview(Request $request)
+    {
+        $required = array('email', 'paper_id', 'event_id');
+
+        if ($request->has($required)) {
+            return PaperReviewed::delete($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
