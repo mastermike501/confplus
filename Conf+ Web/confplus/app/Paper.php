@@ -161,11 +161,11 @@ class Paper extends Model
         $resultsLength = count($results);
 
         foreach ($results as &$paper) {
-            $paperPath = 'papers/' . 'paper_' . $paper->paper_id . '.txt';
+            $paperPath = 'papers/' . 'paper_' . $paper['paper_id'] . '.txt';
 
             if ($localStorage->exists($paperPath)) {
                 $dataUrl = $localStorage->get($paperPath);
-                $paper->paper_data_url = $dataUrl;
+                $paper['paper_data_url'] = $dataUrl;
             }
         }
 

@@ -55,8 +55,7 @@ class Event extends Model
         unset($data['email']);
 
         $id = DB::table('events')->insertGetId($data);
-        $results = DB::select('select * from events where event_id = ?', [$id]);
-
+        
         DB::table('event_roles')
             ->insert([
                 'email' => $manager,
@@ -64,7 +63,7 @@ class Event extends Model
                 'role_name' => 'manager'
             ]);
        
-       return JSONUtilities::returnData($results);
+       return JSONUtilities::returnData(array('id' => $id));
     }
 
     /*
