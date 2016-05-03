@@ -102,16 +102,29 @@ class User extends Model
      */
     public static function getReviewersByPaperId(array $data)
     {
-        $results = DB::table('users')
-            ->join('paper_reviewed', 'users.email', '=', 'paper_reviewed.email')
-            ->where('paper_id', $data['paper_id'])
+        $query = DB::table('paper_reviewed')
+            ->select('email')
+            ->where('paper_id', $data['paper_id']);
+        
+        if (array_key_exists('event_id', $data)) {
+            $query->where('event_id', $data['event_id']);
+        }
+        
+        $results1 = $query->get();
+        
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No results');
+        }
+        
+        $results2 = DB::table('users')
+            ->whereIn('email', $results1)
             ->get();
 
-        if (count($results) == 0) {
+        if (count($results2) == 0) {
             return JSONUtilities::returnError('No record exists');
         }
 
-        return JSONUtilities::returnData($results);
+        return JSONUtilities::returnData($results2);
     }
     
     public static function getEventsAttending(array $data)
