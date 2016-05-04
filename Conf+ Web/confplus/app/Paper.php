@@ -43,7 +43,7 @@ class Paper extends Model
 
         if ($localStorage->exists($paperPath)) {
             $dataUrl = $localStorage->get($paperPath);
-            $results[0]->paper_data_url = $dataUrl;
+            $results[0]['paper_data_url'] = $dataUrl;
         }
 
         return JSONUtilities::returnData($results);
