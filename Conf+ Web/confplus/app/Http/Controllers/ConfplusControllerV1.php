@@ -99,6 +99,9 @@ class ConfplusControllerV1 extends Controller
         'getUserTags', //tested
         'getEventTags', //tested
         'getPaperTags', //tested
+        'getPaymentHistory',
+        'requestToReview',
+        'getRequestsToReview'
         // 'acceptPaper'
     );
 
@@ -1898,6 +1901,79 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return PaperTag::getPaperTags($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+
+    /**
+     * @api {post} / getPaymentHistory
+     * @apiGroup Payment
+     * @apiName getPaymentHistory
+     *
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.email
+     * @apiSuccess data.payment_id The id of the payment.
+     * @apiSuccess data.type The description of what the payment was for.
+     * @apiSuccess data.amount The amount of payment.
+     * @apiSuccess data.payment_date The date of the payment.
+     */
+    private function getPaymentHistory(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return Payment::getHistory($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / requestToReview
+     * @apiGroup Paper
+     * @apiName requestToReview
+     *
+     * @apiParam email The email of the user requesting to review.
+     * @apiParam paper_id The id of a paper.
+     * @apiParam event_id The id of an event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function requestToReview(Request $request)
+    {
+        $required = array('email', 'paper_id', 'event_id');
+
+        if ($request->has($required)) {
+            return PaperReviewed::requestToReview($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getRequestsToReview
+     * @apiGroup Paper
+     * @apiName getRequestsToReview
+     *
+     * @apiParam event_id The id of the event.
+     * @apiParam [paper_id] The id of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getUser method for attributes.
+     */
+    private function getRequestsToReview(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return PaperReviewed::get($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

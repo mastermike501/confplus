@@ -36,4 +36,17 @@ class Payment extends Model
             return JSONUtilities::returnError('Could not insert payment.');
         }
     }
+    
+    public static function getHistory(array $data)
+    {
+        $results = DB::table('payments')
+            ->where('email', $data['email'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results);
+    }
 }
