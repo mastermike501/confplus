@@ -17,12 +17,23 @@ class EventTag extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function insert(array $data) {
-        $success = DB::table('events_tag')->insert($data);
+        $tags = explode(',', $data['tag_names']);
+        
+        $tagArray = [];
+        
+        foreach ($tags as $tag) {
+            $tagArray[] = [
+                'event_id' => $data['event_id'],
+                'tag_name' => $tag
+            ];
+        }
+        
+        $success = DB::table('events_tag')->insert($tagArray);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Event tag successfully created.'));
+            return JSONUtilities::returnData(array('message' => 'Event tags successfully created.'));
         } else {
-            return JSONUtilities::returnError('Could not insert event tag.');
+            return JSONUtilities::returnError('Could not insert event tags.');
         }
     }
     

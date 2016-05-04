@@ -17,7 +17,18 @@ class PaperTag extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function insert(array $data) {
-        $success = DB::table('papers_tag')->insert($data);
+        $tags = explode(',', $data['tag_names']);
+        
+        $tagArray = [];
+        
+        foreach ($tags as $tag) {
+            $tagArray[] = [
+                'paper_id' => $data['paper_id'],
+                'tag_name' => $tag
+            ];
+        }
+        
+        $success = DB::table('papers_tag')->insert($tagArray);
 
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Paper tag successfully created.'));
