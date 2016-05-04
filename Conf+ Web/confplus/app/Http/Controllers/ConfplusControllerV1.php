@@ -91,6 +91,7 @@ class ConfplusControllerV1 extends Controller
         'getUpcomingEventsByCountry',
         'validateTicket',
         'getEventRolesForEvent', //tested
+        'createConversation',
         'getConversationsByUser',
         'getConversation',
         'getEventsByKeyword', //tested
@@ -940,7 +941,7 @@ class ConfplusControllerV1 extends Controller
      * @apiName addUserTag
      *
      * @apiParam email The email of the user.
-     * @apiParam tag_name The tag to associate this user with.
+     * @apiParam tag_names The comma delimited string of tags to associate this user with.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -948,7 +949,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function addUserTag(Request $request)
     {
-        $required = array('email', 'tag_name');
+        $required = array('email', 'tag_names');
 
         if ($request->has($required)) {
             return UserTag::insert($request->except(['method']));
@@ -963,7 +964,7 @@ class ConfplusControllerV1 extends Controller
      * @apiName addEventTag
      *
      * @apiParam event_id The event id of the event.
-     * @apiParam tag_name The tag to associate this event with.
+     * @apiParam tag_names The comma delimited string of tags to associate this event with.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -971,7 +972,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function addEventTag(Request $request)
     {
-        $required = array('event_id', 'tag_name');
+        $required = array('event_id', 'tag_names');
 
         if ($request->has($required)) {
             return EventTag::insert($request->except(['method']));
@@ -986,7 +987,7 @@ class ConfplusControllerV1 extends Controller
      * @apiName addPaperTag
      *
      * @apiParam paper_id The paper id of the paper.
-     * @apiParam tag_name The tag to associate this paper with.
+     * @apiParam tag_names The comma delimited string of tags to associate this paper with.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -994,7 +995,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function addPaperTag(Request $request)
     {
-        $required = array('paper_id', 'tag_name');
+        $required = array('paper_id', 'tag_names');
 
         if ($request->has($required)) {
             return PaperTag::insert($request->except(['method']));
@@ -1652,7 +1653,6 @@ class ConfplusControllerV1 extends Controller
     }
     
     /**
-     * @apiIgnore Untested
      * @api {post} / getUpcomingEventsByCountry
      * @apiGroup Event
      * @apiName getUpcomingEventsByCountry
@@ -1722,9 +1722,30 @@ class ConfplusControllerV1 extends Controller
         }
     }
     
+    /**
+     * @api {post} / createConversation
+     * @apiGroup Conversation
+     * @apiName createConversation
+     *
+     * @apiParam emails A comma delimited string of emails.
+     * @apiParam [name] The name of the conversation.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.id The id of the conversation.
+     */
+    private function createConversation(Request $request)
+    {
+        $required = array('emails');
+
+        if ($request->has($required)) {
+            return Conversation::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
     
     /**
-     * @apiIgnore Untested
      * @api {post} / getConversationsByUser
      * @apiGroup Message
      * @apiName getConversationsByUser
@@ -1748,7 +1769,6 @@ class ConfplusControllerV1 extends Controller
     }
     
     /**
-     * @apiIgnore Untested
      * @api {post} / getConversation
      * @apiGroup Message
      * @apiName getConversation

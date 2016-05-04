@@ -17,12 +17,23 @@ class UserTag extends Model
      * @return [JSON]       [A JSON string containing a success or error body]
      */
     public static function insert(array $data) {
-        $success = DB::table('users_tag')->insert($data);
+        $tags = explode(',', $data['tag_names']);
+        
+        $tagArray = [];
+        
+        foreach ($tags as $tag) {
+            $tagArray[] = [
+                'email' => $data['email'],
+                'tag_name' => $tag
+            ];
+        }
+        
+        $success = DB::table('users_tag')->insert($tagArray);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'User tag successfully created.'));
+            return JSONUtilities::returnData(array('message' => 'User tags successfully created.'));
         } else {
-            return JSONUtilities::returnError('Could not insert user tag.');
+            return JSONUtilities::returnError('Could not insert user tags.');
         }
     }
     
