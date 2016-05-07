@@ -55,6 +55,19 @@ class Venue extends Model
         }
     }
     
+    public static function delete(array $data)
+    {
+        $success = DB::table('venues')
+            ->where('venue_id', $data['venue_id'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Venue does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'Venue successfully deleted.'));
+    }
+    
     public static function getByLocation(array $data)
     {
         $query = DB::table('venues')

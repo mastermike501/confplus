@@ -37,6 +37,22 @@ class EventTag extends Model
         }
     }
     
+    public static function delete(array $data)
+    {
+        $tags = explode(',', $data['tag_names']);
+        
+        $tags = array_map(function ($item) {
+            return trim($item);
+        }, $tags);
+        
+        $success = DB::table('events_tag')
+            ->where('event_id', $data['event_id'])
+            ->whereIn('tag_name', $tags)
+            ->delete();
+        
+        return JSONUtilities::returnData(array('message' => 'Event tags successfully deleted.'));
+    }
+    
     public static function getEventTags(array $data) {
         $results = DB::table('event_tag')
             ->where('event_id', $data['event_id'])

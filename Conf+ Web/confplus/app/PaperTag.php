@@ -37,6 +37,22 @@ class PaperTag extends Model
         }
     }
     
+    public static function delete(array $data)
+    {
+        $tags = explode(',', $data['tag_names']);
+        
+        $tags = array_map(function ($item) {
+            return trim($item);
+        }, $tags);
+        
+        $success = DB::table('papers_tag')
+            ->where('paper_id', $data['paper_id'])
+            ->whereIn('tag_name', $tags)
+            ->delete();
+        
+        return JSONUtilities::returnData(array('message' => 'Paper tags successfully deleted.'));
+    }
+    
     public static function getPaperTags(array $data) {
         $results = DB::table('paper_tag')
             ->where('paper_id', $data['paper_id'])

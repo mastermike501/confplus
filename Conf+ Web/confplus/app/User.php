@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 use DB;
+use Hash;
 
 use App\Http\Helpers\JSONUtilities;
 use App\Http\Helpers\FormatUtilities;
@@ -15,6 +16,24 @@ class User extends Model
     private static $timecolumns = [
         'dob' => 'd-m-Y'
     ];
+    
+    public static function login(array $data)
+    {
+        $results = DB::table('users')
+            ->select('email', 'password')
+            ->where('email', $data['email'])
+            ->get();
+        
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('Email does not exist.');
+        }
+        
+        if (Hash::check($data['password'], $results['password'])) {
+            return JSONUtilities::returnError('Password is incorrect.');
+        }
+        
+        return JSONUtilities::returnData(array('message' => 'Login successful.'));
+    }
     
     /**
      * [get]
@@ -47,6 +66,8 @@ class User extends Model
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
+        
+        $data['password'] = Hash::make($data['password']);
         
         $success = DB::table('users')->insert($data);
 
