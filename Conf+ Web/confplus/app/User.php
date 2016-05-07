@@ -28,7 +28,7 @@ class User extends Model
             return JSONUtilities::returnError('Email does not exist.');
         }
         
-        if (Hash::check($data['password'], $results['password'])) {
+        if (Hash::check($data['password'], $results[0]['password'])) {
             return JSONUtilities::returnError('Password is incorrect.');
         }
         
