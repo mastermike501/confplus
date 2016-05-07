@@ -72,7 +72,7 @@ class Resource extends Model
         }
     }
 
-    public static function delete(array $data)
+    public static function remove(array $data)
     {
         $success = DB::table('resource')
             ->where('venue_id', $data['venue_id'])

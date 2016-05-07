@@ -421,7 +421,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return Event::delete($request->except(['method']));
+        return Event::remove($request->except(['method']));
     }
 
     /**
@@ -621,7 +621,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return Ticket::delete($request->except(['method']));
+        return Ticket::remove($request->except(['method']));
     }
 
     private function purchaseTicket(Request $request)
@@ -779,7 +779,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return Paper::delete($request->except(['method']));
+        return Paper::remove($request->except(['method']));
     }
 
     /**
@@ -911,7 +911,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return Room::delete($request->except(['method']));
+        return Room::remove($request->except(['method']));
     }
 
     /**
@@ -1028,7 +1028,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return Venue::delete($request->except(['method']));
+        return Venue::remove($request->except(['method']));
     }
 
     /**
@@ -1162,7 +1162,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return Session::delete($request->except(['method']));
+        return Session::remove($request->except(['method']));
     }
 
     /**
@@ -1254,7 +1254,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return UserTag::delete($request->except(['method']));
+        return UserTag::remove($request->except(['method']));
     }
 
     /**
@@ -1277,7 +1277,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return EventTag::delete($request->except(['method']));
+        return EventTag::remove($request->except(['method']));
     }
     
     /**
@@ -1300,7 +1300,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return PaperTag::delete($request->except(['method']));
+        return PaperTag::remove($request->except(['method']));
     }
 
     /**
@@ -1476,7 +1476,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return Resource::delete($request->except(['method']));
+        return Resource::remove($request->except(['method']));
     }
 
     /**
@@ -1703,7 +1703,7 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
         
-        return PaperAuthored::delete($request->except(['method']));
+        return PaperAuthored::remove($request->except(['method']));
     }
 
     /**
@@ -1902,7 +1902,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('email', 'paper_id', 'event_id');
 
         if ($request->has($required)) {
-            return PaperReviewed::delete($request->only($required));
+            return PaperReviewed::remove($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

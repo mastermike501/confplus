@@ -37,7 +37,7 @@ class PaperTag extends Model
         }
     }
     
-    public static function delete(array $data)
+    public static function remove(array $data)
     {
         $tags = explode(',', $data['tag_names']);
         

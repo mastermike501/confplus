@@ -58,7 +58,7 @@ class PaperAuthored extends Model
         }
     }
     
-    public static function delete(array $data)
+    public static function remove(array $data)
     {
         $success = DB::table('paper_authored')
             ->where('email', $data['email'])
