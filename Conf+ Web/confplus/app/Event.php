@@ -91,7 +91,7 @@ class Event extends Model
         }
     }
 
-    public static function delete(array $data)
+    public static function remove(array $data)
     {
         $success = DB::table('event')
             ->where('event_id', $data['event_id'])

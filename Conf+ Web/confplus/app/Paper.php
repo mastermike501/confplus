@@ -126,7 +126,7 @@ class Paper extends Model
         }
     }
 
-    public static function delete(array $data)
+    public static function remove(array $data)
     {
         $success = DB::table('papers')
             ->where('paper_id', $data['paper_id'])

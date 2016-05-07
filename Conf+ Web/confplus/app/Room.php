@@ -88,7 +88,7 @@ class Room extends Model
         }
     }
     
-    public static function delete(array $data)
+    public static function remove(array $data)
     {
         $success = DB::table('rooms')
             ->where('venue_id', $data['venue_id'])
