@@ -37,6 +37,22 @@ class UserTag extends Model
         }
     }
     
+    public static function delete(array $data)
+    {
+        $tags = explode(',', $data['tag_names']);
+        
+        $tags = array_map(function ($item) {
+            return trim($item);
+        }, $tags);
+        
+        $success = DB::table('users_tag')
+            ->where('email', $data['email'])
+            ->whereIn('tag_name', $tags)
+            ->delete();
+        
+        return JSONUtilities::returnData(array('message' => 'User tags successfully deleted.'));
+    }
+    
     public static function getUserTags(array $data) {
         $results = DB::table('users_tag')
             ->where('email', $data['email'])

@@ -91,6 +91,27 @@ class Event extends Model
         }
     }
 
+    public static function delete(array $data)
+    {
+        $success = DB::table('event')
+            ->where('event_id', $data['event_id'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Event does not exist.');
+        } 
+        
+        $localStorage = Storage::disk('local');
+
+        $posterPath = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
+
+        if ($localStorage->exists($posterPath)) {
+            $localStorage->delete($posterPath);
+        }
+        
+        return JSONUtilities::returnData(array('message' => 'Paper successfully deleted.'));
+    }
+
     /**
      * [uploadPoster]
      * @param  array  $data [Poster data to upload]

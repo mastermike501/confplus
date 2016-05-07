@@ -16,6 +16,23 @@ class Ticket extends Model
         'end_date' => 'd-m-Y H:i'
     ];
     
+    public static function get(array $data) {
+        
+        $results = DB::table('tickets')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->where('name', $data['name'])
+            ->where('class', $data['class'])
+            ->where('type', $data['type'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results);
+    }
+    
     /**
      * [getTypes]
      * @param  array  $data [description]
@@ -114,5 +131,22 @@ class Ticket extends Model
         } else {
             return JSONUtilities::returnError('Could not update ticket.');
         }
+    }
+    
+    public static function delete(array $data)
+    {
+        $success = DB::table('tickets')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->where('name', $data['name'])
+            ->where('class', $data['class'])
+            ->where('type', $data['type'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Ticket does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'Ticket successfully deleted.'));
     }
 }

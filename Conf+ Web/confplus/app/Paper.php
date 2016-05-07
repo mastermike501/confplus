@@ -126,6 +126,28 @@ class Paper extends Model
         }
     }
 
+    public static function delete(array $data)
+    {
+        $success = DB::table('papers')
+            ->where('paper_id', $data['paper_id'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Paper does not exist.');
+        } 
+        
+        $localStorage = Storage::disk('local');
+
+        $paperPath = 'papers/' . 'paper_' . $data['paper_id'] . '.txt';
+
+        //remove an earlier version of poster, if exists
+        if ($localStorage->exists($paperPath)) {
+            $localStorage->delete($paperPath);
+        }
+        
+        return JSONUtilities::returnData(array('message' => 'Paper successfully deleted.'));
+    }
+
     /**
      * [getByTag]
      * @param  array  $data [description]
