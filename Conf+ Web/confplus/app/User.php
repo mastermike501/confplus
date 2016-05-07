@@ -20,7 +20,7 @@ class User extends Model
     public static function login(array $data)
     {
         $results = DB::table('users')
-            ->select('email', 'password')
+            ->select('password')
             ->where('email', $data['email'])
             ->get();
         
@@ -29,10 +29,10 @@ class User extends Model
         }
         
         if (Hash::check($data['password'], $results[0]['password'])) {
-            return JSONUtilities::returnError('Password is incorrect.');
+            return JSONUtilities::returnData(array('message' => 'Login successful.'));
         }
         
-        return JSONUtilities::returnData(array('message' => 'Login successful.'));
+        return JSONUtilities::returnError('Password is incorrect.');
     }
     
     /**
