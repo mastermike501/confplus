@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class dropUniqueOfUrlPapersTable extends Migration
+class DropUniqueOfUrlPapersTable extends Migration
 {
     /**
      * Run the migrations.
