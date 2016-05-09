@@ -57,4 +57,18 @@ class PaperAuthored extends Model
             return JSONUtilities::returnError('Could not insert author.');
         }
     }
+    
+    public static function remove(array $data)
+    {
+        $success = DB::table('paper_authored')
+            ->where('email', $data['email'])
+            ->where('paper_id', $data['paper_id'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Paper does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'Author successfully deleted.'));
+    }
 }

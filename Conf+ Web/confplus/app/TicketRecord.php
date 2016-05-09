@@ -89,4 +89,18 @@ class TicketRecord extends Model
             return JSONUtilities::returnError('Could not add session attendee.');
         }
     }
+    
+    public static function validateTicket(array $data)
+    {
+        $results = DB::table('ticket_record')
+            ->where('record_id', $data['ticket_id'])
+            ->where('email', $data['email'])
+            ->get();
+            
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+        
+        return JSONUtilities::returnData(array('message' => 'Ticket exists.'));
+    }
 }

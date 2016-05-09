@@ -105,4 +105,18 @@ class Session extends Model
             return JSONUtilities::returnError('Could not update session. ' .$success);
         }
     }
+    
+    public static function remove(array $data)
+    {
+        $success = DB::table('sessions')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Session does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'Session successfully deleted.'));
+    }
 }

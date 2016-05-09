@@ -87,4 +87,18 @@ class Room extends Model
             return JSONUtilities::returnError('Could not update room.');
         }
     }
+    
+    public static function remove(array $data)
+    {
+        $success = DB::table('rooms')
+            ->where('venue_id', $data['venue_id'])
+            ->where('room_name', $data['room_name'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Room does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'Room successfully deleted.'));
+    }
 }

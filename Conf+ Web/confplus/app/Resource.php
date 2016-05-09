@@ -72,6 +72,21 @@ class Resource extends Model
         }
     }
 
+    public static function remove(array $data)
+    {
+        $success = DB::table('resource')
+            ->where('venue_id', $data['venue_id'])
+            ->where('room_name', $data['room_name'])
+            ->where('name', $data['name'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Resource does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'Resource successfully deleted.'));
+    }
+
     /**
      * [getByRoom]
      * @param  array  $data [description]

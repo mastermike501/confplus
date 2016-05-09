@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 use DB;
+use Hash;
 
 use App\Http\Helpers\JSONUtilities;
 use App\Http\Helpers\FormatUtilities;
@@ -15,6 +16,24 @@ class User extends Model
     private static $timecolumns = [
         'dob' => 'd-m-Y'
     ];
+    
+    public static function login(array $data)
+    {
+        $results = DB::table('users')
+            ->select('password')
+            ->where('email', $data['email'])
+            ->get();
+        
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('Email does not exist.');
+        }
+        
+        if (Hash::check($data['password'], $results[0]['password'])) {
+            return JSONUtilities::returnData(array('message' => 'Login successful.'));
+        }
+        
+        return JSONUtilities::returnError('Password is incorrect.');
+    }
     
     /**
      * [get]
@@ -47,6 +66,8 @@ class User extends Model
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
+        
+        $data['password'] = Hash::make($data['password']);
         
         $success = DB::table('users')->insert($data);
 
@@ -102,33 +123,60 @@ class User extends Model
      */
     public static function getReviewersByPaperId(array $data)
     {
-        $results = DB::table('users')
-            ->join('paper_reviewed', 'users.email', '=', 'paper_reviewed.email')
-            ->where('paper_id', $data['paper_id'])
+        $query = DB::table('paper_reviewed')
+            ->select('email')
+            ->where('paper_id', $data['paper_id']);
+        
+        if (array_key_exists('event_id', $data)) {
+            $query->where('event_id', $data['event_id']);
+        }
+        
+        $results1 = $query->get();
+        
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No results');
+        }
+        
+        $results2 = DB::table('users')
+            ->whereIn('email', $results1)
             ->get();
 
-        if (count($results) == 0) {
+        if (count($results2) == 0) {
             return JSONUtilities::returnError('No record exists');
         }
 
-        return JSONUtilities::returnData($results);
+        return JSONUtilities::returnData($results2);
     }
     
-    /**
-     * [getEventsAttended]
-     * @param  array  $data [description]
-     * @return [JSON]       [description]
-     */
-    public static function getEventsAttended(array $data)
+    public static function getEventsAttending(array $data)
     {
-        $results1 = DB::table('ticket_record')
+        $query = DB::table('ticket_record')
             ->select('event_id')
             ->distinct()
-            ->where('email', $data['email'])
-            ->get();
+            ->where('email', $data['email']);
+        
+        switch ($data['criteria']) {
+            case 'past':
+                $query->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'));
+                break;
+            
+            case 'future':
+                $query->where('to_date', '<', DB::raw('CURRENT_TIMESTAMP'));
+                break;
+            
+            case 'all':
+                //do nothing
+                break;
+            
+            default:
+                //do nothing
+                break;
+        }
+        
+        $results1 = $query->get();
         
         if (count($results1) == 0) {
-            return JSONUtilities::returnError('No such email exists');
+            return JSONUtilities::returnError('No results');
         }
         
         //put results into a single dimension array

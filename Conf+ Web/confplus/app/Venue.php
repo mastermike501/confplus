@@ -33,10 +33,10 @@ class Venue extends Model
 
     public static function insert(array $data)
     {
-        $success = DB::table('venues')->insert($data);
+        $id = DB::table('venues')->insertGetId($data);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Venue successfully created.'));
+            return JSONUtilities::returnData(array('id' => $id));
         } else {
             return JSONUtilities::returnError('Could not insert venue.');
         }
@@ -54,4 +54,39 @@ class Venue extends Model
             return JSONUtilities::returnError('Could not update venue.');
         }
     }
+    
+    public static function remove(array $data)
+    {
+        $success = DB::table('venues')
+            ->where('venue_id', $data['venue_id'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Venue does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'Venue successfully deleted.'));
+    }
+    
+    public static function getByLocation(array $data)
+    {
+        $query = DB::table('venues')
+            ->where('country', $data['country']);
+        
+        if (array_key_exists('state', $data)) {
+            $query->where('state', $data['state']);
+        }
+        if (array_key_exists('city', $data)) {
+            $query->where('city', $data['city']);
+        }
+        
+        $results = $query->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results);
+    }
+    
 }

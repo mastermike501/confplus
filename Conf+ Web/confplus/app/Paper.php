@@ -43,7 +43,7 @@ class Paper extends Model
 
         if ($localStorage->exists($paperPath)) {
             $dataUrl = $localStorage->get($paperPath);
-            $results[0]->paper_data_url = $dataUrl;
+            $results[0]['paper_data_url'] = $dataUrl;
         }
 
         return JSONUtilities::returnData($results);
@@ -79,7 +79,7 @@ class Paper extends Model
         $success = $localStorage->put($paperPath, $dataUrl);
 
         if ($success) {
-            return JSONUtilities::returnData(array('message' => 'Paper successfully created.'));
+            return JSONUtilities::returnData(array('id' => $id));
         } else {
             return JSONUtilities::returnError('Could not insert paper.');
         }
@@ -126,6 +126,28 @@ class Paper extends Model
         }
     }
 
+    public static function remove(array $data)
+    {
+        $success = DB::table('papers')
+            ->where('paper_id', $data['paper_id'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Paper does not exist.');
+        } 
+        
+        $localStorage = Storage::disk('local');
+
+        $paperPath = 'papers/' . 'paper_' . $data['paper_id'] . '.txt';
+
+        //remove an earlier version of poster, if exists
+        if ($localStorage->exists($paperPath)) {
+            $localStorage->delete($paperPath);
+        }
+        
+        return JSONUtilities::returnData(array('message' => 'Paper successfully deleted.'));
+    }
+
     /**
      * [getByTag]
      * @param  array  $data [description]
@@ -161,11 +183,11 @@ class Paper extends Model
         $resultsLength = count($results);
 
         foreach ($results as &$paper) {
-            $paperPath = 'papers/' . 'paper_' . $paper->paper_id . '.txt';
+            $paperPath = 'papers/' . 'paper_' . $paper['paper_id'] . '.txt';
 
             if ($localStorage->exists($paperPath)) {
                 $dataUrl = $localStorage->get($paperPath);
-                $paper->paper_data_url = $dataUrl;
+                $paper['paper_data_url'] = $dataUrl;
             }
         }
 
