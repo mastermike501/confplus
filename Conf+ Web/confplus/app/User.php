@@ -20,7 +20,7 @@ class User extends Model
     public static function login(array $data)
     {
         $results = DB::table('users')
-            ->select('password')
+            ->select('password', 'active')
             ->where('email', $data['email'])
             ->get();
         
