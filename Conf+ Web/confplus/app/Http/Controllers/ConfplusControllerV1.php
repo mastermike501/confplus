@@ -15,6 +15,7 @@ use App\EventTag;
 use App\Paper;
 use App\PaperAuthored;
 use App\PaperReviewed;
+use App\PaperSubmitted;
 use App\PaperTag;
 use App\Payment;
 use App\Resource;
@@ -120,29 +121,51 @@ class ConfplusControllerV1 extends Controller
         'acceptPaper',
         
         'addEventRole',
-        'getSeatsAndOccupants'
+        'getSeatsAndOccupants',
+        'addPaperToEvent',
+        'getPapersSubmittedToEvent'
     );
     
     /**
-     * @api {post} / acceptPaper
+     * @api {post} / addPaperToEvent
      * @apiGroup Paper
-     * @apiName acceptPaper
+     * @apiName addPaperToEvent
      *
-     * @apiParam accept Value indicating whether reviewer accepts paper. Must be [accepted | rejected | coi]
-     * @apiParam email The email of a reviewer.
-     * @apiParam paper_id The id of a paper.
-     * @apiParam event_id The id of an event.
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function addPaperToEvent(Request $request)
+    {
+        $required = array('paper_id', 'event_id');
+
+        if ($request->has($required)) {
+            return PaperSubmitted::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getPapersSubmittedToEvent
+     * @apiGroup Paper
+     * @apiName getPapersSubmittedToEvent
+     *
+     * @apiParam event_id The id of the event.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
-     * @apiSuccess data.message Message denoting success.
+     * @apiSuccess data.<data> Refer to getPaper method for attributes.
      */
-    private function acceptPaper(Request $request)
+    private function getPapersSubmittedToEvent(Request $request)
     {
-        $required = array('accept', 'email', 'paper_id', 'event_id');
-        
+        $required = array('event_id');
+
         if ($request->has($required)) {
-            return PaperReviewed::acceptPaper($request->only($required));
+            return Paper::getByEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -2442,4 +2465,28 @@ class ConfplusControllerV1 extends Controller
         }
     }
     
+    /**
+     * @api {post} / acceptPaper
+     * @apiGroup Paper
+     * @apiName acceptPaper
+     *
+     * @apiParam accept Value indicating whether reviewer accepts paper. Must be [accepted | rejected | coi]
+     * @apiParam email The email of a reviewer.
+     * @apiParam paper_id The id of a paper.
+     * @apiParam event_id The id of an event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function acceptPaper(Request $request)
+    {
+        $required = array('accept', 'email', 'paper_id', 'event_id');
+        
+        if ($request->has($required)) {
+            return PaperReviewed::acceptPaper($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
 }

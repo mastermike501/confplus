@@ -35,11 +35,7 @@ class Venue extends Model
     {
         $id = DB::table('venues')->insertGetId($data);
 
-        if ($success) {
-            return JSONUtilities::returnData(array('id' => $id));
-        } else {
-            return JSONUtilities::returnError('Could not insert venue.');
-        }
+        return JSONUtilities::returnData(array('id' => $id));
     }
 
     public static function edit($primaryKey, array $data)
