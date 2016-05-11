@@ -97,4 +97,27 @@ class PaperReviewed extends Model
 
         return JSONUtilities::returnData($results2);
     }
+    
+    public static function acceptPaper(array $data) {
+        $types = ['accepted', 'rejected', 'coi'];
+        $data['accept'] = strtolower($data['accept']);
+        
+        if (in_array($data['accept'], $types)) {
+            return JSONUtilities::returnError('Accept must be "accepted", "rejected" or "coi".');
+        }
+        
+        $comment = '[system] ' . $data['accept'];
+        
+        $success = DB::table('paper_reviewed')
+            ->where('email', $data['email'])
+            ->where('paper_id', $data['paper_id'])
+            ->where('event_id', $data['event_id'])
+            ->update('comment', $comment);
+        
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Acceptance successfully added.'));
+        } else {
+            return JSONUtilities::returnError('Could not insert acceptance.');
+        }
+    }
 }

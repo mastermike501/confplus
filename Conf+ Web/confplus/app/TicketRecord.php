@@ -103,4 +103,88 @@ class TicketRecord extends Model
         
         return JSONUtilities::returnData(array('message' => 'Ticket exists.'));
     }
+    
+    public static function getSeatsAndOccupants(array $data)
+    {
+        $results = DB::table('ticket_record')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->get();
+            
+        return JSONUtilities::returnData($results);
+    }
+    
+    public static function purchaseTicket(array $data)
+    {
+        // $results0 = DB::table('ticket_record')
+        //     ->where('event_id', $data['event_id'])
+        //     ->where('title', $data['title'])
+        //     ->where('ticket_name', $data['ticket_name'])
+        //     ->where('class', $data['class'])
+        //     ->where('type', $data['type'])
+        //     ->where('venue_id', $data['venue_id'])
+        //     ->where('room_name', $data['room_name'])
+        //     ->where('seat_num', $data['seat_num'])
+        //     ->whereNull('email')
+        //     ->get();
+            
+        // if (count($results0) == 0) {
+        //     return JSONUtilities::returnError('This ticket has been taken.');
+        // }
+        
+        // $success = DB::table('ticket_record')
+        //     ->where('event_id', $data['event_id'])
+        //     ->where('title', $data['title'])
+        //     ->where('ticket_name', $data['ticket_name'])
+        //     ->where('class', $data['class'])
+        //     ->where('type', $data['type'])
+        //     ->where('venue_id', $data['venue_id'])
+        //     ->where('room_name', $data['room_name'])
+        //     ->where('seat_num', $data['seat_num'])
+        //     ->update(['email' => $data['email']]);
+            
+        // if (!$success) {
+        //     return JSONUtilities::returnError('Could not link user with ticket.');
+        // }
+        
+        // $results1 = DB::table('tickets')
+        //     ->where('event_id', $data['event_id'])
+        //     ->where('title', $data['title'])
+        //     ->where('name', $data['ticket_name'])
+        //     ->where('class', $data['class'])
+        //     ->where('type', $data['type'])
+        //     ->get();
+
+        // $ticketType = $results1[0];
+
+        // if ($ticketType['num_purchased'] >= $ticketType['quantity']) {
+        //     return JSONUtilities::returnError('There are no more tickets of this type.');
+        // }
+        
+        // $results2 = DB::table('events')
+        //     ->select('payee', 'card#')
+        //     ->where('event_id', $data['event_id'])
+        //     ->get();
+        
+        // $eventPayment = $results2[0];
+        
+        // $success = DB::table('payments')
+        //     ->insert([
+        //         'email' => $data['email'],
+        //         'type' => 'ticket purchase',
+        //         'payee' => $eventPayment['payee'],
+        //         'card#' => $eventPayment['card#'],
+        //         'amount' => 
+        //     ]);
+
+        // //okay
+        // $ticketType['num_purchased']++;
+        // $success = DB::table('tickets')
+        //     ->where('event_id', $ticketType['event_id'])
+        //     ->where('title', $ticketType['title'])
+        //     ->where('name', $ticketType['name'])
+        //     ->where('class', $ticketType['class'])
+        //     ->where('type', $ticketType['type'])
+        //     ->update(['num_purchased' => $ticketType['num_purchased']]);
+    }
 }
