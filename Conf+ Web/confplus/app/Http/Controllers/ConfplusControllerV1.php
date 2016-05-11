@@ -117,11 +117,36 @@ class ConfplusControllerV1 extends Controller
         'getPaymentHistory',
         'requestToReview',
         'getRequestsToReview',
-        // 'acceptPaper'
+        'acceptPaper',
         
         'addEventRole',
-        
+        'getSeatsAndOccupants'
     );
+    
+    /**
+     * @api {post} / acceptPaper
+     * @apiGroup Paper
+     * @apiName acceptPaper
+     *
+     * @apiParam accept Value indicating whether reviewer accepts paper. Must be [accepted | rejected | coi]
+     * @apiParam email The email of a reviewer.
+     * @apiParam paper_id The id of a paper.
+     * @apiParam event_id The id of an event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function acceptPaper(Request $request)
+    {
+        $required = array('accept', 'email', 'paper_id', 'event_id');
+        
+        if ($request->has($required)) {
+            return PaperReviewed::acceptPaper($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
     
     public function store(Request $request)
     {
@@ -169,7 +194,7 @@ class ConfplusControllerV1 extends Controller
         var_dump($request->only(['a', 'b', 'c']));
     }
 
-     /**
+    /**
      * @api {post} / login
      * @apiGroup User
      * @apiName login
@@ -181,7 +206,7 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data JSON array containing the following data:
      * @apiSuccess data.message Indicated successful login.
      */
-    public function login(Request $request)
+    private function login(Request $request)
     {
         $required = array('email', 'password');
         
@@ -341,6 +366,7 @@ class ConfplusControllerV1 extends Controller
      * @apiParam description A description of the event that provides additional information about the event.
      * @apiParam venue_id The venue of the event.
      * @apiParam email The email of the user creating the event.
+     * @apiParam privacy The event privacy. Must be either [public | private]
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -348,7 +374,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function createEvent(Request $request)
     {
-        $required = array('name', 'type', 'from_date', 'to_date', 'description', 'venue_id', 'email');
+        $required = array('name', 'type', 'from_date', 'to_date', 'description', 'venue_id', 'email', 'privacy');
 
         if ($request->has($required)) {
             
@@ -356,10 +382,17 @@ class ConfplusControllerV1 extends Controller
             $type = $request->input('type');
             
             if (in_array($type, $types)) {
-                return Event::insert($request->except(['method']));
+                return JSONUtilities::returnError('Type must be "event" or "conference".');
             }
             
-            return JSONUtilities::returnError('Type must be "event" or "conference".');
+            $privacies = ['public', 'private'];
+            $privacy = $request->input('privacy');
+            
+            if (in_array($privacy, $privacies)) {
+                return JSONUtilities::returnError('Privacy must be "public" or "private".');
+            }
+            
+            return Event::insert($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -626,27 +659,13 @@ class ConfplusControllerV1 extends Controller
 
     private function purchaseTicket(Request $request)
     {
-        return JSONUtilities::returnError('purchaseTicket not implemented.');
-        //
-        $required = array('event_id', 'email', 'role', 'seat_no');
+        $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num', 'email');
 
         if (!$request->has($required)) {
             return JSONUtilities::returnRequirementsError($required);
         }
 
-        //$ticketSuccess = TicketType::purchaseTicket($request->only($required));
-
-        if (!is_array($ticketSuccess)) {
-            return $ticketSuccess;
-        }
-
-        //$eventAttendedSuccess = EventAttended::insert($request->only($required));
-
-        if (!is_array($eventAttendedSuccess)) {
-            return $eventAttendedSuccess;
-        }
-
-        return JSONUtilities::returnData(array_merge($ticketSuccess, $eventAttendedSuccess));
+        return TicketRecord::purchaseTicket($request->except(['method']));
     }
 
     /**
@@ -2140,9 +2159,9 @@ class ConfplusControllerV1 extends Controller
     }
     
     /**
-     * @api {post} / getEventsByKeyword
-     * @apiGroup Event
-     * @apiName getEventsByKeyword
+     * @api {post} / sendMessage
+     * @apiGroup Message
+     * @apiName sendMessage
      *
      * @apiParam sender_email The email of the sender.
      * @apiParam conversation_id The id of the conversation.
@@ -2388,6 +2407,36 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return EventRole::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getSeatsAndOccupants
+     * @apiGroup Ticket
+     * @apiName getSeatsAndOccupants
+     *
+     * @apiParam event_id The id of the event.
+     * @apiParam title The title of the session.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.event_id The event_id of the event.
+     * @apiSuccess data.title The title of the session that this ticket will be linked to.
+     * @apiSuccess data.ticket_name The name of the ticket.
+     * @apiSuccess data.class The class of the ticket.
+     * @apiSuccess data.type The type of the ticket.
+     * @apiSuccess data.venue_id The id of the venue.
+     * @apiSuccess data.room_name The name of the room in the given venue.
+     * @apiSuccess data.seat_num The seat number.
+     */
+    private function getSeatsAndOccupants(Request $request)
+    {
+        $required = array('event_id', 'title');
+
+        if ($request->has($required)) {
+            return TicketRecord::getSeatsAndOccupants($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
