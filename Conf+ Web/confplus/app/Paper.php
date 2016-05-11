@@ -169,31 +169,20 @@ class Paper extends Model
      */
     public static function getByAuthor(array $data)
     {
-        $results = DB::table('papers')
-            ->join('paper_authored', 'papers.paper_id', '=', 'paper_authored.paper_id')
+        $results1 = DB::table('paper_authored')
+            ->select('paper_id')
             ->where('email', $data['email'])
             ->get();
-
-        if (count($results) == 0) {
-            return JSONUtilities::returnError('No record exists');
+            
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No papers exist for this author.');
         }
-
-        $localStorage = Storage::disk('local');
-
-        $resultsLength = count($results);
-
-        foreach ($results as &$paper) {
-            $paperPath = 'papers/' . 'paper_' . $paper['paper_id'] . '.txt';
-
-            if ($localStorage->exists($paperPath)) {
-                $dataUrl = $localStorage->get($paperPath);
-                $paper['paper_data_url'] = $dataUrl;
-            }
-        }
-
-        unset($paper);
-
-        return JSONUtilities::returnData($results);
+        
+        $results2 = DB::table('papers')
+            ->whereIn('paper_id', $results1)
+            ->get();
+            
+        return JSONUtilities::returnData($results2);
     }
 
     /**
@@ -203,30 +192,36 @@ class Paper extends Model
      */
     public static function getByReviewer(array $data)
     {
-        $results = DB::table('papers')
-            ->join('paper_reviewed', 'papers.paper_id', '=', 'paper_reviewed.paper_id')
+        $results1 = DB::table('paper_reviewed')
+            ->select('paper_id')
             ->where('email', $data['email'])
             ->get();
+            
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No papers exist for this reviewer.');
+        }
+        
+        $results2 = DB::table('papers')
+            ->whereIn('paper_id', $results1)
+            ->get();
+            
+        return JSONUtilities::returnData($results2);
+    }
+    
+    public static function getByEvent(array $data) {
+        $results1 = DB::table('paper_submitted')
+            ->select('paper_id')
+            ->where('event_id', $data['event_id'])
+            ->get();
 
-        if (count($results) == 0) {
-            return JSONUtilities::returnError('No record exists');
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No papers exist for this event.');
         }
 
-        $localStorage = Storage::disk('local');
+        $results2 = DB::table('papers')
+            ->whereIn('paper_id', $results1)
+            ->get();
 
-        $resultsLength = count($results);
-
-        foreach ($results as &$paper) {
-            $paperPath = 'papers/' . 'paper_' . $paper->paper_id . '.txt';
-
-            if ($localStorage->exists($paperPath)) {
-                $dataUrl = $localStorage->get($paperPath);
-                $paper->paper_data_url = $dataUrl;
-            }
-        }
-
-        unset($paper);
-
-        return JSONUtilities::returnData($results);
+        return JSONUtilities::returnData($results2);
     }
 }
