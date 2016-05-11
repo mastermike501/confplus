@@ -26,11 +26,30 @@ class PaperReviewed extends Model
     
     public static function addReview(array $data)
     {
+        $updateData = array_only($data, ['comment', 'rate']);
+        
+        $rateAvg = DB::table('paper_reviewed')
+            ->where('email', $data['email'])
+            ->where('paper_id', $data['paper_id'])
+            ->where('event_id', $data['event_id'])
+            ->avg('rate');
+            
+        $tolerance = DB::table('events')
+            ->select('review_tolerance')
+            ->where('event_id', $data['event_id'])
+            ->get();
+        
+        $exceedsTolerance = (abs(intval($data['rate']) - intval($rateAvg[0])) > intval($tolerance[0]));
+        
+        if ($exceedsTolerance) {
+            $updateData['flag'] = '[system] [exceeeds tolerance]';
+        }
+        
         $success = DB::table('paper_reviewed')
             ->where('email', $data['email'])
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
-            ->update($data);
+            ->update($updateData);
 
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Review successfully added.'));

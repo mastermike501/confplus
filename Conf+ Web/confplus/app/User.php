@@ -28,6 +28,10 @@ class User extends Model
             return JSONUtilities::returnError('Email does not exist.');
         }
         
+        if ($results[0]['active'] == '0') {
+            return JSONUtilities::returnError('Email exists. User inactive.');
+        }
+        
         if (Hash::check($data['password'], $results[0]['password'])) {
             return JSONUtilities::returnData(array('message' => 'Login successful.'));
         }
@@ -111,6 +115,8 @@ class User extends Model
         $results = DB::table('users')
             ->join('users_tag', 'users.email', '=', 'users_tag.email')
             ->where('tag_name', $data['tag_name'])
+            ->whereNull('active')
+            ->orWhere('active', '1')
             ->get();
 
         return JSONUtilities::returnData($results);
@@ -139,6 +145,8 @@ class User extends Model
         
         $results2 = DB::table('users')
             ->whereIn('email', $results1)
+            ->where('active', '1')
+            ->whereNull('active')
             ->get();
 
         if (count($results2) == 0) {
