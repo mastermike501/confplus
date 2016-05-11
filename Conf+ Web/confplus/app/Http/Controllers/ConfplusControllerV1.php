@@ -50,7 +50,8 @@ class ConfplusControllerV1 extends Controller
         'updateTicket', //tested
         'deleteTicket',
         'makePayment', //tested
-        'getPaper', //tested
+        'getPaperDetails', //tested
+        'getPaperDataUrl',
         'createPaper', //tested
         'updatePaper', //tested
         'deletePaper',
@@ -125,51 +126,6 @@ class ConfplusControllerV1 extends Controller
         'addPaperToEvent',
         'getPapersSubmittedToEvent'
     );
-    
-    /**
-     * @api {post} / addPaperToEvent
-     * @apiGroup Paper
-     * @apiName addPaperToEvent
-     *
-     * @apiParam paper_id The id of the paper.
-     * @apiParam event_id The id of the event.
-     *
-     * @apiSuccess success Returns true upon success.
-     * @apiSuccess data JSON containing the following data:
-     * @apiSuccess data.message Message denoting success.
-     */
-    private function addPaperToEvent(Request $request)
-    {
-        $required = array('paper_id', 'event_id');
-
-        if ($request->has($required)) {
-            return PaperSubmitted::insert($request->except(['method']));
-        } else {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-    }
-    
-    /**
-     * @api {post} / getPapersSubmittedToEvent
-     * @apiGroup Paper
-     * @apiName getPapersSubmittedToEvent
-     *
-     * @apiParam event_id The id of the event.
-     *
-     * @apiSuccess success Returns true upon success.
-     * @apiSuccess data JSON array containing the following data:
-     * @apiSuccess data.<data> Refer to getPaper method for attributes.
-     */
-    private function getPapersSubmittedToEvent(Request $request)
-    {
-        $required = array('event_id');
-
-        if ($request->has($required)) {
-            return Paper::getByEvent($request->only($required));
-        } else {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-    }
     
     public function store(Request $request)
     {
@@ -404,14 +360,14 @@ class ConfplusControllerV1 extends Controller
             $types = ['event', 'conference'];
             $type = $request->input('type');
             
-            if (in_array($type, $types)) {
+            if (!in_array($type, $types)) {
                 return JSONUtilities::returnError('Type must be "event" or "conference".');
             }
             
             $privacies = ['public', 'private'];
             $privacy = $request->input('privacy');
             
-            if (in_array($privacy, $privacies)) {
+            if (!in_array($privacy, $privacies)) {
                 return JSONUtilities::returnError('Privacy must be "public" or "private".');
             }
             
@@ -717,9 +673,9 @@ class ConfplusControllerV1 extends Controller
     }
 
     /**
-     * @api {post} / getPaper
+     * @api {post} / getPaperDetails
      * @apiGroup Paper
-     * @apiName getPaper
+     * @apiName getPaperDetails
      *
      * @apiParam paper_id The paper id of the paper.
      *
@@ -734,12 +690,34 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data.final_rate Rating given to this paper.
      * @apiSuccess data.url
      */
-    private function getPaper(Request $request)
+    private function getPaperDetails(Request $request)
     {
         $required = array('paper_id');
 
         if ($request->has($required)) {
-            return Paper::get($request->except(['method']));
+            return Paper::getPaperDetails($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getPaperDataUrl
+     * @apiGroup Paper
+     * @apiName getPaperDataUrl
+     *
+     * @apiParam paper_id The paper id of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.paper_data_url The data url of the paper.
+     */
+    private function getPaperDataUrl(Request $request)
+    {
+        $required = array('paper_id');
+
+        if ($request->has($required)) {
+            return Paper::getPaperDataUrl($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -2485,6 +2463,51 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return PaperReviewed::acceptPaper($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / addPaperToEvent
+     * @apiGroup Paper
+     * @apiName addPaperToEvent
+     *
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function addPaperToEvent(Request $request)
+    {
+        $required = array('paper_id', 'event_id');
+
+        if ($request->has($required)) {
+            return PaperSubmitted::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getPapersSubmittedToEvent
+     * @apiGroup Paper
+     * @apiName getPapersSubmittedToEvent
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getPaper method for attributes.
+     */
+    private function getPapersSubmittedToEvent(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Paper::getByEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

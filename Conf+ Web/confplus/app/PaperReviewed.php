@@ -121,7 +121,7 @@ class PaperReviewed extends Model
         $types = ['accepted', 'rejected', 'coi'];
         $data['accept'] = strtolower($data['accept']);
         
-        if (in_array($data['accept'], $types)) {
+        if (!in_array($data['accept'], $types)) {
             return JSONUtilities::returnError('Accept must be "accepted", "rejected" or "coi".');
         }
         

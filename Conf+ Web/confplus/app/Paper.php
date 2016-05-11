@@ -22,7 +22,7 @@ class Paper extends Model
      * @param  array  $data [description]
      * @return [JSON]       [description]
      */
-    public static function get(array $data)
+    public static function getPaperDetails(array $data)
     {
         $results = DB::table('papers')
             ->where('paper_id', $data['paper_id'])
@@ -37,16 +37,22 @@ class Paper extends Model
             return JSONUtilities::returnError('More than one record exists. Contact backend support.');
         }
 
+        return JSONUtilities::returnData($results);
+    }
+
+    public static function getPaperDataUrl(array $data)
+    {
+        $paperDataUrl = [];
         $localStorage = Storage::disk('local');
 
         $paperPath = 'papers/' . 'paper_' . $data['paper_id'] . '.txt';
 
         if ($localStorage->exists($paperPath)) {
             $dataUrl = $localStorage->get($paperPath);
-            $results[0]['paper_data_url'] = $dataUrl;
+            $paperDataUrl['paper_data_url'] = $dataUrl;
         }
 
-        return JSONUtilities::returnData($results);
+        return JSONUtilities::returnData($paperDataUrl);
     }
 
     /**
