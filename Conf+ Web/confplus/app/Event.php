@@ -180,7 +180,6 @@ class Event extends Model
             ->select('venue_id')
             ->distinct()
             ->where('country', $data['country'])
-            ->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'))
             ->get();
         
         if (count($results1) == 0) {
@@ -192,6 +191,7 @@ class Event extends Model
         
         $results2 = DB::table('events')
             ->whereIn('venue_id', $results1)
+            ->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'))
             ->get();
 
         if (count($results2) == 0) {
