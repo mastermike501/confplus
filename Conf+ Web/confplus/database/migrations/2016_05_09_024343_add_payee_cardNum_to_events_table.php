@@ -15,7 +15,7 @@ class AddPayeeCardNumToEventsTable extends Migration
         Schema::table('events', function (Blueprint $table) {
             $table->string('payee');
             $table->string('cardNum');
-            $table->foreign(['payee', 'cardNum'])->references(['email', 'card#'])->on('billings')->onDelete('cascade');
+            // $table->foreign(['payee', 'cardNum'])->references(['email', 'card#'])->on('billings')->onDelete('cascade');
         });
     }
 
@@ -27,7 +27,7 @@ class AddPayeeCardNumToEventsTable extends Migration
     public function down()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropForeign(['payee', 'cardNum']);
+            // $table->dropForeign(['payee', 'cardNum']);
             $table->dropColumn('payee');
             $table->dropColumn('cardNum');
         });
