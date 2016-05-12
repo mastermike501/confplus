@@ -2629,7 +2629,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('event_id', 'email');
 
         if ($request->has($required)) {
-            return TicketRecord::getByUserForEvent($request->only($required));
+            return TicketRecord::getUserTicketsForEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
