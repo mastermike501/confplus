@@ -74,38 +74,6 @@ class Ticket extends Model
     }
 
     /**
-     * [purchaseTicket]
-     * @param  array  $data [description]
-     * @return [JSON|array]             [description]
-     */
-    public static function purchaseTicket(array $data) {
-
-        $results = DB::table('tickets')
-            ->select('quantity', 'num_purchased', 'price')
-            ->where('event_id', $data['event_id'])
-            ->where('name', $data['name'])
-            ->get();
-
-        if ($results['num_purchased'] >= $results['quantity']) {
-            return JSONUtilities::returnError('There are no more tickets of this type.');
-        }
-
-        $price = $results['price']; //what do we do with this variable?
-        $results['num_purchased']++;
-
-        //update ticket_type table
-        DB::table('tickets')
-            ->where('event_id', $data['event_id'])
-            ->where('name', $data['name'])
-            ->update(['num_purchased' => $results['num_purchased']]);
-
-        //insert new data into event_attended table
-        DB::table('event_attended')->insert($data);
-
-        return array('price' => $price);
-    }
-
-    /**
      * [edit]
      * @param  [array] $primaryKey [description]
      * @param  array  $data       [description]

@@ -20,12 +20,16 @@ class User extends Model
     public static function login(array $data)
     {
         $results = DB::table('users')
-            ->select('password')
+            ->select('password', 'active')
             ->where('email', $data['email'])
             ->get();
         
         if (count($results) == 0) {
             return JSONUtilities::returnError('Email does not exist.');
+        }
+        
+        if ($results[0]['active'] == '0') {
+            return JSONUtilities::returnError('Email exists. User inactive.');
         }
         
         if (Hash::check($data['password'], $results[0]['password'])) {
@@ -111,6 +115,8 @@ class User extends Model
         $results = DB::table('users')
             ->join('users_tag', 'users.email', '=', 'users_tag.email')
             ->where('tag_name', $data['tag_name'])
+            ->whereNull('active')
+            ->orWhere('active', '1')
             ->get();
 
         return JSONUtilities::returnData($results);
@@ -139,6 +145,8 @@ class User extends Model
         
         $results2 = DB::table('users')
             ->whereIn('email', $results1)
+            ->where('active', '1')
+            ->whereNull('active')
             ->get();
 
         if (count($results2) == 0) {

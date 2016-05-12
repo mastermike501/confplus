@@ -12,7 +12,7 @@ class FormatUtilities
     public static function getDateTime(array $timecolumns, array &$data)
     {
         foreach ($timecolumns as $column => $format) {
-            if (array_key_exists($column, $data)) {
+            if (array_key_exists($column, $data) && !is_null($data[$column])) {
                 try{
                     $data[$column] = Carbon::createFromFormat(self::$format, $data[$column]);
                 } catch (InvalidArgumentException $e) {
