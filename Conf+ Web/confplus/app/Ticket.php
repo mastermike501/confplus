@@ -116,5 +116,5 @@ class Ticket extends Model
         } 
         
         return JSONUtilities::returnData(array('message' => 'Ticket successfully deleted.'));
-    }
+    }  
 }
