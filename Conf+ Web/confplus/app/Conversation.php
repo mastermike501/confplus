@@ -50,6 +50,7 @@ class Conversation extends Model
     public static function get(array $data) {
        $results = DB::table('messages')
             ->where('conversation_id', $data['conversation_id'])
+            ->orderBy('date')
             ->get();
         
         if (count($results1) == 0) {
