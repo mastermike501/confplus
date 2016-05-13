@@ -132,7 +132,9 @@ class ConfplusControllerV1 extends Controller
         'getCOIOfAuthor',
         
         'getUserTicketsForEvent',
-        'getTicketAndUser'
+        'getTicketAndUser',
+        
+        'removeUserFromConversation'
     );
     
     public function store(Request $request)
@@ -2630,6 +2632,29 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return TicketRecord::getUserTicketsForEvent($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / removeUserFromConversation
+     * @apiGroup Message
+     * @apiName removeUserFromConversation
+     *
+     * @apiParam conversation_id The id of the conversation.
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful login.
+     */
+    private function removeUserFromConversation(Request $request)
+    {
+        $required = array('conversation_id', 'email');
+        
+        if ($request->has($required)) {
+            return Conversation::removeUser($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

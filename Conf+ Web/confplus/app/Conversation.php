@@ -71,4 +71,17 @@ class Conversation extends Model
 
         return JSONUtilities::returnData($results);
     }
+    
+    public static function removeUser(arrat $data) {
+        $success = DB::table('participants')
+            ->where('conversation_id', $data['conversation_id'])
+            ->where('email', $data['email'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Conversation or user does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'User removed from conversation.'));
+    }
 }
