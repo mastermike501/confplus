@@ -53,7 +53,7 @@ class Conversation extends Model
             ->orderBy('date')
             ->get();
         
-        if (count($results1) == 0) {
+        if (count($results) == 0) {
             return JSONUtilities::returnError('No messages in this conversation');
         }
 
