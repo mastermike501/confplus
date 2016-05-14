@@ -13,6 +13,7 @@ use App\Conversation;
 use App\Event;
 use App\EventRole;
 use App\EventTag;
+use App\Message;
 use App\Paper;
 use App\PaperAuthored;
 use App\PaperReviewed;
