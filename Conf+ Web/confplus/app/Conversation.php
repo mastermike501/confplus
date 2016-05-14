@@ -65,10 +65,23 @@ class Conversation extends Model
             ->where('email', $data['email'])
             ->get();
         
-        if (count($results1) == 0) {
+        if (count($results) == 0) {
             return JSONUtilities::returnError('No conversations for this user');
         }
 
         return JSONUtilities::returnData($results);
+    }
+    
+    public static function removeUser(array $data) {
+        $success = DB::table('participants')
+            ->where('conversation_id', $data['conversation_id'])
+            ->where('email', $data['email'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Conversation or user does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'User removed from conversation.'));
     }
 }
