@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Billing;
+use App\COI;
 use App\Conversation;
 use App\Event;
 use App\EventRole;
@@ -124,7 +125,14 @@ class ConfplusControllerV1 extends Controller
         'addEventRole',
         'getSeatsAndOccupants',
         'addPaperToEvent',
-        'getPapersSubmittedToEvent'
+        'getPapersSubmittedToEvent',
+        
+        'createCOI',
+        'getCOIOfReviewer',
+        'getCOIOfAuthor',
+        
+        'getUserTicketsForEvent',
+        'getTicketAndUser'
     );
     
     public function store(Request $request)
@@ -2508,6 +2516,120 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return Paper::getByEvent($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+
+    /**
+     * @api {post} / createCOI
+     * @apiGroup COI
+     * @apiName createCOI
+     *
+     * @apiParam reviewer The email of the reviewer.
+     * @apiParam author The email of the author.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function createCOI(Request $request)
+    {
+        $required = array('reviewer', 'author');
+
+        if ($request->has($required)) {
+            return COI::insert($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getCOIOfReviewer
+     * @apiGroup COI
+     * @apiName getCOIOfReviewer
+     *
+     * @apiParam reviewer The email of the reviewer.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.reviewer The email of the reviewer.
+     * @apiSuccess data.author The email of the author.
+     */
+    private function getCOIOfReviewer(Request $request)
+    {
+        $required = array('reviewer');
+
+        if ($request->has($required)) {
+            return COI::getByReviewer($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getCOIOfAuthor
+     * @apiGroup COI
+     * @apiName getCOIOfAuthor
+     *
+     * @apiParam author The email of the author.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.reviewer The email of the reviewer.
+     * @apiSuccess data.author The email of the author.
+     */
+    private function getCOIOfAuthor(Request $request)
+    {
+        $required = array('author');
+
+        if ($request->has($required)) {
+            return COI::getByAuthor($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getTicketAndUser
+     * @apiGroup TicketRecord
+     * @apiName getTicketAndUser
+     *
+     * @apiParam ticket_id The id of the ticket record.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getTicket method for attributes.
+     */
+    private function getTicketAndUser(Request $request)
+    {
+        $required = array('ticket_id');
+
+        if ($request->has($required)) {
+            return TicketRecord::getTicketAndUser($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getUserTicketsForEvent
+     * @apiGroup User
+     * @apiName getUserTicketsForEvent
+     *
+     * @apiParam event_id The id of the event.
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getTicket method for attributes.
+     */
+    private function getUserTicketsForEvent(Request $request)
+    {
+        $required = array('event_id', 'email');
+
+        if ($request->has($required)) {
+            return TicketRecord::getUserTicketsForEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

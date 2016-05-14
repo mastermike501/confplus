@@ -114,6 +114,49 @@ class TicketRecord extends Model
         return JSONUtilities::returnData($results);
     }
     
+    public static function getTicketAndUser(array $data)
+    {
+        $results1 = DB::table('ticket_record')
+            ->where('record_id', $data['ticket_id'])
+            ->get();
+
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+        
+        $ticket = $results1[0];
+        $user = 'null';
+
+        if (!is_null($ticket['email'])) {
+            $results2 = DB::table('users')
+                ->where('email', $ticket['email'])
+                ->get();
+                
+            $user = $results2[0];
+        }
+
+        $returnData = [
+            'ticket' => $ticket,
+            'user' => $user
+        ];
+
+        return JSONUtilities::returnData($returnData);
+    }
+    
+    public static function getUserTicketsForEvent(array $data)
+    { 
+        $results = DB::table('ticket_record')
+            ->where('event_id', $data['event_id'])
+            ->where('email', $data['email'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+        
+        return JSONUtilities::returnData($results);
+    }
+    
     public static function purchaseTicket(array $data)
     {
         // $results0 = DB::table('ticket_record')
