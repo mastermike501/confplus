@@ -45,6 +45,8 @@ class EventTag extends Model
             return trim($item);
         }, $tags);
         
+        $tags = collect($tags)->flatten();
+        
         $success = DB::table('events_tag')
             ->where('event_id', $data['event_id'])
             ->whereIn('tag_name', $tags)

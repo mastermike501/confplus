@@ -45,6 +45,8 @@ class UserTag extends Model
             return trim($item);
         }, $tags);
         
+        $tags = collect($tags)->flatten();
+        
         $success = DB::table('users_tag')
             ->where('email', $data['email'])
             ->whereIn('tag_name', $tags)

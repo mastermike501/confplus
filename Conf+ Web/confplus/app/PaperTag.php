@@ -45,6 +45,8 @@ class PaperTag extends Model
             return trim($item);
         }, $tags);
         
+        $tags = collect($tags)->flatten();
+        
         $success = DB::table('papers_tag')
             ->where('paper_id', $data['paper_id'])
             ->whereIn('tag_name', $tags)

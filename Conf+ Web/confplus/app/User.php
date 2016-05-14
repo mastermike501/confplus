@@ -143,6 +143,8 @@ class User extends Model
             return JSONUtilities::returnError('No results');
         }
         
+        $results1 = collect($results1)->flatten();
+        
         $results2 = DB::table('users')
             ->whereIn('email', $results1)
             ->where('active', '1')

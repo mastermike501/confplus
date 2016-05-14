@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 use DB;
 
@@ -61,15 +62,22 @@ class Conversation extends Model
     }
     
     public static function getByUser(array $data) {
-       $results = DB::table('participants')
+        $results1 = DB::table('participants')
+            ->select('conversation_id')
             ->where('email', $data['email'])
             ->get();
-        
-        if (count($results) == 0) {
+            
+        if (count($results1) == 0) {
             return JSONUtilities::returnError('No conversations for this user');
         }
+        
+        $results1 = collect($results1)->flatten();
+        
+        $results2 = DB::table('conversations')
+            ->whereIn('conversation_id', $results1)
+            ->get();
 
-        return JSONUtilities::returnData($results);
+        return JSONUtilities::returnData($results2);
     }
     
     public static function removeUser(array $data) {
