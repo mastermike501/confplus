@@ -56,7 +56,7 @@ class PaperTag extends Model
     }
     
     public static function getPaperTags(array $data) {
-        $results = DB::table('paper_tag')
+        $results = DB::table('papers_tag')
             ->where('paper_id', $data['paper_id'])
             ->get();
 
