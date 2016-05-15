@@ -71,7 +71,7 @@ class Conversation extends Model
             return JSONUtilities::returnError('No conversations for this user');
         }
         
-        $results1 = collect($results1)->flatten();
+        $results1 = array_flatten($results1);
         
         $latestMessages = DB::raw('(SELECT * FROM `messages` WHERE conversation_id IN (' . implode(',', $results1) . ') GROUP BY conversation_id HAVING MAX(date)) LatestMessages');
         
