@@ -135,7 +135,8 @@ class ConfplusControllerV1 extends Controller
         'getUserTicketsForEvent',
         'getTicketAndUser',
         
-        'removeUserFromConversation'
+        'removeUserFromConversation',
+        'getEventTickets'
     );
     
     public function store(Request $request)
@@ -2656,6 +2657,28 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Conversation::removeUser($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getTickets
+     * @apiGroup Ticket
+     * @apiName getTickets
+     *
+     * @apiParam event_id The event_id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getTicket method for attributes.
+     */
+    private function getEventTickets(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Ticket::getByEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
