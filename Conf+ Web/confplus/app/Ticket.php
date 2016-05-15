@@ -51,6 +51,19 @@ class Ticket extends Model
 
         return JSONUtilities::returnData($results);
     }
+    
+    public static function getByEvent(array $data) {
+        
+        $results = DB::table('tickets')
+            ->where('event_id', $data['event_id'])
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No record exists');
+        }
+
+        return JSONUtilities::returnData($results);
+    }
 
     /**
      * [insertSingle]

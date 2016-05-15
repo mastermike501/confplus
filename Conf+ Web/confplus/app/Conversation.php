@@ -73,8 +73,12 @@ class Conversation extends Model
         
         $results1 = collect($results1)->flatten();
         
+        $latestMessages = DB::raw('(SELECT * FROM `messages` WHERE conversation_id IN (' . implode(',', $results) . ') GROUP BY conversation_id HAVING MAX(date)) LatestMessages');
+        
         $results2 = DB::table('conversations')
-            ->whereIn('conversation_id', $results1)
+            ->join($latestMessages, function($join) {
+                $join->on('conversations.conversation_id', '=', 'LatestMessages.conversation_id');
+            })
             ->get();
 
         return JSONUtilities::returnData($results2);
