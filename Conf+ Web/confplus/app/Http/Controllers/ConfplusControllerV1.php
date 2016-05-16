@@ -136,7 +136,9 @@ class ConfplusControllerV1 extends Controller
         'getTicketAndUser',
         
         'removeUserFromConversation',
-        'getEventTickets'
+        'getEventTickets',
+        
+        'editEventRole'
     );
     
     public function store(Request $request)
@@ -2679,6 +2681,30 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return Ticket::getByEvent($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / editEventRole
+     * @apiGroup Event
+     * @apiName editEventRole
+     *
+     * @apiParam email The email of the user.
+     * @apiParam event_id The id of the event.
+     * @apiParam role_name The name of the role.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function editEventRole(Request $request)
+    {
+        $required = array('email', 'event_id', 'role_name');
+
+        if ($request->has($required)) {
+            return EventRole::edit($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
