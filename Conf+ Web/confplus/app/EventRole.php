@@ -55,4 +55,19 @@ class EventRole extends Model
 
         return JSONUtilities::returnData($results2);
     }
+    
+    public static function edit(array $data) {
+        $success = DB::table('event_roles')
+            ->where('email', $data['email'])
+            ->where('event_id', $data['event_id'])
+            ->update([
+                'role_name' => $data['role_name']
+            ]);
+        
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Event role successfully edited.'));
+        } else {
+            return JSONUtilities::returnError('Could not edit event role.');
+        }
+    }
 }
