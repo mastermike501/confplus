@@ -71,7 +71,7 @@ class EventRole extends Model
         }
     }
     
-    public static function delete(array $data) {
+    public static function remove(array $data) {
         $success = DB::table('event_roles')
             ->where('email', $data['email'])
             ->where('event_id', $data['event_id'])
