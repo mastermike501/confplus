@@ -2729,7 +2729,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('email', 'event_id');
 
         if ($request->has($required)) {
-            return EventRole::delete($request->only($required));
+            return EventRole::remove($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
