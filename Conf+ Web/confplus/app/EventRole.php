@@ -70,4 +70,17 @@ class EventRole extends Model
             return JSONUtilities::returnError('Could not edit event role.');
         }
     }
+    
+    public static function delete(array $data) {
+        $success = DB::table('event_roles')
+            ->where('email', $data['email'])
+            ->where('event_id', $data['event_id'])
+            ->delete();
+            
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Event role successfully deleted.'));
+        } else {
+            return JSONUtilities::returnError('Could not delete event role.');
+        }
+    }
 }
