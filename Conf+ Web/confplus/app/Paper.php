@@ -184,6 +184,8 @@ class Paper extends Model
             return JSONUtilities::returnError('No papers exist for this author.');
         }
         
+        $results1 = collect($results1)->flatten();
+        
         $results2 = DB::table('papers')
             ->whereIn('paper_id', $results1)
             ->get();
@@ -207,6 +209,8 @@ class Paper extends Model
             return JSONUtilities::returnError('No papers exist for this reviewer.');
         }
         
+        $results1 = collect($results1)->flatten();
+        
         $results2 = DB::table('papers')
             ->whereIn('paper_id', $results1)
             ->get();
@@ -223,6 +227,8 @@ class Paper extends Model
         if (count($results1) == 0) {
             return JSONUtilities::returnError('No papers exist for this event.');
         }
+
+        $results1 = collect($results1)->flatten();
 
         $results2 = DB::table('papers')
             ->whereIn('paper_id', $results1)

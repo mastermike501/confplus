@@ -13,6 +13,7 @@ use App\Conversation;
 use App\Event;
 use App\EventRole;
 use App\EventTag;
+use App\Message;
 use App\Paper;
 use App\PaperAuthored;
 use App\PaperReviewed;
@@ -132,7 +133,13 @@ class ConfplusControllerV1 extends Controller
         'getCOIOfAuthor',
         
         'getUserTicketsForEvent',
-        'getTicketAndUser'
+        'getTicketAndUser',
+        
+        'removeUserFromConversation',
+        'getEventTickets',
+        
+        'editEventRole',
+        'deleteEventRole'
     );
     
     public function store(Request $request)
@@ -2630,6 +2637,99 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return TicketRecord::getUserTicketsForEvent($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / removeUserFromConversation
+     * @apiGroup Message
+     * @apiName removeUserFromConversation
+     *
+     * @apiParam conversation_id The id of the conversation.
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful login.
+     */
+    private function removeUserFromConversation(Request $request)
+    {
+        $required = array('conversation_id', 'email');
+        
+        if ($request->has($required)) {
+            return Conversation::removeUser($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getTickets
+     * @apiGroup Ticket
+     * @apiName getTickets
+     *
+     * @apiParam event_id The event_id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getTicket method for attributes.
+     */
+    private function getEventTickets(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Ticket::getByEvent($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / editEventRole
+     * @apiGroup Event
+     * @apiName editEventRole
+     *
+     * @apiParam email The email of the user.
+     * @apiParam event_id The id of the event.
+     * @apiParam role_name The name of the role.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function editEventRole(Request $request)
+    {
+        $required = array('email', 'event_id', 'role_name');
+
+        if ($request->has($required)) {
+            return EventRole::edit($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / deleteEventRole
+     * @apiGroup Event
+     * @apiName deleteEventRole
+     *
+     * @apiParam email The email of the reviewer.
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function deleteEventRole(Request $request)
+    {
+        $required = array('email', 'event_id');
+
+        if ($request->has($required)) {
+            return EventRole::remove($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 use DB;
 
@@ -53,7 +54,7 @@ class Conversation extends Model
             ->orderBy('date')
             ->get();
         
-        if (count($results1) == 0) {
+        if (count($results) == 0) {
             return JSONUtilities::returnError('No messages in this conversation');
         }
 
@@ -61,14 +62,38 @@ class Conversation extends Model
     }
     
     public static function getByUser(array $data) {
-       $results = DB::table('participants')
+        $results1 = DB::table('participants')
+            ->select('conversation_id')
             ->where('email', $data['email'])
             ->get();
-        
+            
         if (count($results1) == 0) {
             return JSONUtilities::returnError('No conversations for this user');
         }
+        
+        $results1 = array_flatten($results1);
+        
+        $latestMessages = DB::raw('(SELECT * FROM `messages` WHERE conversation_id IN (' . implode(',', $results1) . ') GROUP BY conversation_id HAVING MAX(date)) LatestMessages');
+        
+        $results2 = DB::table('conversations')
+            ->join($latestMessages, function($join) {
+                $join->on('conversations.conversation_id', '=', 'LatestMessages.conversation_id');
+            })
+            ->get();
 
-        return JSONUtilities::returnData($results);
+        return JSONUtilities::returnData($results2);
+    }
+    
+    public static function removeUser(array $data) {
+        $success = DB::table('participants')
+            ->where('conversation_id', $data['conversation_id'])
+            ->where('email', $data['email'])
+            ->delete();
+            
+        if (!$success) {
+            return JSONUtilities::returnError('Conversation or user does not exist.');
+        } 
+        
+        return JSONUtilities::returnData(array('message' => 'User removed from conversation.'));
     }
 }
