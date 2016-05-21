@@ -225,10 +225,22 @@ class User extends Model
     
     public static function getEventsAttending(array $data)
     {
-        $query = DB::table('ticket_record')
+        $results1 = DB::table('ticket_record')
             ->select('event_id')
             ->distinct()
-            ->where('email', $data['email']);
+            ->where('email', $data['email'])
+            ->get();
+        
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No results');
+        }
+        
+        //put results into a single dimension array
+        $results1 = collect($results1)->flatten();
+        
+        //retrieve events that were attended by user
+        $query = DB::table('events')
+            ->whereIn('event_id', $results1); 
         
         switch ($data['criteria']) {
             case 'past':
@@ -248,19 +260,7 @@ class User extends Model
                 break;
         }
         
-        $results1 = $query->get();
-        
-        if (count($results1) == 0) {
-            return JSONUtilities::returnError('No results');
-        }
-        
-        //put results into a single dimension array
-        $results1 = collect($results1)->flatten();
-        
-        //retrieve events that were attended by user
-        $results2 = DB::table('events')
-            ->whereIn('event_id', $results1)
-            ->get();
+        $results2 = $query->get();
 
         if (count($results2) == 0) {
             return JSONUtilities::returnError('No record exists');
