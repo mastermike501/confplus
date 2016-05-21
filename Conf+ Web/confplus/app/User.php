@@ -7,15 +7,65 @@ use Illuminate\Support\Collection;
 
 use DB;
 use Hash;
+use Mail;
 
 use App\Http\Helpers\JSONUtilities;
 use App\Http\Helpers\FormatUtilities;
+use App\Http\Helpers\EmailUtilities;
 
 class User extends Model
 {
     private static $timecolumns = [
         'dob' => 'd-m-Y'
     ];
+    
+    public static function changePassword(array $data) {
+        $results = DB::table('users')
+            ->select('password', 'active')
+            ->where('email', $data['email'])
+            ->get();
+        
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('Email does not exist.');
+        }
+        
+        if ($results[0]['active'] == '0') {
+            return JSONUtilities::returnError('Email exists. User inactive.');
+        }
+        
+        if (!Hash::check($data['old_password'], $results[0]['password'])) {
+            return JSONUtilities::returnError('Incorrect password.');
+        }
+        
+        $newPassword = Hash::make($data['new_password']);
+        
+        $success = DB::table('users')
+            ->where('email', $data['email'])
+            ->update([
+                'password' => $newPassword
+            ]);
+        
+        $emailConfig = [
+            'to' => $data['email'],
+            'subject' => 'Password Change'
+        ];
+        
+        $body = '<p>You password has been changed. If you did not request
+            this, contact confplus.confplus@gmail.com for assistance.</p>
+            <p>Have a great day!</p>';
+        $emailData = [
+            'title' => 'Password Change',
+            'body' => $body
+        ];
+        
+        EmailUtilities::sendEmail($emailData, $emailConfig);
+        
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Password successfully changed.'));
+        } else {
+            return JSONUtilities::returnError('Could not change password.');
+        }
+    }
     
     public static function login(array $data)
     {
@@ -75,6 +125,21 @@ class User extends Model
         
         $success = DB::table('users')->insert($data);
 
+        $emailConfig = [
+            'to' => $data['email'],
+            'subject' => 'Welcome to Confplus!'
+        ];
+        
+        $body = '<p>Welcome to Confplus! We hope you have an awesome time using our
+            event management capabilities to suit your needs.</p>
+            <p>Have a great day!</p>';
+        $emailData = [
+            'title' => 'Welcome!',
+            'body' => $body
+        ];
+        
+        EmailUtilities::sendEmail($emailData, $emailConfig);
+        
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'User successfully created.'));
         } else {
