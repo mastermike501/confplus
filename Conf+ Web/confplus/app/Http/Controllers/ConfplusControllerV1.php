@@ -32,10 +32,14 @@ use App\Venue;
 
 use App\Http\Helpers\JSONUtilities;
 
+use Mail;
+
 class ConfplusControllerV1 extends Controller
 {
     private $requestMethods = array(
         'test',
+        'testMail',
+        
         'login',
         'getUser', //tested
         'createUser', //tested
@@ -139,7 +143,10 @@ class ConfplusControllerV1 extends Controller
         'getEventTickets',
         
         'editEventRole',
-        'deleteEventRole'
+        'deleteEventRole',
+        
+        'inviteToEvent',
+        'changePassword'
     );
     
     public function store(Request $request)
@@ -186,6 +193,30 @@ class ConfplusControllerV1 extends Controller
     private function test(Request $request)
     {
         var_dump($request->only(['a', 'b', 'c']));
+    }
+
+    private function testMail(Request $request)
+    {
+        $subject = 'Confplus Test Email';
+        $to = $request->input('email');
+        
+        $data = [
+            'title' => 'Registration',
+            'body' => 'What a wonderful piece of text filling for the body!',
+            'showButton' => true,
+            'buttonName' => 'Click me',
+            'buttonUrl' => 'https://google.com'
+        ];
+        
+        $result = Mail::send('email_template', $data, function($message) use ($to, $subject) {
+            $message->to($to)->subject($subject);
+        });
+        
+        if ($result) {
+            return JSONUtilities::returnData(['message' => 'Mail sent.']);
+        } else {
+            return JSONUtilities::returnError('Error in sending mail.');
+        }
     }
 
     /**
@@ -1864,6 +1895,7 @@ class ConfplusControllerV1 extends Controller
     }
     
      /**
+     * @apiIgnore
      * @api {post} / addReviewer
      * @apiGroup Paper
      * @apiName addReviewer
@@ -1876,16 +1908,16 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data JSON array containing the following data:
      * @apiSuccess data.message Message denoting success.
      */
-    private function addReviewer(Request $request)
-    {
-        $required = array('email', 'paper_id', 'event_id');
+    // private function addReviewer(Request $request)
+    // {
+    //     $required = array('email', 'paper_id', 'event_id');
 
-        if ($request->has($required)) {
-            return PaperReviewed::addReviewer($request->except(['method']));
-        } else {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-    }
+    //     if ($request->has($required)) {
+    //         return PaperReviewed::addReviewer($request->except(['method']));
+    //     } else {
+    //         return JSONUtilities::returnRequirementsError($required);
+    //     }
+    // }
 
     /**
      * @api {post} / addReview
@@ -2666,9 +2698,9 @@ class ConfplusControllerV1 extends Controller
     }
     
     /**
-     * @api {post} / getTickets
+     * @api {post} / getEventTickets
      * @apiGroup Ticket
-     * @apiName getTickets
+     * @apiName getEventTickets
      *
      * @apiParam event_id The event_id of the event.
      *
@@ -2730,6 +2762,81 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return EventRole::remove($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / inviteToEvent
+     * @apiGroup Event
+     * @apiName inviteToEvent
+     *
+     * @apiParam inviter The email of the inviter.
+     * @apiParam emails A comma delimited string of emails to send the invitation to.
+     * @apiParam event_url The URL of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicates successful sending of email(s).
+     */
+    private function inviteToEvent(Request $request)
+    {
+        $required = array('inviter', 'emails', 'event_url');
+        
+        if (!$request->has($required)) {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+        
+        $subject = 'Event Invitation';
+        $emails = explode(',', $request->input('emails'));
+        $emailArray = array_map(function($item) {
+            return trim($item);
+        }, $emails);
+        
+        $body = '
+            <p>Hi there! You have been invited by '. $request->input('inviter') .' to attend an event!</p>
+            <p>To know more about the event, click the button below!</p>
+        ';
+        
+        $data = [
+            'title' => 'Invitation to Event',
+            'body' => $body,
+            'showButton' => true,
+            'buttonName' => 'Event Details',
+            'buttonUrl' => $request->input('event_url')
+        ];
+        
+        $result = Mail::send('email_template', $data, function($message) use ($emailArray, $subject) {
+            $message->to($emailArray)->subject($subject);
+        });
+        
+        if ($result) {
+            return JSONUtilities::returnData(['message' => 'Mail sent.']);
+        } else {
+            return JSONUtilities::returnError('Error in sending mail.');
+        }
+    }
+    
+    /**
+     * @api {post} / changePassword
+     * @apiGroup User
+     * @apiName changePassword
+     *
+     * @apiParam email The email of the user.
+     * @apiParam old_password The old password of the user.
+     * @apiParam new_password The new password of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function changePassword(Request $request)
+    {
+        $required = array('email', 'old_password', 'new_password');
+
+        if ($request->has($required)) {
+            return User::changePassword($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
