@@ -146,7 +146,9 @@ class ConfplusControllerV1 extends Controller
         'deleteEventRole',
         
         'inviteToEvent',
-        'changePassword'
+        'changePassword',
+        'changeProfileImage',
+        'getProfileImage'
     );
     
     public function store(Request $request)
@@ -2837,6 +2839,51 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return User::changePassword($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / changeProfileImage
+     * @apiGroup User
+     * @apiName changeProfileImage
+     *
+     * @apiParam email The email of the user.
+     * @apiParam image_data_url The data url of the image.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful change.
+     */
+    private function changeProfileImage(Request $request)
+    {
+        $required = array('email', 'image_data_url');
+        
+        if ($request->has($required)) {
+            return User::changeProfileImage($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getProfileImage
+     * @apiGroup User
+     * @apiName getProfileImage
+     *
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.image_data_url The data url of the profile image.
+     */
+    private function getProfileImage(Request $request)
+    {
+        $required = array('email');
+        
+        if ($request->has($required)) {
+            return User::getProfileImage($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

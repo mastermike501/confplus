@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use DB;
 use Hash;
 use Mail;
+use Storage;
 
 use App\Http\Helpers\JSONUtilities;
 use App\Http\Helpers\FormatUtilities;
@@ -18,6 +19,38 @@ class User extends Model
     private static $timecolumns = [
         'dob' => 'd-m-Y'
     ];
+    
+    public static function changeProfileImage(array $data) {
+        $localStorage = Storage::disk('local');
+    
+        $path = 'profile_images/' . 'profile_image_' . $data['email'] . '.txt';
+    
+        if ($localStorage->exists($path)) {
+            $localStorage->delete($path);
+        }
+    
+        $success = $localStorage->put($path, $data['image_data_url']);
+    
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Profile image successfully uploaded.'));
+        } else {
+            return JSONUtilities::returnError('Could not upload profile image.');
+        }
+    }
+    
+    public static function getProfileImage(array $data) {
+        $localStorage = Storage::disk('local');
+    
+        $path = 'profile_images/' . 'profile_image_' . $data['email'] . '.txt';
+    
+        if (!$localStorage->exists($path)) {
+            return JSONUtilities::returnError('Could not find profile image.');
+        }
+    
+        $dataUrl = $localStorage->get($path);
+    
+        return JSONUtilities::returnData(array('image_data_url' => $dataUrl));
+    }
     
     public static function changePassword(array $data) {
         $results = DB::table('users')
