@@ -5,11 +5,44 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 use DB;
+use Storage;
 
 use App\Http\Helpers\JSONUtilities;
 
 class Venue extends Model
 {
+    public static function addVenueMap(array $data) {
+        $localStorage = Storage::disk('local');
+    
+        $path = 'venue_maps/' . 'venue_map_' . $data['venue_id'] . '.txt';
+    
+        if ($localStorage->exists($path)) {
+            $localStorage->delete($path);
+        }
+    
+        $success = $localStorage->put($path, $data['image_data_url']);
+    
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Venue map successfully uploaded.'));
+        } else {
+            return JSONUtilities::returnError('Could not upload venue map.');
+        }
+    }
+    
+    public static function getVenueMap(array $data) {
+        $localStorage = Storage::disk('local');
+    
+        $path = 'venue_maps/' . 'venue_map_' . $data['venue_id'] . '.txt';
+    
+        if (!$localStorage->exists($path)) {
+            return JSONUtilities::returnError('Could not find venue map.');
+        }
+    
+        $dataUrl = $localStorage->get($path);
+    
+        return JSONUtilities::returnData(array('image_data_url' => $dataUrl));
+    }
+    
     /**
      * [get]
      * @param  array  $data [description]
