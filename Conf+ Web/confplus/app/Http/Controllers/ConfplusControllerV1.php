@@ -148,7 +148,9 @@ class ConfplusControllerV1 extends Controller
         'inviteToEvent',
         'changePassword',
         'changeProfileImage',
-        'getProfileImage'
+        'getProfileImage',
+        'addVenueMap',
+        'getVenueMap'
     );
     
     public function store(Request $request)
@@ -2884,6 +2886,51 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return User::getProfileImage($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+     /**
+     * @api {post} / addVenueMap
+     * @apiGroup Venue
+     * @apiName addVenueMap
+     *
+     * @apiParam venue_id The id of the venue.
+     * @apiParam image_data_url The data url of the image.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful change.
+     */
+    private function addVenueMap(Request $request)
+    {
+        $required = array('venue_id', 'image_data_url');
+        
+        if ($request->has($required)) {
+            return Venue::addVenueMap($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getVenueMap
+     * @apiGroup Venue
+     * @apiName getVenueMap
+     *
+     * @apiParam venue_id The id of the venue.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.image_data_url The data url of the venue image.
+     */
+    private function getVenueMap(Request $request)
+    {
+        $required = array('venue_id');
+        
+        if ($request->has($required)) {
+            return Venue::getVenueMap($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
