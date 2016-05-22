@@ -123,14 +123,14 @@ class Event extends Model
         $localStorage = Storage::disk('local');
     
         //example path: posters/poster_628.txt
-        $posterPath = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
+        $path = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
     
         //remove an earlier version of poster, if exists
-        if ($localStorage->exists($posterPath)) {
-            $localStorage->delete($posterPath);
+        if ($localStorage->exists($path)) {
+            $localStorage->delete($path);
         }
     
-        $success = $localStorage->put($posterPath, $data['poster_data_url']);
+        $success = $localStorage->put($path, $data['poster_data_url']);
     
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Event poster successfully uploaded.'));
@@ -148,14 +148,14 @@ class Event extends Model
         $localStorage = Storage::disk('local');
     
         //example path: posters/poster_628.txt
-        $posterPath = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
+        $path = 'posters/' . 'poster_' . $data['event_id'] . '.txt';
     
         //return an error if poster is not found
-        if (!$localStorage->exists($posterPath)) {
+        if (!$localStorage->exists($path)) {
             return JSONUtilities::returnError('Could not find event poster.');
         }
     
-        $dataUrl = $localStorage->get($posterPath);
+        $dataUrl = $localStorage->get($path);
     
         return JSONUtilities::returnData(array('poster_data_url' => $dataUrl));
     }
