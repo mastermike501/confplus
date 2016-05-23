@@ -26,6 +26,27 @@ class Seat extends Model
         }
     }
     
+    public static function insertSeats(array $data)
+    {
+        $seats = explode(',', $data['seat_nums']);
+        
+        $seats = array_map(function ($seat_num) use ($data) {
+            return [
+                'venue_id' => $data['venue_id'],
+                'room_name' => $data['name'],
+                'seat_num' => trim($seat_num)
+            ];
+        }, $seats);
+        
+        $success = DB::table('seats')->insert($seats);
+
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Seats successfully created.'));
+        } else {
+            return JSONUtilities::returnError('Could not insert seats.');
+        }
+    }
+    
     /**
      * [getSeatsInRoom]
      * @param  array  $data [description]

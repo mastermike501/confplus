@@ -5,8 +5,10 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 use DB;
+use Hash;
 
 use App\Http\Helpers\JSONUtilities;
+use App\Http\Helpers\EmailUtilities;
 
 class TicketRecord extends Model
 {
@@ -63,6 +65,32 @@ class TicketRecord extends Model
             return JSONUtilities::returnError('Could not insertticket_recorduser.');
         }
     }
+    
+    public static function insertRecords(array $data)
+    {
+        $seats = explode(',', $data['seat_nums']);
+        
+        $records = array_map(function ($seat_num) use ($data) {
+            return [
+                'event_id' => $data['event_id'],
+                'title' => $data['title'],
+                'ticket_name' => $data['ticket_name'],
+                'class' => $data['class'],
+                'type' => $data['type'],
+                'venue_id' => $data['venue_id'],
+                'room_name' => $data['room_name'],
+                'seat_num' => trim($seat_num)
+            ];
+        }, $seats);
+        
+        $success = DB::table('ticket_record')->insert($records);
+
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Ticket records successfully created.'));
+        } else {
+            return JSONUtilities::returnError('Could not insert ticket records.');
+        }
+    }
 
     /**
      * [addSessionAttendee]
@@ -72,6 +100,39 @@ class TicketRecord extends Model
      */
     public static function addSessionAttendee($primaryKey, array $data)
     {
+        $results = DB::table('users')
+            ->select('email')
+            ->where('email', $data['email'])
+            ->get();
+        
+        if (count($results) == 0) {
+            $plainPw = str_random(16);
+            $hashedPw = hash('sha256', $randStr);
+            $dbHashedPw = Hash::make($hashedPw);
+            
+            $success = DB::table('users')
+                ->insert([
+                    'email' => $data['email'],
+                    'password' => $dbHashedPw
+                ]);
+            
+            $emailConfig = [
+                'to' => $data['email'],
+                'subject' => 'Event Invitation' 
+            ];
+            
+            $body = '
+                <p>You have been invited to an event!</p>
+                <p>Your password is <b>' . $plainPw . '</b>. Please login and change your password immediately!</p>
+            ';
+            $emailData = [
+                'title' => 'Invitation',
+                'body' => $body
+            ];
+            
+            EmailUtilities::sendEmail($emailData, $emailConfig);
+        }
+        
         $success = DB::table('ticket_record')
             ->where('event_id', $primaryKey['event_id'])
             ->where('title', $primaryKey['title'])
