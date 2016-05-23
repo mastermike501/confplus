@@ -150,8 +150,58 @@ class ConfplusControllerV1 extends Controller
         'changeProfileImage',
         'getProfileImage',
         'addVenueMap',
-        'getVenueMap'
+        'getVenueMap',
+        'getConversationParticipants',
+        'addConversationForPaperReviewed'
     );
+    
+    /**
+     * @api {post} / addConversationForPaperReviewed
+     * @apiGroup PaperReviewed
+     * @apiName addConversationForPaperReviewed
+     *
+     * @apiParam reviewer The email of the reviewer.
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     * @apiParam moderator The email of the conversation moderator.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.conversation_id The id of the conversation.
+     */
+    private function addConversationForPaperReviewed(Request $request)
+    {
+        $required = array('reviewer', 'paper_id', 'event_id', 'moderator');
+
+        if ($request->has($required)) {
+            return PaperReviewed::addConversation($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / addConversationForSession
+     * @apiGroup Session
+     * @apiName addConversationForSession
+     *
+     * @apiParam event_id The id of the event.
+     * @apiParam title The title of the session.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.conversation_id The id of the conversation.
+     */
+    private function addConversationForSession(Request $request)
+    {
+        $required = array('reviewer', 'paper_id', 'event_id', 'moderator');
+
+        if ($request->has($required)) {
+            return Session::addConversation($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
     
     public function store(Request $request)
     {
@@ -371,6 +421,10 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data.language
      * @apiSuccess data.reminder
      * @apiSuccess data.venue_id
+     * @apiSuccess data.privacy
+     * @apiSuccess data.payee
+     * @apiSuccess data.cardNum
+     * @apiSuccess data.contact_num
      */
     private function getEvent(Request $request)
     {
@@ -1118,6 +1172,8 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data.end_time
      * @apiSuccess data.venue_id
      * @apiSuccess data.room_name
+     * @apiSuccess data.privacy
+     * @apiSuccess data.conversation_id The id of the conversation that attendees of the session can subscribe to.
      */
     private function getSession(Request $request)
     {
@@ -2170,9 +2226,11 @@ class ConfplusControllerV1 extends Controller
      * @apiParam email The email of the user.
      *
      * @apiSuccess success Returns true upon success.
-     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data JSON array containing the following data:
      * @apiSuccess data.email
      * @apiSuccess data.conversation_id
+     * @apiSuccess data.date
+     * @apiSuccess data.content The latest message of the conversation.
      */
     private function getConversationsByUser(Request $request)
     {
@@ -2931,6 +2989,29 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Venue::getVenueMap($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getConversationParticipants
+     * @apiGroup Conversation
+     * @apiName getConversationParticipants
+     *
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.conversation_id The id of the conversation.
+     * @apiSuccess data.<userData> Refer to getUser method for attributes.
+     */
+    private function getConversationParticipants(Request $request)
+    {
+        $required = array('conversation_id');
+
+        if ($request->has($required)) {
+            return Conversation::getConversationParticipants($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

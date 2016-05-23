@@ -119,4 +119,56 @@ class Session extends Model
         
         return JSONUtilities::returnData(array('message' => 'Session successfully deleted.'));
     }
+    
+    public static function addConversation(array $data)
+    {   
+        $results1 = DB::table('sessions')
+            ->select('title', 'speaker_email')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->get();
+            
+        //create conversation name
+        $name = 'Discussion for session "' . $results1['title'] . '"';
+        
+        //create a conversation
+        $id = DB::table('conversations')
+            ->insertGetId(['name' => $name]);
+        
+        $results2 = DB::table('ticket_record')
+            ->select('email')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->whereNotNull('email')
+            ->get();
+        
+        $results2 = array_flatten($results2);
+        
+        //empty participant list
+        $participants = [];
+        
+        //add speaker to list
+        $participants[] = [
+            'email' => $results1['speaker_email'],
+            'conversation_id' => $id
+        ];
+        
+        //add session attendees to the participants list
+        foreach ($results2 as $email) {
+            $participants[] = [
+                'email' => $email,
+                'conversation_id' => $id
+            ];
+        }
+        
+        //add participants to the conversation
+        $success = DB::table('participants')
+            ->insert($participants);
+
+        if ($success) {
+            return JSONUtilities::returnData(array('conversation_id' => $id));
+        } else {
+            return JSONUtilities::returnError('Could not insert conversation.');
+        }
+    }
 }
