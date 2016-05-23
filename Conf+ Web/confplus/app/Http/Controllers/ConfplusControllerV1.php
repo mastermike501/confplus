@@ -152,7 +152,8 @@ class ConfplusControllerV1 extends Controller
         'addVenueMap',
         'getVenueMap',
         'getConversationParticipants',
-        'addConversationForPaperReviewed'
+        'addConversationForPaperReviewed',
+        'addConversationForSession'
     );
     
     /**
