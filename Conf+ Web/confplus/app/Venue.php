@@ -118,4 +118,23 @@ class Venue extends Model
         return JSONUtilities::returnData($results);
     }
     
+    public static function getAvailableRooms(array $data)
+    {
+        $results = DB::table('rooms')
+            ->whereNotExists(function ($query) use ($data) {
+                $query->select(DB::raw(1))
+                    ->from('sessions')
+                    ->where('sessions.start_date', '>=', $data['from_date'])
+                    ->where('sessions.end_date', '<=', $data['to_date'])
+                    ->where('rooms.venue_id', 'sessions.venue_id')
+                    ->where('rooms.name', 'sessions.room_name');
+            })
+            ->get();
+
+        if (count($results) == 0) {
+            return JSONUtilities::returnError('No rooms are available at the given time period.');
+        }
+
+        return JSONUtilities::returnData($results);
+    }
 }
