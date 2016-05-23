@@ -139,4 +139,72 @@ class PaperReviewed extends Model
             return JSONUtilities::returnError('Could not insert acceptance.');
         }
     }
+    
+    public static function addConversation(array $data)
+    {   
+        //get the emails of the paper
+        $results1 = DB::table('paper_authored')
+            ->select('email')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+        
+        //check if any results were returned
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No paper exists.');
+        }
+        
+        //flatten into 1D array
+        $results1 = array_flatten($results1);
+        
+        $title = DB::table('papers')
+            ->select('title')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+        
+        //create conversation name
+        $name = 'Discussion for paper "' . $title['title'] . '"';
+        
+        //create a conversation
+        $id = DB::table('conversations')
+            ->insertGetId(['name' => $name]);
+        
+        //empty participant list
+        $participants = [];
+        
+        //add authors to the participants list
+        foreach ($results1 as $email) {
+            $participants[] = [
+                'email' => $email,
+                'conversation_id' => $id
+            ];
+        }
+        
+        //add moderator and reviewer to the partipant list
+        $participants[] = [
+            'email' => $data['moderator'],
+            'conversation_id' => $id
+        ];
+        $participants[] = [
+            'email' => $data['reviewer'],
+            'conversation_id' => $id
+        ];
+        
+        //add participants to the conversation
+        $success = DB::table('participants')
+            ->insert($participants);
+
+        $success = DB::table('paper_reviewed')
+            ->where('email', $data['reviewer'])
+            ->where('paper_id', $data['paper_id'])
+            ->where('event_id', $data['event_id'])
+            ->update([
+                'conversation_id' => $id
+            ]);
+
+        if ($success) {
+            return JSONUtilities::returnData(array('conversation_id' => $id));
+        } else {
+            return JSONUtilities::returnError('Could not insert conversation.');
+        }
+    }
 }

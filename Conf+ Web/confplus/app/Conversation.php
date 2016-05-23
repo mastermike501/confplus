@@ -101,4 +101,23 @@ class Conversation extends Model
         
         return JSONUtilities::returnData(array('message' => 'User removed from conversation.'));
     }
+    
+    public static function getConversationParticipants(array $data) {
+        $results1 = DB::table('participants')
+            ->select('email')
+            ->where('conversation_id', $data['conversation_id'])
+            ->get();
+            
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No participants in this conversation');
+        }
+        
+        $results1 = array_flatten($results1);
+        
+        $results2 = DB::table('users')
+            ->whereIn('email', $results1)
+            ->get();
+            
+        return JSONUtilities::returnData($results2);
+    }
 }
