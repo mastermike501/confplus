@@ -17,6 +17,8 @@ class Message extends Model
      */
     public static function insert(array $data)
     {
+        $data['date'] = gmdate('Y-m-d H:i');
+        
         $success = DB::table('messages')->insert($data);
 
         if ($success) {
