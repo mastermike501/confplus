@@ -48,8 +48,15 @@ class User extends Model
         }
     
         $dataUrl = $localStorage->get($path);
+        
+        $results = DB::table('users')
+            ->select('first_name', 'last_name')
+            ->where('email', $data['email'])
+            ->get();
+        
+        $results['image_data_url'] = $dataUrl;
     
-        return JSONUtilities::returnData(array('image_data_url' => $dataUrl));
+        return JSONUtilities::returnData($results);
     }
     
     public static function changePassword(array $data) {
