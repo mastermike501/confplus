@@ -1911,8 +1911,7 @@ class ConfplusControllerV1 extends Controller
         }
     }
     
-     /**
-     * @apiIgnore
+    /**
      * @api {post} / addReviewer
      * @apiGroup Paper
      * @apiName addReviewer
@@ -1925,16 +1924,16 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data JSON array containing the following data:
      * @apiSuccess data.message Message denoting success.
      */
-    // private function addReviewer(Request $request)
-    // {
-    //     $required = array('email', 'paper_id', 'event_id');
+    private function addReviewer(Request $request)
+    {
+        $required = array('email', 'paper_id', 'event_id');
 
-    //     if ($request->has($required)) {
-    //         return PaperReviewed::addReviewer($request->except(['method']));
-    //     } else {
-    //         return JSONUtilities::returnRequirementsError($required);
-    //     }
-    // }
+        if ($request->has($required)) {
+            return PaperReviewed::addReviewer($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
 
     /**
      * @api {post} / addReview
@@ -2890,6 +2889,8 @@ class ConfplusControllerV1 extends Controller
      * @apiName getProfileImage
      *
      * @apiParam email The email of the user.
+     * @apiParam first_name
+     * @apiParam last_name
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
