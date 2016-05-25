@@ -11,6 +11,7 @@ use App\Billing;
 use App\COI;
 use App\Conversation;
 use App\Event;
+use App\EventRate;
 use App\EventRole;
 use App\EventTag;
 use App\Message;
@@ -157,7 +158,10 @@ class ConfplusControllerV1 extends Controller
         
         'getAvailableRooms',
         'createSeats',
-        'createTicketRecords'
+        'createTicketRecords',
+        
+        'addEventRating',
+        'getEventRating'
     );
     
     public function store(Request $request)
@@ -3095,6 +3099,53 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return TicketRecord::insertRecords($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / addEventRating
+     * @apiGroup Event
+     * @apiName addEventRating
+     *
+     * @apiParam email The email of the user.
+     * @apiParam event_id The id of the event.
+     * @apiParam rate The rating given by the user. Must be between 1 and 5 inclusive.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful login.
+     */
+    private function addEventRating(Request $request)
+    {
+        $required = array('email', 'event_id', 'rate');
+        
+        if ($request->has($required)) {
+            return EventRate::insert($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getEventRating
+     * @apiGroup Event
+     * @apiName getEventRating
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.rate The rate value.
+     * @apiSuccess data.count The number of times the rate was given.
+     */
+    private function getEventRating(Request $request)
+    {
+        $required = array('event_id');
+        
+        if ($request->has($required)) {
+            return EventRate::get($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
