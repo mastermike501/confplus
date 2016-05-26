@@ -284,11 +284,11 @@ class User extends Model
         
         switch ($data['criteria']) {
             case 'past':
-                $query->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'));
+                $query->where('to_date', '<', DB::raw('CURRENT_TIMESTAMP'));
                 break;
             
             case 'future':
-                $query->where('to_date', '<', DB::raw('CURRENT_TIMESTAMP'));
+                $query->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'));
                 break;
             
             case 'all':
