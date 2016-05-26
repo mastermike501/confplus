@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 use DB;
+use Storage;
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -117,7 +118,21 @@ class Conversation extends Model
         $results2 = DB::table('users')
             ->whereIn('email', $results1)
             ->get();
-            
+        
+        $localStorage = Storage::disk('local');
+    
+        foreach ($results1 as &$user) {
+            $path = 'profile_images/' . 'profile_image_' . $user['email'] . '.txt';
+    
+            if ($localStorage->exists($path)) {
+                $user['image_data_url'] = $localStorage->get($path);
+            } else {
+                $user['image_data_url'] = null;
+            }
+        }
+        
+        unset($user);
+        
         return JSONUtilities::returnData($results2);
     }
 }
