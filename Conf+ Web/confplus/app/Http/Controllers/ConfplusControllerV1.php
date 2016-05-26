@@ -161,7 +161,10 @@ class ConfplusControllerV1 extends Controller
         'createTicketRecords',
         
         'addEventRating',
-        'getEventRating'
+        'getEventRating',
+        
+        'updatePaperSubmitted',
+        'getPaperSubmitted'        
     );
     
     public function store(Request $request)
@@ -3146,6 +3149,55 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return EventRate::get($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / updatePaperSubmitted
+     * @apiGroup Paper
+     * @apiName updatePaperSubmitted
+     *
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     * @apiParam status The status of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function updatePaperSubmitted(Request $request)
+    {
+        $required = array('paper_id', 'event_id', 'status');
+
+        if ($request->has($required)) {
+            return PaperSubmitted::edit($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getPaperSubmitted
+     * @apiGroup Paper
+     * @apiName getPaperSubmitted
+     *
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.paper_id
+     * @apiSuccess data.event_id
+     * @apiSuccess data.status
+     */
+    private function getPaperSubmitted(Request $request)
+    {
+        $required = array('paper_id', 'event_id');
+
+        if ($request->has($required)) {
+            return PaperSubmitted::get($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
