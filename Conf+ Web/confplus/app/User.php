@@ -19,6 +19,10 @@ class User extends Model
     private static $timecolumns = [
         'dob' => 'd-m-Y'
     ];
+    private static $boolcolumns = [
+        'verified', 'active',
+        'upgraded', 'review'
+    ];
     
     public static function changeProfileImage(array $data) {
         $localStorage = Storage::disk('local');
@@ -199,6 +203,8 @@ class User extends Model
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
+        
+        FormatUtilities::convertToTinyInt(self::$boolcolumns, $data);
         
         $success = DB::table('users')
             ->where('email', $primaryKey['email'])
