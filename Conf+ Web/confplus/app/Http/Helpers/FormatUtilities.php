@@ -33,4 +33,16 @@ class FormatUtilities
 
         return implode('. ', $messages);
     }
+    
+    public static function convertToTinyInt(array $columns, array &$data) {
+        foreach ($columns as $column) {
+            if (array_key_exists($column, $data) && !is_null($data[$column])) {
+                if ($data[$column]) {
+                    $data[$column] = 1;
+                } else {
+                    $data[$column] = 0;
+                }
+            }
+        }
+    }
 }
