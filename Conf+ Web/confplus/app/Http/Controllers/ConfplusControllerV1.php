@@ -2958,10 +2958,10 @@ class ConfplusControllerV1 extends Controller
     
     /**
      * @api {post} / getConversationParticipants
-     * @apiGroup Conversation
+     * @apiGroup Message
      * @apiName getConversationParticipants
      *
-     * @apiParam email The email of the user.
+     * @apiParam conversation_id The email of the user.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
