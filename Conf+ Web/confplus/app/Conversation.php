@@ -121,7 +121,7 @@ class Conversation extends Model
         
         $localStorage = Storage::disk('local');
     
-        foreach ($results1 as &$user) {
+        foreach ($results2 as &$user) {
             $path = 'profile_images/' . 'profile_image_' . $user['email'] . '.txt';
     
             if ($localStorage->exists($path)) {
