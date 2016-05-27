@@ -14,7 +14,7 @@ class Paper extends Model
 {
     private static $timecolumns = [
         'publish_date' => 'd-m-Y',
-        'latest_sub_date' => 'd-m-Y'
+        'latest_submit_date' => 'd-m-Y'
     ];
 
     /**
