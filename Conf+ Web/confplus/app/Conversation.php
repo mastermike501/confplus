@@ -135,4 +135,36 @@ class Conversation extends Model
         
         return JSONUtilities::returnData($results2);
     }
+    
+    public static function getConversationsByUserForEvent(array $data) {
+            
+        $results1 = DB::table('participants')
+            ->join('sessions', function($join) use ($data) {
+                $join->on('participants.conversation_id', '=', 'sessions.conversation_id')
+                    ->where('sessions.event_id', $data['event_id'])
+                    ->whereNotNull('sessions.conversation_id');
+            })
+            ->where('participants.email', $data['email'])
+            ->select('participants.conversation_id')
+            ->get();
+        
+        $results1 = array_flatten($results1);
+        
+        $latestMessages = DB::raw('(
+            SELECT a.* FROM `messages` a 
+                LEFT JOIN `messages` b
+                    ON a.conversation_id = b.conversation_id AND a.date < b.date
+                WHERE b.date IS NULL AND a.conversation_id IN (' . implode(',', $results1) . ')
+        ) LatestMessages');
+        
+        $results2 = DB::table('conversations')
+            ->join($latestMessages, function($join) {
+                $join->on('conversations.conversation_id', '=', 'LatestMessages.conversation_id');
+            })
+            ->get();
+            
+        return JSONUtilities::returnData($results1); 
+    }
 }
+
+// DB::table('participants')->join('conversations', 'participants.conversation_id', '=', 'conversations.conversation_id')->join('sessions', function($join) use ($data) {$join->on('conversations.conversation_id', '=', 'sessions.conversation_id')->where('sessions.event_id', $data['event_id'])->whereNotNull('sessions.conversation_id');})->where('participants.email', $data['email'])->select('conversations.conversation_id as conversation_id', 'conversations.name as name')->get();

@@ -164,7 +164,8 @@ class ConfplusControllerV1 extends Controller
         'getEventRating',
         
         'updatePaperSubmitted',
-        'getPaperSubmitted'        
+        'getPaperSubmitted',
+        'getConversationsByUserForEvent'        
     );
     
     public function store(Request $request)
@@ -3198,6 +3199,29 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return PaperSubmitted::get($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getConversationsByUserForEvent
+     * @apiGroup Message
+     * @apiName getConversationsByUserForEvent
+     *
+     * @apiParam email The email of the user.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.<data> Refer to getConversationsByUser for attributes.
+     */
+    private function getConversationsByUserForEvent(Request $request)
+    {
+        $required = array('email', 'event_id');
+
+        if ($request->has($required)) {
+            return Conversation::getConversationsByUserForEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
