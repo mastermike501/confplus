@@ -65,7 +65,7 @@ class Ticket extends Model
         return JSONUtilities::returnData($results);
     }
 
-    public static function create(array $data) {
+    public static function insert(array $data) {
         $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
         
         if (!$success) {
