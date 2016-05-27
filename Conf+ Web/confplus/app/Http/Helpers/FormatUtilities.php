@@ -7,7 +7,7 @@ use Carbon\Carbon;
 class FormatUtilities
 {
     private static $dateSeparator = '-';
-    private static $format = 'Y-m-d H:i';
+    private static $format = 'Y-m-d H:i:s';
     
     public static function getDateTime(array $timecolumns, array &$data)
     {
