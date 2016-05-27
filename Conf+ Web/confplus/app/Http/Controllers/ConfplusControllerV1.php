@@ -634,7 +634,7 @@ class ConfplusControllerV1 extends Controller
             'type', 'price', 'description', 'start_date', 'end_date', 'quantity');
 
         if ($request->has($required)) {
-            return Ticket::create($request->except(['method']));
+            return Ticket::insert($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
