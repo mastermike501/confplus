@@ -175,6 +175,7 @@ class Event extends Model
     }
     
     public static function getUpcomingByCountry(array $data) {
+        $localStorage = Storage::disk('local');
         
         $results1 = DB::table('venues')
             ->select('venue_id')
@@ -197,7 +198,28 @@ class Event extends Model
         if (count($results2) == 0) {
             return JSONUtilities::returnError('No record exists');
         }
-
+        
+        $results2 = array_map(function($event) use ($localStorage) {
+            $path = 'posters/' . 'poster_' . $event['event_id'] . '.txt';
+        
+            //return an error if poster is not found
+            if ($localStorage->exists($path)) {
+                $event['poster_data_url'] = $localStorage->get($path);
+            } else {
+                $event['poster_data_url'] = null;
+            }
+            
+            $eventTags = DB::table('events_tag')
+                ->select('tag_name')
+                ->where('event_id', $event['event_id'])
+                ->get();
+            
+            $event['tags'] = array_flatten($eventTags);
+            
+            return $event;
+            
+        }, $results2);
+        
         return JSONUtilities::returnData($results2);
     }
 
