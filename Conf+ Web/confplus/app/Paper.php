@@ -236,4 +236,44 @@ class Paper extends Model
 
         return JSONUtilities::returnData($results2);
     }
+    
+    public static function getPaperForEvent(array $data) {
+        $results1 = DB::table('papers')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+        
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No papers exist for this event.');
+        }
+        
+        $results1 = collect($results1)->flatten();
+        
+        $results2 = DB::table('papers_tag')
+            ->select('tag_name')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+        
+        $paperTags = collect($results2)->flatten();
+        
+        $results3 = DB::table('paper_authored')
+            ->select('email')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+            
+        $paperAuthors = collect($results3)->flatten();
+        
+        $results4 = DB::table('paper_reviewed')
+            ->select('email')
+            ->where('paper_id', $data['paper_id'])
+            ->where('event_id', $data['event_id'])
+            ->get();
+            
+        $paperReviewers = collect($results4)->flatten();
+        
+        $results1['tags'] = $paperTags;
+        $results1['authors'] = $paperAuthors;
+        $results1['reviewers'] = $paperReviewers;
+        
+        return JSONUtilities::returnData($results1);
+    }
 }
