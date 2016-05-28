@@ -141,7 +141,7 @@ class Conversation extends Model
         $results1 = DB::table('participants')
             ->join('sessions', function($join) use ($data) {
                 $join->on('participants.conversation_id', '=', 'sessions.conversation_id')
-                    ->where('sessions.event_id', $data['event_id'])
+                    ->where('sessions.event_id', '=', $data['event_id'])
                     ->whereNotNull('sessions.conversation_id');
             })
             ->where('participants.email', $data['email'])
