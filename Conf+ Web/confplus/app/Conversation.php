@@ -148,6 +148,10 @@ class Conversation extends Model
             ->select('participants.conversation_id')
             ->get();
         
+        if (count($results1) == 0) {
+            return JSONUtilities::returnData(['message' => 'No conversations joined by user.']);
+        }
+        
         $results1 = array_flatten($results1);
         
         $latestMessages = DB::raw('(
