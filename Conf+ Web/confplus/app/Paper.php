@@ -246,8 +246,6 @@ class Paper extends Model
             return JSONUtilities::returnError('No papers exist for this event.');
         }
         
-        $results1 = array_flatten($results1);
-        
         $results2 = DB::table('papers_tag')
             ->select('tag_name')
             ->where('paper_id', $data['paper_id'])
