@@ -246,21 +246,21 @@ class Paper extends Model
             return JSONUtilities::returnError('No papers exist for this event.');
         }
         
-        $results1 = collect($results1)->flatten();
+        $results1 = array_flatten($results1);
         
         $results2 = DB::table('papers_tag')
             ->select('tag_name')
             ->where('paper_id', $data['paper_id'])
             ->get();
         
-        $paperTags = collect($results2)->flatten();
+        $paperTags = array_flatten($results2);
         
         $results3 = DB::table('paper_authored')
             ->select('email')
             ->where('paper_id', $data['paper_id'])
             ->get();
             
-        $paperAuthors = collect($results3)->flatten();
+        $paperAuthors = array_flatten($results3);
         
         $results4 = DB::table('paper_reviewed')
             ->select('email')
@@ -268,7 +268,7 @@ class Paper extends Model
             ->where('event_id', $data['event_id'])
             ->get();
             
-        $paperReviewers = collect($results4)->flatten();
+        $paperReviewers = array_flatten($results4);
         
         $results1['tags'] = $paperTags;
         $results1['authors'] = $paperAuthors;
