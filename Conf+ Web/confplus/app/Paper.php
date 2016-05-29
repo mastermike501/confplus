@@ -14,7 +14,7 @@ class Paper extends Model
 {
     private static $timecolumns = [
         'publish_date' => 'd-m-Y',
-        'latest_sub_date' => 'd-m-Y'
+        'latest_submit_date' => 'd-m-Y'
     ];
 
     /**
@@ -235,5 +235,45 @@ class Paper extends Model
             ->get();
 
         return JSONUtilities::returnData($results2);
+    }
+    
+    public static function getPaperForEvent(array $data) {
+        $results1 = DB::table('papers')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+        
+        if (count($results1) == 0) {
+            return JSONUtilities::returnError('No papers exist for this event.');
+        }
+        
+        $results1 = $results1[0];
+        
+        $results2 = DB::table('papers_tag')
+            ->select('tag_name')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+        
+        $paperTags = array_flatten($results2);
+        
+        $results3 = DB::table('paper_authored')
+            ->select('email')
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+            
+        $paperAuthors = array_flatten($results3);
+        
+        $results4 = DB::table('paper_reviewed')
+            ->select('email')
+            ->where('paper_id', $data['paper_id'])
+            ->where('event_id', $data['event_id'])
+            ->get();
+            
+        $paperReviewers = array_flatten($results4);
+        
+        $results1['tags'] = $paperTags;
+        $results1['authors'] = $paperAuthors;
+        $results1['reviewers'] = $paperReviewers;
+        
+        return JSONUtilities::returnData($results1);
     }
 }

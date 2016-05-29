@@ -11,6 +11,7 @@ use App\Billing;
 use App\COI;
 use App\Conversation;
 use App\Event;
+use App\EventRate;
 use App\EventRole;
 use App\EventTag;
 use App\Message;
@@ -157,7 +158,16 @@ class ConfplusControllerV1 extends Controller
         
         'getAvailableRooms',
         'createSeats',
-        'createTicketRecords'
+        'createTicketRecords',
+        
+        'addEventRating',
+        'getEventRating',
+        
+        'updatePaperSubmitted',
+        'getPaperSubmitted',
+        'getConversationsByUserForEvent',
+        
+        'getPaperForEvent'
     );
     
     public function store(Request $request)
@@ -627,7 +637,7 @@ class ConfplusControllerV1 extends Controller
             'type', 'price', 'description', 'start_date', 'end_date', 'quantity');
 
         if ($request->has($required)) {
-            return Ticket::insertSingle($request->except(['method']));
+            return Ticket::insert($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -1911,8 +1921,7 @@ class ConfplusControllerV1 extends Controller
         }
     }
     
-     /**
-     * @apiIgnore
+    /**
      * @api {post} / addReviewer
      * @apiGroup Paper
      * @apiName addReviewer
@@ -1925,16 +1934,16 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data JSON array containing the following data:
      * @apiSuccess data.message Message denoting success.
      */
-    // private function addReviewer(Request $request)
-    // {
-    //     $required = array('email', 'paper_id', 'event_id');
+    private function addReviewer(Request $request)
+    {
+        $required = array('email', 'paper_id', 'event_id');
 
-    //     if ($request->has($required)) {
-    //         return PaperReviewed::addReviewer($request->except(['method']));
-    //     } else {
-    //         return JSONUtilities::returnRequirementsError($required);
-    //     }
-    // }
+        if ($request->has($required)) {
+            return PaperReviewed::addReviewer($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
 
     /**
      * @api {post} / addReview
@@ -2890,6 +2899,8 @@ class ConfplusControllerV1 extends Controller
      * @apiName getProfileImage
      *
      * @apiParam email The email of the user.
+     * @apiParam first_name
+     * @apiParam last_name
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
@@ -2953,10 +2964,10 @@ class ConfplusControllerV1 extends Controller
     
     /**
      * @api {post} / getConversationParticipants
-     * @apiGroup Conversation
+     * @apiGroup Message
      * @apiName getConversationParticipants
      *
-     * @apiParam email The email of the user.
+     * @apiParam conversation_id The email of the user.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -3094,6 +3105,148 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return TicketRecord::insertRecords($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / addEventRating
+     * @apiGroup Event
+     * @apiName addEventRating
+     *
+     * @apiParam email The email of the user.
+     * @apiParam event_id The id of the event.
+     * @apiParam rate The rating given by the user. Must be between 1 and 5 inclusive.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful login.
+     */
+    private function addEventRating(Request $request)
+    {
+        $required = array('email', 'event_id', 'rate');
+        
+        if ($request->has($required)) {
+            return EventRate::insert($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getEventRating
+     * @apiGroup Event
+     * @apiName getEventRating
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.rate The rate value.
+     * @apiSuccess data.count The number of times the rate was given.
+     */
+    private function getEventRating(Request $request)
+    {
+        $required = array('event_id');
+        
+        if ($request->has($required)) {
+            return EventRate::get($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / updatePaperSubmitted
+     * @apiGroup Paper
+     * @apiName updatePaperSubmitted
+     *
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     * @apiParam status The status of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.message Message denoting success.
+     */
+    private function updatePaperSubmitted(Request $request)
+    {
+        $required = array('paper_id', 'event_id', 'status');
+
+        if ($request->has($required)) {
+            return PaperSubmitted::edit($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getPaperSubmitted
+     * @apiGroup Paper
+     * @apiName getPaperSubmitted
+     *
+     * @apiParam paper_id The id of the paper.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.paper_id
+     * @apiSuccess data.event_id
+     * @apiSuccess data.status
+     */
+    private function getPaperSubmitted(Request $request)
+    {
+        $required = array('paper_id', 'event_id');
+
+        if ($request->has($required)) {
+            return PaperSubmitted::get($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getConversationsByUserForEvent
+     * @apiGroup Message
+     * @apiName getConversationsByUserForEvent
+     *
+     * @apiParam email The email of the user.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.<data> Refer to getConversationsByUser for attributes.
+     */
+    private function getConversationsByUserForEvent(Request $request)
+    {
+        $required = array('email', 'event_id');
+
+        if ($request->has($required)) {
+            return Conversation::getConversationsByUserForEvent($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getPaperForEvent
+     * @apiGroup Paper
+     * @apiName getPaperForEvent
+     *
+     * @apiParam event_id The id of the event.
+     * @apiParam paper_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to 
+     */
+    private function getPaperForEvent(Request $request)
+    {
+        $required = array('event_id', 'paper_id');
+        
+        if ($request->has($required)) {
+            return Paper::getPaperForEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

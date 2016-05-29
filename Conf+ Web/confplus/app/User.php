@@ -19,6 +19,10 @@ class User extends Model
     private static $timecolumns = [
         'dob' => 'd-m-Y'
     ];
+    private static $boolcolumns = [
+        'verified', 'active',
+        'upgraded', 'review'
+    ];
     
     public static function changeProfileImage(array $data) {
         $localStorage = Storage::disk('local');
@@ -48,8 +52,15 @@ class User extends Model
         }
     
         $dataUrl = $localStorage->get($path);
+        
+        $results = DB::table('users')
+            ->select('first_name', 'last_name')
+            ->where('email', $data['email'])
+            ->get();
+        
+        $results['image_data_url'] = $dataUrl;
     
-        return JSONUtilities::returnData(array('image_data_url' => $dataUrl));
+        return JSONUtilities::returnData($results);
     }
     
     public static function changePassword(array $data) {
@@ -193,6 +204,8 @@ class User extends Model
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
         
+        FormatUtilities::convertToTinyInt(self::$boolcolumns, $data);
+        
         $success = DB::table('users')
             ->where('email', $primaryKey['email'])
             ->update($data);
@@ -277,11 +290,11 @@ class User extends Model
         
         switch ($data['criteria']) {
             case 'past':
-                $query->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'));
+                $query->where('to_date', '<', DB::raw('CURRENT_TIMESTAMP'));
                 break;
             
             case 'future':
-                $query->where('to_date', '<', DB::raw('CURRENT_TIMESTAMP'));
+                $query->where('to_date', '>', DB::raw('CURRENT_TIMESTAMP'));
                 break;
             
             case 'all':

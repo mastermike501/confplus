@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 use DB;
+use Storage;
 
 use App\Http\Helpers\JSONUtilities;
 
@@ -117,7 +118,57 @@ class Conversation extends Model
         $results2 = DB::table('users')
             ->whereIn('email', $results1)
             ->get();
-            
+        
+        $localStorage = Storage::disk('local');
+    
+        foreach ($results2 as &$user) {
+            $path = 'profile_images/' . 'profile_image_' . $user['email'] . '.txt';
+    
+            if ($localStorage->exists($path)) {
+                $user['image_data_url'] = $localStorage->get($path);
+            } else {
+                $user['image_data_url'] = null;
+            }
+        }
+        
+        unset($user);
+        
         return JSONUtilities::returnData($results2);
     }
+    
+    public static function getConversationsByUserForEvent(array $data) {
+            
+        $results1 = DB::table('participants')
+            ->join('sessions', function($join) use ($data) {
+                $join->on('participants.conversation_id', '=', 'sessions.conversation_id')
+                    ->where('sessions.event_id', '=', $data['event_id'])
+                    ->whereNotNull('sessions.conversation_id');
+            })
+            ->where('participants.email', $data['email'])
+            ->select('participants.conversation_id')
+            ->get();
+        
+        if (count($results1) == 0) {
+            return JSONUtilities::returnData(['message' => 'No conversations joined by user.']);
+        }
+        
+        $results1 = array_flatten($results1);
+        
+        $latestMessages = DB::raw('(
+            SELECT a.* FROM `messages` a 
+                LEFT JOIN `messages` b
+                    ON a.conversation_id = b.conversation_id AND a.date < b.date
+                WHERE b.date IS NULL AND a.conversation_id IN (' . implode(',', $results1) . ')
+        ) LatestMessages');
+        
+        $results2 = DB::table('conversations')
+            ->join($latestMessages, function($join) {
+                $join->on('conversations.conversation_id', '=', 'LatestMessages.conversation_id');
+            })
+            ->get();
+            
+        return JSONUtilities::returnData($results1); 
+    }
 }
+
+// DB::table('participants')->join('conversations', 'participants.conversation_id', '=', 'conversations.conversation_id')->join('sessions', function($join) use ($data) {$join->on('conversations.conversation_id', '=', 'sessions.conversation_id')->where('sessions.event_id', $data['event_id'])->whereNotNull('sessions.conversation_id');})->where('participants.email', $data['email'])->select('conversations.conversation_id as conversation_id', 'conversations.name as name')->get();

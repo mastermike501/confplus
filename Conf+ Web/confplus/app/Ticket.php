@@ -65,12 +65,7 @@ class Ticket extends Model
         return JSONUtilities::returnData($results);
     }
 
-    /**
-     * [insertSingle]
-     * @param  array  $data [description]
-     * @return [JSON]       [description]
-     */
-    public static function insertSingle(array $data) {
+    public static function insert(array $data) {
         $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
         
         if (!$success) {
@@ -85,13 +80,7 @@ class Ticket extends Model
             return JSONUtilities::returnError('Could not insert ticket.');
         }
     }
-
-    /**
-     * [edit]
-     * @param  [array] $primaryKey [description]
-     * @param  array  $data       [description]
-     * @return [JSON]             [description]
-     */
+    
     public static function edit($primaryKey, array $data) {
         $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
         
