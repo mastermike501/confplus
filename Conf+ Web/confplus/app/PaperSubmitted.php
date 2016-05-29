@@ -11,6 +11,8 @@ use App\Http\Helpers\JSONUtilities;
 class PaperSubmitted extends Model
 {
     public static function insert(array $data) {
+        $data['status'] = 'unassigned';
+        
         $success = DB::table('paper_submitted')->insert($data);
 
         if ($success) {

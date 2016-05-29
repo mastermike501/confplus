@@ -266,13 +266,26 @@ class Paper extends Model
             ->select('email')
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
+            ->whereNotIn('comment', [
+                '[system] [rejected]',
+                '[system] [coi]'
+            ])
             ->get();
             
         $paperReviewers = array_flatten($results4);
         
+        $results5 = DB::table('paper_submitted')
+            ->select('status')
+            ->where('paper_id', $data['paper_id'])
+            ->where('event_id', $data['event_id'])
+            ->get();
+        
+        $paperStatus = array_flatten($results5);
+        
         $results1['tags'] = $paperTags;
         $results1['authors'] = $paperAuthors;
         $results1['reviewers'] = $paperReviewers;
+        $results1['status'] = $paperStatus[0];
         
         return JSONUtilities::returnData($results1);
     }
