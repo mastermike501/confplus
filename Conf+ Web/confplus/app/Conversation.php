@@ -137,21 +137,12 @@ class Conversation extends Model
     }
     
     public static function getConversationsByUserForEvent(array $data) {
-            
+        
         $results1 = DB::table('participants')
-            ->join('sessions', function($join) use ($data) {
-                $join->on('participants.conversation_id', '=', 'sessions.conversation_id')
-                    ->where('sessions.event_id', '=', $data['event_id'])
-                    ->whereNotNull('sessions.conversation_id');
-            })
-            ->where('participants.email', $data['email'])
-            ->select('participants.conversation_id')
+            ->select('conversation_id')
+            ->where('email', $data['email'])
             ->get();
-        
-        if (count($results1) == 0) {
-            return JSONUtilities::returnData(['message' => 'No conversations joined by user.']);
-        }
-        
+
         $results1 = array_flatten($results1);
         
         $latestMessages = DB::raw('(
@@ -165,9 +156,10 @@ class Conversation extends Model
             ->join($latestMessages, function($join) {
                 $join->on('conversations.conversation_id', '=', 'LatestMessages.conversation_id');
             })
+            ->where('conversations.event_id', $data['event_id'])
             ->get();
-            
-        return JSONUtilities::returnData($results1); 
+
+        return JSONUtilities::returnData($results2);
     }
 }
 
