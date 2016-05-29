@@ -267,11 +267,8 @@ class Paper extends Model
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
             ->whereNotIn('comment', [
-                '[system] [requesting]',
                 '[system] [rejected]',
-                '[system] [coi]',
-                '[system] rejected',
-                '[system] coi'
+                '[system] [coi]'
             ])
             ->get();
             
