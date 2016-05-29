@@ -263,7 +263,7 @@ class Paper extends Model
         $paperAuthors = array_flatten($results3);
         
         $results4 = DB::table('paper_reviewed')
-            ->select('email')
+            ->select('email', 'comment', 'rate', 'flag', 'conversation_id')
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
             ->whereNotIn('comment', [
@@ -272,7 +272,7 @@ class Paper extends Model
             ])
             ->get();
             
-        $paperReviewers = array_flatten($results4);
+        $paperReviewers = $results4;
         
         $results5 = DB::table('paper_submitted')
             ->select('status')
