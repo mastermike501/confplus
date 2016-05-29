@@ -131,7 +131,7 @@ class PaperReviewed extends Model
             ->where('email', $data['email'])
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
-            ->update('comment', $comment);
+            ->update(['comment' => $comment]);
         
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Acceptance successfully added.'));
