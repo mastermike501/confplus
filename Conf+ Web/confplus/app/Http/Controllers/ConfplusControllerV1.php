@@ -2168,6 +2168,7 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiParam emails A comma delimited string of emails.
      * @apiParam [name] The name of the conversation.
+     * @apiParam [event_id] The id of the event.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
@@ -3024,7 +3025,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function addConversationForSession(Request $request)
     {
-        $required = array('reviewer', 'paper_id', 'event_id', 'moderator');
+        $required = array('event_id', 'title');
 
         if ($request->has($required)) {
             return Session::addConversation($request->only($required));
