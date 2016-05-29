@@ -266,6 +266,11 @@ class Paper extends Model
             ->select('email')
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
+            ->whereNotIn('comment', [
+                '[system] [requesting]',
+                '[system] [rejected]',
+                '[system] [coi]'
+            ])
             ->get();
             
         $paperReviewers = array_flatten($results4);
