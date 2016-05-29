@@ -125,7 +125,7 @@ class PaperReviewed extends Model
             return JSONUtilities::returnError('Accept must be "accepted", "rejected" or "coi".');
         }
         
-        $comment = '[system] ' . $data['accept'];
+        $comment = '[system] [' . $data['accept'] . ']';
         
         $success = DB::table('paper_reviewed')
             ->where('email', $data['email'])

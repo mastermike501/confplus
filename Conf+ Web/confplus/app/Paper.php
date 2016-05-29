@@ -269,7 +269,9 @@ class Paper extends Model
             ->whereNotIn('comment', [
                 '[system] [requesting]',
                 '[system] [rejected]',
-                '[system] [coi]'
+                '[system] [coi]',
+                '[system] rejected',
+                '[system] coi'
             ])
             ->get();
             
