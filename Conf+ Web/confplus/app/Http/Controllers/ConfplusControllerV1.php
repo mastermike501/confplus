@@ -1964,16 +1964,10 @@ class ConfplusControllerV1 extends Controller
     {
         $required = array('email', 'paper_id', 'event_id', 'comment', 'rate');
 
-        if (!$request->has($required)) {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-
-        $data = $request->except(array_merge(['method'], $required));
-
-        if (!empty($data)) {
+        if ($request->has($required)) {
             return PaperReviewed::addReview($request->only($required), $data);
         } else {
-            return JSONUtilities::returnError('No data to update');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
