@@ -167,8 +167,31 @@ class ConfplusControllerV1 extends Controller
         'getPaperSubmitted',
         'getConversationsByUserForEvent',
         
-        'getPaperForEvent'
+        'getPaperForEvent',
+        'getLatestMessage'
     );
+    
+    /**
+     * @api {post} / getLatestMessage
+     * @apiGroup Message
+     * @apiName getLatestMessage
+     *
+     * @apiParam conversation_id The id of the conversation.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message The latest message.
+     */
+    private function getLatestMessage(Request $request)
+    {
+        $required = array('conversation_id');
+        
+        if ($request->has($required)) {
+            return Message::getLatest($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
     
     public function store(Request $request)
     {
