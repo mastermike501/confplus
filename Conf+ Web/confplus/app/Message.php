@@ -29,4 +29,17 @@ class Message extends Model
             return JSONUtilities::returnError('Could not insert message.');
         }
     }
+    
+    public static function getLatest(array $data) {
+        $results = DB::select(
+            DB::raw('
+            SELECT a.* FROM `messages` a 
+                LEFT JOIN `messages` b
+                    ON a.conversation_id = b.conversation_id AND a.date < b.date
+            WHERE b.date IS NULL AND a.conversation_id = ' . $data['conversation_id']
+            )
+        );
+        
+        return JSONUtilities::returnData($results[0]);
+    }
 }

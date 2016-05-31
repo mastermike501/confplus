@@ -167,8 +167,31 @@ class ConfplusControllerV1 extends Controller
         'getPaperSubmitted',
         'getConversationsByUserForEvent',
         
-        'getPaperForEvent'
+        'getPaperForEvent',
+        'getLatestMessage'
     );
+    
+    /**
+     * @api {post} / getLatestMessage
+     * @apiGroup Message
+     * @apiName getLatestMessage
+     *
+     * @apiParam conversation_id The id of the conversation.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message The latest message.
+     */
+    private function getLatestMessage(Request $request)
+    {
+        $required = array('conversation_id');
+        
+        if ($request->has($required)) {
+            return Message::getLatest($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
     
     public function store(Request $request)
     {
@@ -1964,16 +1987,10 @@ class ConfplusControllerV1 extends Controller
     {
         $required = array('email', 'paper_id', 'event_id', 'comment', 'rate');
 
-        if (!$request->has($required)) {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-
-        $data = $request->except(array_merge(['method'], $required));
-
-        if (!empty($data)) {
+        if ($request->has($required)) {
             return PaperReviewed::addReview($request->only($required), $data);
         } else {
-            return JSONUtilities::returnError('No data to update');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
