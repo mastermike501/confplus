@@ -107,7 +107,7 @@ class TicketRecord extends Model
         
         if (count($results) == 0) {
             $plainPw = str_random(16);
-            $hashedPw = hash('sha256', $randStr);
+            $hashedPw = hash('sha256', $plainPw);
             $dbHashedPw = Hash::make($hashedPw);
             
             $success = DB::table('users')

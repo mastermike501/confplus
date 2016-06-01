@@ -14,7 +14,7 @@ class FormatUtilities
         foreach ($timecolumns as $column => $format) {
             if (array_key_exists($column, $data) && !is_null($data[$column])) {
                 try{
-                    $data[$column] = Carbon::createFromFormat(self::$format, $data[$column]);
+                    $data[$column] = Carbon::createFromFormat(self::$format, trim($data[$column]));
                 } catch (InvalidArgumentException $e) {
                     return JSONUtilities::returnError(self::displayTimecolumnFormats($timecolumns));
                 }
