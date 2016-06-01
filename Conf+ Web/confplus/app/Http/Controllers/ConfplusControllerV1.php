@@ -171,28 +171,6 @@ class ConfplusControllerV1 extends Controller
         'getLatestMessage'
     );
     
-    /**
-     * @api {post} / getLatestMessage
-     * @apiGroup Message
-     * @apiName getLatestMessage
-     *
-     * @apiParam conversation_id The id of the conversation.
-     *
-     * @apiSuccess success Returns true upon success.
-     * @apiSuccess data JSON array containing the following data:
-     * @apiSuccess data.message The latest message.
-     */
-    private function getLatestMessage(Request $request)
-    {
-        $required = array('conversation_id');
-        
-        if ($request->has($required)) {
-            return Message::getLatest($request->only($required));
-        } else {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-    }
-    
     public function store(Request $request)
     {
         $methodName = $request->input('method');
@@ -1158,6 +1136,7 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data.event_id
      * @apiSuccess data.title
      * @apiSuccess data.speaker_email
+     * @apiSuccess data.description
      * @apiSuccess data.start_time Format: yyyy-mm-dd hh:mm
      * @apiSuccess data.end_time
      * @apiSuccess data.venue_id
@@ -1236,6 +1215,7 @@ class ConfplusControllerV1 extends Controller
      * @apiParam [end_time] Format: yyyy-mm-dd hh:mm
      * @apiParam [venue_id] The id of the venue.
      * @apiParam [room_name] The name of the room.
+     * @apiParam [description] The description of the session.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -3265,6 +3245,28 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Paper::getPaperForEvent($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getLatestMessage
+     * @apiGroup Message
+     * @apiName getLatestMessage
+     *
+     * @apiParam conversation_id The id of the conversation.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message The latest message.
+     */
+    private function getLatestMessage(Request $request)
+    {
+        $required = array('conversation_id');
+        
+        if ($request->has($required)) {
+            return Message::getLatest($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
