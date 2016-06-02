@@ -1968,7 +1968,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('email', 'paper_id', 'event_id', 'comment', 'rate');
 
         if ($request->has($required)) {
-            return PaperReviewed::addReview($request->only($required), $data);
+            return PaperReviewed::addReview($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
