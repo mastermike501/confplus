@@ -171,4 +171,22 @@ class Session extends Model
             return JSONUtilities::returnError('Could not insert conversation.');
         }
     }
+    
+    public static function getSessionForEvent(array $data) {
+        $results = DB::table('sessions')
+            ->where('event_id', $data['event_id'])
+            ->where('is_event', 'true')
+            ->get();
+        
+        return JSONUtilities::returnData($results);
+    }
+    
+    public static function getEventEntryForEvent(array $data) {
+        $results = DB::table('sessions')
+            ->where('event_id', $data['event_id'])
+            ->where('is_event', 'false')
+            ->get();
+        
+        return JSONUtilities::returnData($results);
+    }
 }

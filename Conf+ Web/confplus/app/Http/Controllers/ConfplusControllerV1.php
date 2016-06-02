@@ -168,7 +168,9 @@ class ConfplusControllerV1 extends Controller
         'getConversationsByUserForEvent',
         
         'getPaperForEvent',
-        'getLatestMessage'
+        'getLatestMessage',
+        'getSessionForEvent',
+        'getEventEntryForEvent'
     );
     
     public function store(Request $request)
@@ -3264,6 +3266,50 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Message::getLatest($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getSessionForEvent
+     * @apiGroup Session
+     * @apiName getSessionForEvent
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.<data> Refer to getSession for attributes.
+     */
+    private function getSessionForEvent(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Session::getSessionForEvent($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getEventEntryForEvent
+     * @apiGroup Session
+     * @apiName getEventEntryForEvent
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.<data> Refer to getSession for attributes.
+     */
+    private function getEventEntryForEvent(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Session::getEventEntryForEvent($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
