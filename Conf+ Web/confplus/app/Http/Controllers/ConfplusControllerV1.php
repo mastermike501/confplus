@@ -756,10 +756,7 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data.paper_id
      * @apiSuccess data.title
      * @apiSuccess data.publish_date Format: yyyy-mm-dd hh:mm
-     * @apiSuccess data.latest_submit_date Format: yyyy-mm-dd hh:mm
-     * @apiSuccess data.status
-     * @apiSuccess data.accept
-     * @apiSuccess data.final_rate Rating given to this paper.
+     * @apiSuccess data.latest_submit_date Format: yyyy-mm-dd hh:mm:ss
      * @apiSuccess data.url
      */
     private function getPaperDetails(Request $request)
