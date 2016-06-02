@@ -43,13 +43,25 @@ class PaperReviewed extends Model
         
         if ($exceedsTolerance) {
             $updateData['flag'] = '[system] [exceeeds tolerance]';
+            $data['flag'] = '[system] [exceeeds tolerance]';
         }
         
-        $success = DB::table('paper_reviewed')
+        $results = DB::table('paper_reviewed')
             ->where('email', $data['email'])
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
-            ->update($updateData);
+            ->get();
+        
+        if (count($results) == 0) {
+            $success = DB::table('paper_reviewed')
+                ->insert($data);
+        } else {
+            $success = DB::table('paper_reviewed')
+                ->where('email', $data['email'])
+                ->where('paper_id', $data['paper_id'])
+                ->where('event_id', $data['event_id'])
+                ->update($updateData);
+        }
 
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Review successfully added.'));

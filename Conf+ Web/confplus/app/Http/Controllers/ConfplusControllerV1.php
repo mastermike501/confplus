@@ -171,28 +171,6 @@ class ConfplusControllerV1 extends Controller
         'getLatestMessage'
     );
     
-    /**
-     * @api {post} / getLatestMessage
-     * @apiGroup Message
-     * @apiName getLatestMessage
-     *
-     * @apiParam conversation_id The id of the conversation.
-     *
-     * @apiSuccess success Returns true upon success.
-     * @apiSuccess data JSON array containing the following data:
-     * @apiSuccess data.message The latest message.
-     */
-    private function getLatestMessage(Request $request)
-    {
-        $required = array('conversation_id');
-        
-        if ($request->has($required)) {
-            return Message::getLatest($request->only($required));
-        } else {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-    }
-    
     public function store(Request $request)
     {
         $methodName = $request->input('method');
@@ -778,10 +756,7 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data.paper_id
      * @apiSuccess data.title
      * @apiSuccess data.publish_date Format: yyyy-mm-dd hh:mm
-     * @apiSuccess data.latest_submit_date Format: yyyy-mm-dd hh:mm
-     * @apiSuccess data.status
-     * @apiSuccess data.accept
-     * @apiSuccess data.final_rate Rating given to this paper.
+     * @apiSuccess data.latest_submit_date Format: yyyy-mm-dd hh:mm:ss
      * @apiSuccess data.url
      */
     private function getPaperDetails(Request $request)
@@ -1158,6 +1133,7 @@ class ConfplusControllerV1 extends Controller
      * @apiSuccess data.event_id
      * @apiSuccess data.title
      * @apiSuccess data.speaker_email
+     * @apiSuccess data.description
      * @apiSuccess data.start_time Format: yyyy-mm-dd hh:mm
      * @apiSuccess data.end_time
      * @apiSuccess data.venue_id
@@ -1236,6 +1212,7 @@ class ConfplusControllerV1 extends Controller
      * @apiParam [end_time] Format: yyyy-mm-dd hh:mm
      * @apiParam [venue_id] The id of the venue.
      * @apiParam [room_name] The name of the room.
+     * @apiParam [description] The description of the session.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -1988,7 +1965,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('email', 'paper_id', 'event_id', 'comment', 'rate');
 
         if ($request->has($required)) {
-            return PaperReviewed::addReview($request->only($required), $data);
+            return PaperReviewed::addReview($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
@@ -3265,6 +3242,28 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Paper::getPaperForEvent($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getLatestMessage
+     * @apiGroup Message
+     * @apiName getLatestMessage
+     *
+     * @apiParam conversation_id The id of the conversation.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message The latest message.
+     */
+    private function getLatestMessage(Request $request)
+    {
+        $required = array('conversation_id');
+        
+        if ($request->has($required)) {
+            return Message::getLatest($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

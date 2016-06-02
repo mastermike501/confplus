@@ -92,7 +92,7 @@ class Room extends Model
     {
         $success = DB::table('rooms')
             ->where('venue_id', $data['venue_id'])
-            ->where('room_name', $data['room_name'])
+            ->where('name', $data['room_name'])
             ->delete();
             
         if (!$success) {
