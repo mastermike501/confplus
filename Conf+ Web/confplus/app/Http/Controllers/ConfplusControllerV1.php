@@ -737,7 +737,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function makePayment(Request $request)
     {
-        $required = array('email', 'type', 'amount', 'payment_date');
+        $required = array('email', 'type', 'amount', 'payee', 'card#', 'payment_date');
 
         if ($request->has($required)) {
             return Payment::insert($request->only($required));
