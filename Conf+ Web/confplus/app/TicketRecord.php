@@ -98,7 +98,7 @@ class TicketRecord extends Model
      * @param  array  $data       [description]
      * @return [type]             [description]
      */
-    public static function addSessionAttendee($primaryKey, array $data)
+    public static function addSessionAttendee(array $data)
     {
         $results = DB::table('users')
             ->select('email')
@@ -134,15 +134,7 @@ class TicketRecord extends Model
         }
         
         $success = DB::table('ticket_record')
-            ->where('event_id', $primaryKey['event_id'])
-            ->where('title', $primaryKey['title'])
-            ->where('ticket_name', $primaryKey['ticket_name'])
-            ->where('class', $primaryKey['class'])
-            ->where('type', $primaryKey['type'])
-            ->where('venue_id', $primaryKey['venue_id'])
-            ->where('room_name', $primaryKey['room_name'])
-            ->where('seat_num', $primaryKey['seat_num'])
-            ->update($data);
+            ->insert($data);
 
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Session attendee successfully added.'));
