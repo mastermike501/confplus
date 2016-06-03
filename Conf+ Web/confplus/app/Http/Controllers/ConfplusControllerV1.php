@@ -170,7 +170,9 @@ class ConfplusControllerV1 extends Controller
         'getPaperForEvent',
         'getLatestMessage',
         'getSessionForEvent',
-        'getEventEntryForEvent'
+        'getEventEntryForEvent',
+        
+        'getReviewsForPaper'
     );
     
     public function store(Request $request)
@@ -337,7 +339,7 @@ class ConfplusControllerV1 extends Controller
      * @apiParam [title]
      * @apiParam [first_name]
      * @apiParam [last_name]
-     * @apiParam [dob] Format: yyyy-mm-dd hh:mm
+     * @apiParam [dob] Format: yyyy-mm-dd hh:mm:ss
      * @apiParam [street]
      * @apiParam [city]
      * @apiParam [state]
@@ -3304,6 +3306,35 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return Session::getEventEntryForEvent($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getReviewsForPaper
+     * @apiGroup PaperReviewed
+     * @apiName getReviewsForPaper
+     *
+     * @apiParam event_id The id of the event.
+     * @apiParam paper_id The id of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.email
+     * @apiSuccess data.paper_id
+     * @apiSuccess data.event_id
+     * @apiSuccess data.comment
+     * @apiSuccess data.rate
+     * @apiSuccess data.flag
+     * @apiSuccess data.conversation_id
+     */
+    private function getReviewsForPaper(Request $request)
+    {
+        $required = array('event_id', 'paper_id');
+        
+        if ($request->has($required)) {
+            return PaperReviewed::getReviewsForPaper($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
