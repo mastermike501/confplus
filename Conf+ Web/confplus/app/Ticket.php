@@ -65,6 +65,8 @@ class Ticket extends Model
                 ->get();
             
             $item['tickets'] = $tickets;
+            
+            return $item;
         }, $results1);
         
         return JSONUtilities::returnData($results2);
