@@ -1653,16 +1653,10 @@ class ConfplusControllerV1 extends Controller
     {
         $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num', 'email');
 
-        if (!$request->has($required)) {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-
-        $data = $request->only('email');
-
-        if (!empty($data)) {
-            return TicketRecord::addSessionAttendee($request->only($required), $data);
+        if ($request->has($required)) {
+            return TicketRecord::addSessionAttendee($request->only($required));
         } else {
-            return JSONUtilities::returnError('No data to update');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
