@@ -1642,10 +1642,10 @@ class ConfplusControllerV1 extends Controller
      * @apiParam ticket_name The name of the ticket.
      * @apiParam class The class of the ticket.
      * @apiParam type The type of the ticket.
-     * @apiParam venue_id The id of the venue.
-     * @apiParam room_name The name of the room in the given venue.
-     * @apiParam seat_num The seat number.
      * @apiParam email The email of the attendee.
+     * @apiParam [venue_id] The id of the venue.
+     * @apiParam [room_name] The name of the room in the given venue.
+     * @apiParam [seat_num] The seat number.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
@@ -1653,7 +1653,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function addSessionAttendee(Request $request)
     {
-        $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num', 'email');
+        $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'email');
 
         if ($request->has($required)) {
             return TicketRecord::addSessionAttendee($request->only($required));
