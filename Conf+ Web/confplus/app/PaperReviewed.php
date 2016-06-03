@@ -219,4 +219,13 @@ class PaperReviewed extends Model
             return JSONUtilities::returnError('Could not insert conversation.');
         }
     }
+    
+    public static function getReviewsForPaper(array $data) {
+        $results = DB::table('paper_reviewed')
+            ->where('event_id', $data['event_id'])
+            ->where('paper_id', $data['paper_id'])
+            ->get();
+            
+        return JSONUtilities::returnData($results);
+    }
 }
