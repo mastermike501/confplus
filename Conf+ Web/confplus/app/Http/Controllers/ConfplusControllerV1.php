@@ -172,7 +172,8 @@ class ConfplusControllerV1 extends Controller
         'getSessionForEvent',
         'getEventEntryForEvent',
         
-        'getReviewsForPaper'
+        'getReviewsForPaper',
+        'getSessionForEventByUser',
     );
     
     public function store(Request $request)
@@ -3335,6 +3336,29 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return PaperReviewed::getReviewsForPaper($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getSessionForEventByUser
+     * @apiGroup Session
+     * @apiName getSessionForEventByUser
+     *
+     * @apiParam email The email of the user.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getSession for attributes.
+     */
+    private function getSessionForEventByUser(Request $request)
+    {
+        $required = array('event_id', 'email');
+        
+        if ($request->has($required)) {
+            return Session::getSessionForEventByUser($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
