@@ -33,7 +33,7 @@ class Seat extends Model
         $seats = array_map(function ($seat_num) use ($data) {
             return [
                 'venue_id' => $data['venue_id'],
-                'room_name' => $data['name'],
+                'name' => $data['name'],
                 'seat_num' => trim($seat_num)
             ];
         }, $seats);
