@@ -171,4 +171,48 @@ class Session extends Model
             return JSONUtilities::returnError('Could not insert conversation.');
         }
     }
+    
+    public static function getSessionForEvent(array $data) {
+        $results = DB::table('sessions')
+            ->where('event_id', $data['event_id'])
+            ->where('is_event', 'true')
+            ->get();
+        
+        return JSONUtilities::returnData($results);
+    }
+    
+    public static function getEventEntryForEvent(array $data) {
+        $results = DB::table('sessions')
+            ->where('event_id', $data['event_id'])
+            ->where('is_event', 'false')
+            ->get();
+        
+        return JSONUtilities::returnData($results);
+    }
+    
+    public static function getSessionForEventByUser(array $data) {
+        $results1 = DB::table('ticket_record')
+            ->select('title')
+            ->where('event_id', $data['event_id'])
+            ->where('email', $data['email'])
+            ->get();
+        
+        $titles = array_flatten($results1);
+        
+        $results2 = DB::table('sessions')
+            ->where('event_id', $data['event_id'])
+            ->where('is_event', 'true')
+            ->get();
+        
+        $results3 = array_map(function($item) use ($titles) {
+            if (in_array($item['title'], $titles)) {
+                $item['user_attending'] = 'true';
+            } else {
+                $item['user_attending'] = 'false';
+            }
+            return $item;
+        }, $results2);
+        
+        return JSONUtilities::returnData($results3);
+    }
 }

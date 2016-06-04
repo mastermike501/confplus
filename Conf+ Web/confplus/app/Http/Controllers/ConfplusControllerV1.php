@@ -168,7 +168,12 @@ class ConfplusControllerV1 extends Controller
         'getConversationsByUserForEvent',
         
         'getPaperForEvent',
-        'getLatestMessage'
+        'getLatestMessage',
+        'getSessionForEvent',
+        'getEventEntryForEvent',
+        
+        'getReviewsForPaper',
+        'getSessionForEventByUser',
     );
     
     public function store(Request $request)
@@ -335,7 +340,7 @@ class ConfplusControllerV1 extends Controller
      * @apiParam [title]
      * @apiParam [first_name]
      * @apiParam [last_name]
-     * @apiParam [dob] Format: yyyy-mm-dd hh:mm
+     * @apiParam [dob] Format: yyyy-mm-dd hh:mm:ss
      * @apiParam [street]
      * @apiParam [city]
      * @apiParam [state]
@@ -735,7 +740,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function makePayment(Request $request)
     {
-        $required = array('email', 'type', 'amount', 'payment_date');
+        $required = array('email', 'type', 'amount', 'payee', 'cardNum', 'payment_date');
 
         if ($request->has($required)) {
             return Payment::insert($request->only($required));
@@ -1638,10 +1643,10 @@ class ConfplusControllerV1 extends Controller
      * @apiParam ticket_name The name of the ticket.
      * @apiParam class The class of the ticket.
      * @apiParam type The type of the ticket.
-     * @apiParam venue_id The id of the venue.
-     * @apiParam room_name The name of the room in the given venue.
-     * @apiParam seat_num The seat number.
      * @apiParam email The email of the attendee.
+     * @apiParam [venue_id] The id of the venue.
+     * @apiParam [room_name] The name of the room in the given venue.
+     * @apiParam [seat_num] The seat number.
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
@@ -1649,18 +1654,12 @@ class ConfplusControllerV1 extends Controller
      */
     private function addSessionAttendee(Request $request)
     {
-        $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'venue_id', 'room_name', 'seat_num', 'email');
+        $required = array('event_id', 'title', 'ticket_name', 'class', 'type', 'email');
 
-        if (!$request->has($required)) {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-
-        $data = $request->only('email');
-
-        if (!empty($data)) {
-            return TicketRecord::addSessionAttendee($request->only($required), $data);
+        if ($request->has($required)) {
+            return TicketRecord::addSessionAttendee($request->only($required));
         } else {
-            return JSONUtilities::returnError('No data to update');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -3264,6 +3263,102 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Message::getLatest($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getSessionForEvent
+     * @apiGroup Session
+     * @apiName getSessionForEvent
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.<data> Refer to getSession for attributes.
+     */
+    private function getSessionForEvent(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Session::getSessionForEvent($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getEventEntryForEvent
+     * @apiGroup Session
+     * @apiName getEventEntryForEvent
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON containing the following data:
+     * @apiSuccess data.<data> Refer to getSession for attributes.
+     */
+    private function getEventEntryForEvent(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return Session::getEventEntryForEvent($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getReviewsForPaper
+     * @apiGroup PaperReviewed
+     * @apiName getReviewsForPaper
+     *
+     * @apiParam event_id The id of the event.
+     * @apiParam paper_id The id of the paper.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.email
+     * @apiSuccess data.paper_id
+     * @apiSuccess data.event_id
+     * @apiSuccess data.comment
+     * @apiSuccess data.rate
+     * @apiSuccess data.flag
+     * @apiSuccess data.conversation_id
+     */
+    private function getReviewsForPaper(Request $request)
+    {
+        $required = array('event_id', 'paper_id');
+        
+        if ($request->has($required)) {
+            return PaperReviewed::getReviewsForPaper($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getSessionForEventByUser
+     * @apiGroup Session
+     * @apiName getSessionForEventByUser
+     *
+     * @apiParam email The email of the user.
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getSession for attributes.
+     */
+    private function getSessionForEventByUser(Request $request)
+    {
+        $required = array('event_id', 'email');
+        
+        if ($request->has($required)) {
+            return Session::getSessionForEventByUser($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
