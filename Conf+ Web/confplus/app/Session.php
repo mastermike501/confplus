@@ -201,7 +201,7 @@ class Session extends Model
         
         $results2 = DB::table('sessions')
             ->where('event_id', $data['event_id'])
-            ->where('is_event', 'true')
+            ->where('is_event', 'false')
             ->get();
         
         $results3 = array_map(function($item) use ($titles) {
