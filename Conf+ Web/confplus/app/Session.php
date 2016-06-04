@@ -175,7 +175,7 @@ class Session extends Model
     public static function getSessionForEvent(array $data) {
         $results = DB::table('sessions')
             ->where('event_id', $data['event_id'])
-            ->where('is_event', 'true')
+            ->where('is_event', 'false')
             ->get();
         
         return JSONUtilities::returnData($results);
@@ -184,7 +184,7 @@ class Session extends Model
     public static function getEventEntryForEvent(array $data) {
         $results = DB::table('sessions')
             ->where('event_id', $data['event_id'])
-            ->where('is_event', 'false')
+            ->where('is_event', 'true')
             ->get();
         
         return JSONUtilities::returnData($results);
@@ -201,7 +201,7 @@ class Session extends Model
         
         $results2 = DB::table('sessions')
             ->where('event_id', $data['event_id'])
-            ->where('is_event', 'true')
+            ->where('is_event', 'false')
             ->get();
         
         $results3 = array_map(function($item) use ($titles) {
