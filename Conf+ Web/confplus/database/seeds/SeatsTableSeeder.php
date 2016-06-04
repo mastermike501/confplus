@@ -11,7 +11,7 @@ class SeatsTableSeeder extends Seeder
      */
     public function run()
     {
-        $limit = 33;
+        $limit = 1000;
 
         for ($i = 0; $i < $limit; $i++) {
             DB::table('seats')->insert([
