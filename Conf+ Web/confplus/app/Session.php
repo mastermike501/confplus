@@ -128,10 +128,10 @@ class Session extends Model
             ->where('title', $data['title'])
             ->get();
         
-        if (!is_null($results[0]['conversation_id'])) {
+        if (!is_null($results1[0]['conversation_id'])) {
             return JSONUtilities::returnData(
                 array(
-                    'conversation_id' => $results[0]['conversation_id']
+                    'conversation_id' => $results1[0]['conversation_id']
                 )
             );
         }
