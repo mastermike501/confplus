@@ -1215,11 +1215,15 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiParam event_id The name of the venue.
      * @apiParam title The type of the venue.
+     * @apiParam [is_event]
+     * @apiParam [speaker_email]
+     * @apiParam [description] The description of the session.
      * @apiParam [start_time] Format: yyyy-mm-dd hh:mm
      * @apiParam [end_time] Format: yyyy-mm-dd hh:mm
      * @apiParam [venue_id] The id of the venue.
      * @apiParam [room_name] The name of the room.
-     * @apiParam [description] The description of the session.
+     * @apiParam [privacy] Only [public | private]
+     * @apiParam [conversation_id] 
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
