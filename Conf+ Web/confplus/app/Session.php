@@ -123,11 +123,19 @@ class Session extends Model
     public static function addConversation(array $data)
     {   
         $results1 = DB::table('sessions')
-            ->select('title', 'speaker_email')
+            ->select('title', 'speaker_email', 'conversation_id')
             ->where('event_id', $data['event_id'])
             ->where('title', $data['title'])
             ->get();
-            
+        
+        if (!is_null($results[0]['conversation_id'])) {
+            return JSONUtilities::returnData(
+                array(
+                    'conversation_id' => $results[0]['conversation_id']
+                )
+            );
+        }
+        
         //create conversation name
         $name = 'Discussion for session "' . $results1[0]['title'] . '"';
         
