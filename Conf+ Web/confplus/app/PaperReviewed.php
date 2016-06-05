@@ -149,7 +149,7 @@ class PaperReviewed extends Model
             $data['comment'] = $comment;
             
             $success = DB::table('paper_reviewed')
-                ->update($data);
+                ->insert($data);
         } else {
             $success = DB::table('paper_reviewed')
                 ->where('email', $data['email'])
