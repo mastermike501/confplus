@@ -174,6 +174,8 @@ class ConfplusControllerV1 extends Controller
         
         'getReviewsForPaper',
         'getSessionForEventByUser',
+        
+        'getBillingInformation'
     );
     
     public function store(Request $request)
@@ -1808,7 +1810,10 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
-     * @apiSuccess data.<data> Refer to getPaper method for attributes.
+     * @apiSuccess data.email
+     * @apiSuccess data.card#
+     * @apiSuccess data.card_type
+     * @apiSuccess data.expiry_date
      */
     private function getBillingInfo(Request $request)
     {
@@ -3360,6 +3365,28 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Session::getSessionForEventByUser($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getBillingInformation
+     * @apiGroup BillingInfo
+     * @apiName getBillingInformation
+     *
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getBillingInfo for attributes.
+     */
+    private function getBillingInformation(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return Billing::getInfo($request->except(['method']));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
