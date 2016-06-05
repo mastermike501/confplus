@@ -139,11 +139,24 @@ class PaperReviewed extends Model
         
         $comment = '[system] [' . $data['accept'] . ']';
         
-        $success = DB::table('paper_reviewed')
+        $results = DB::table('paper_reviewed')
             ->where('email', $data['email'])
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
-            ->update(['comment' => $comment]);
+            ->get();
+        
+        if (count($results) == 0) {
+            $data['comment'] = $comment;
+            
+            $success = DB::table('paper_reviewed')
+                ->update($data);
+        } else {
+            $success = DB::table('paper_reviewed')
+                ->where('email', $data['email'])
+                ->where('paper_id', $data['paper_id'])
+                ->where('event_id', $data['event_id'])
+                ->update(['comment' => $comment]);
+        }
         
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Acceptance successfully added.'));
