@@ -175,7 +175,8 @@ class ConfplusControllerV1 extends Controller
         'getReviewsForPaper',
         'getSessionForEventByUser',
         
-        'getBillingInformation'
+        'getBillingInformation',
+        'deleteBillingInfo'
     );
     
     public function store(Request $request)
@@ -1862,6 +1863,8 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiParam email The email of a user.
      * @apiParam card# The card number of the user's credit card.
+     * @apiParam card_type
+     * @apiParam expiry_date
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
@@ -1871,16 +1874,10 @@ class ConfplusControllerV1 extends Controller
     {
         $required = array('email', 'card#');
 
-        if (!$request->has($required)) {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-
-        $data = $request->except(array_merge(['method'], $required));
-
-        if (!empty($data)) {
+        if ($request->has($required)) {
             return Billing::edit($request->only($required), $data);
         } else {
-            return JSONUtilities::returnError('No data to update');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -3391,6 +3388,29 @@ class ConfplusControllerV1 extends Controller
 
         if ($request->has($required)) {
             return Billing::getInfo($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / deleteBillingInfo
+     * @apiGroup BillingInfo
+     * @apiName deleteBillingInfo
+     *
+     * @apiParam email The email of the user.
+     * @apiParam card# 
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful login.
+     */
+    private function deleteBillingInfo(Request $request)
+    {
+        $required = array('email', 'card#');
+        
+        if ($request->has($required)) {
+            return Billing::remove($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
