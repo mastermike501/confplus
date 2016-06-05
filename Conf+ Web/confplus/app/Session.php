@@ -129,7 +129,7 @@ class Session extends Model
             ->get();
             
         //create conversation name
-        $name = 'Discussion for session "' . $results1['title'] . '"';
+        $name = 'Discussion for session "' . $results1[0]['title'] . '"';
         
         //create a conversation
         $id = DB::table('conversations')
@@ -149,7 +149,7 @@ class Session extends Model
         
         //add speaker to list
         $participants[] = [
-            'email' => $results1['speaker_email'],
+            'email' => $results1[0]['speaker_email'],
             'conversation_id' => $id
         ];
         
