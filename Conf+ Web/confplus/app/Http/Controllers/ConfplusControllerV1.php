@@ -3158,7 +3158,8 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiParam paper_id The id of the paper.
      * @apiParam event_id The id of the event.
-     * @apiParam status The status of the paper.
+     * @apiParam [status] The status of the paper.
+     * @apiParam [best_paper] Mark paper as best paper. [true | false]
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -3166,7 +3167,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function updatePaperSubmitted(Request $request)
     {
-        $required = array('paper_id', 'event_id', 'status');
+        $required = array('paper_id', 'event_id');
 
         if ($request->has($required)) {
             return PaperSubmitted::edit($request->except(['method']));
