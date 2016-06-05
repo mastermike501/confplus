@@ -173,6 +173,13 @@ class Session extends Model
         $success = DB::table('participants')
             ->insert($participants);
 
+        $success = DB::table('sessions')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->update([
+                'conversation_id' => $id
+            ]);
+
         if ($success) {
             return JSONUtilities::returnData(array('conversation_id' => $id));
         } else {
