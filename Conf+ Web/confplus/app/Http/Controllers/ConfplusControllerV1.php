@@ -1875,7 +1875,7 @@ class ConfplusControllerV1 extends Controller
         $required = array('email', 'card#');
 
         if ($request->has($required)) {
-            return Billing::edit($request->only($required), $data);
+            return Billing::edit($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
