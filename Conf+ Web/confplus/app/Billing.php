@@ -27,9 +27,14 @@ class Billing extends Model
             ->where('card#', $data['card#'])
             ->get();
 
-        if (count($results) == 0) {
-            return JSONUtilities::returnError('No record exists');
-        }
+        return JSONUtilities::returnData($results);
+    }
+    
+    public static function getInfo(array $data)
+    {
+        $results = DB::table('billings')
+            ->where('email', $data['email'])
+            ->get();
 
         return JSONUtilities::returnData($results);
     }
