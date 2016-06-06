@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 use DB;
+use Carbon\Carbon;
 
 use App\Http\Helpers\JSONUtilities;
 use App\Http\Helpers\FormatUtilities;
@@ -123,13 +124,21 @@ class Session extends Model
     public static function addConversation(array $data)
     {   
         $results1 = DB::table('sessions')
-            ->select('title', 'speaker_email')
+            ->select('title', 'speaker_email', 'conversation_id')
             ->where('event_id', $data['event_id'])
             ->where('title', $data['title'])
             ->get();
-            
+        
+        if (!is_null($results1[0]['conversation_id'])) {
+            return JSONUtilities::returnData(
+                array(
+                    'conversation_id' => $results1[0]['conversation_id']
+                )
+            );
+        }
+        
         //create conversation name
-        $name = 'Discussion for session "' . $results1['title'] . '"';
+        $name = 'Discussion for session "' . $results1[0]['title'] . '"';
         
         //create a conversation
         $id = DB::table('conversations')
@@ -149,7 +158,7 @@ class Session extends Model
         
         //add speaker to list
         $participants[] = [
-            'email' => $results1['speaker_email'],
+            'email' => $results1[0]['speaker_email'],
             'conversation_id' => $id
         ];
         
@@ -164,6 +173,25 @@ class Session extends Model
         //add participants to the conversation
         $success = DB::table('participants')
             ->insert($participants);
+
+        $success = DB::table('sessions')
+            ->where('event_id', $data['event_id'])
+            ->where('title', $data['title'])
+            ->update([
+                'conversation_id' => $id
+            ]);
+
+        $message = [
+            'sender_email' => 'system@eventure.management',
+            'conversation_id' => $id,
+            'content' => 'Session conversation for "' . $results1[0]['title'] . '"'
+        ];
+
+        $format = 'Y-m-d H:i';
+        $message['date'] = Carbon::createFromFormat($format, gmdate($format));
+
+        $success = DB::table('messages')
+            ->insert($message);
 
         if ($success) {
             return JSONUtilities::returnData(array('conversation_id' => $id));

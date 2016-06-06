@@ -174,6 +174,10 @@ class ConfplusControllerV1 extends Controller
         
         'getReviewsForPaper',
         'getSessionForEventByUser',
+        
+        'getBillingInformation',
+        'deleteBillingInfo',
+        'getBestPaperForEvent'
     );
     
     public function store(Request $request)
@@ -1213,11 +1217,15 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiParam event_id The name of the venue.
      * @apiParam title The type of the venue.
+     * @apiParam [is_event]
+     * @apiParam [speaker_email]
+     * @apiParam [description] The description of the session.
      * @apiParam [start_time] Format: yyyy-mm-dd hh:mm
      * @apiParam [end_time] Format: yyyy-mm-dd hh:mm
      * @apiParam [venue_id] The id of the venue.
      * @apiParam [room_name] The name of the room.
-     * @apiParam [description] The description of the session.
+     * @apiParam [privacy] Only [public | private]
+     * @apiParam [conversation_id] 
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -1808,7 +1816,10 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
-     * @apiSuccess data.<data> Refer to getPaper method for attributes.
+     * @apiSuccess data.email
+     * @apiSuccess data.card#
+     * @apiSuccess data.card_type
+     * @apiSuccess data.expiry_date
      */
     private function getBillingInfo(Request $request)
     {
@@ -1853,6 +1864,8 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiParam email The email of a user.
      * @apiParam card# The card number of the user's credit card.
+     * @apiParam card_type
+     * @apiParam expiry_date
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON array containing the following data:
@@ -1862,16 +1875,10 @@ class ConfplusControllerV1 extends Controller
     {
         $required = array('email', 'card#');
 
-        if (!$request->has($required)) {
-            return JSONUtilities::returnRequirementsError($required);
-        }
-
-        $data = $request->except(array_merge(['method'], $required));
-
-        if (!empty($data)) {
-            return Billing::edit($request->only($required), $data);
+        if ($request->has($required)) {
+            return Billing::edit($request->only($required));
         } else {
-            return JSONUtilities::returnError('No data to update');
+            return JSONUtilities::returnRequirementsError($required);
         }
     }
 
@@ -3158,7 +3165,8 @@ class ConfplusControllerV1 extends Controller
      *
      * @apiParam paper_id The id of the paper.
      * @apiParam event_id The id of the event.
-     * @apiParam status The status of the paper.
+     * @apiParam [status] The status of the paper.
+     * @apiParam [best_paper] Mark paper as best paper. [true | false]
      *
      * @apiSuccess success Returns true upon success.
      * @apiSuccess data JSON containing the following data:
@@ -3166,7 +3174,7 @@ class ConfplusControllerV1 extends Controller
      */
     private function updatePaperSubmitted(Request $request)
     {
-        $required = array('paper_id', 'event_id', 'status');
+        $required = array('paper_id', 'event_id');
 
         if ($request->has($required)) {
             return PaperSubmitted::edit($request->except(['method']));
@@ -3359,6 +3367,73 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Session::getSessionForEventByUser($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getBillingInformation
+     * @apiGroup BillingInfo
+     * @apiName getBillingInformation
+     *
+     * @apiParam email The email of the user.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getBillingInfo for attributes.
+     */
+    private function getBillingInformation(Request $request)
+    {
+        $required = array('email');
+
+        if ($request->has($required)) {
+            return Billing::getInfo($request->except(['method']));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / deleteBillingInfo
+     * @apiGroup BillingInfo
+     * @apiName deleteBillingInfo
+     *
+     * @apiParam email The email of the user.
+     * @apiParam card# 
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful login.
+     */
+    private function deleteBillingInfo(Request $request)
+    {
+        $required = array('email', 'card#');
+        
+        if ($request->has($required)) {
+            return Billing::remove($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getBestPaperForEvent
+     * @apiGroup Paper
+     * @apiName getBestPaperForEvent
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful login.
+     */
+    private function getBestPaperForEvent(Request $request)
+    {
+        $required = array('event_id');
+        
+        if ($request->has($required)) {
+            return PaperSubmitted::getBestPaperForEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }

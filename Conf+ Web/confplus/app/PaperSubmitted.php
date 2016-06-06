@@ -23,12 +23,12 @@ class PaperSubmitted extends Model
     }
     
     public static function edit(array $data) {
+        $data1 = array_except($data, ['paper_id', 'event_id']);
+        
         $success = DB::table('paper_submitted')
             ->where('paper_id', $data['paper_id'])
             ->where('event_id', $data['event_id'])
-            ->update([
-                'status' => $data['status']
-            ]);
+            ->update($data1);
 
         if ($success) {
             return JSONUtilities::returnData(array('message' => 'Paper submission successfully updated.'));
@@ -43,6 +43,15 @@ class PaperSubmitted extends Model
             ->where('event_id', $data['event_id'])
             ->get();
 
+        return JSONUtilities::returnData($results);
+    }
+    
+    public static function getBestPaperForEvent(array $data) {
+        $results = DB::table('paper_submitted')
+            ->where('event_id', $data['event_id'])
+            ->where('best_paper', 'true')
+            ->get();
+            
         return JSONUtilities::returnData($results);
     }
 }

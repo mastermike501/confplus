@@ -27,9 +27,14 @@ class Billing extends Model
             ->where('card#', $data['card#'])
             ->get();
 
-        if (count($results) == 0) {
-            return JSONUtilities::returnError('No record exists');
-        }
+        return JSONUtilities::returnData($results);
+    }
+    
+    public static function getInfo(array $data)
+    {
+        $results = DB::table('billings')
+            ->where('email', $data['email'])
+            ->get();
 
         return JSONUtilities::returnData($results);
     }
@@ -62,13 +67,14 @@ class Billing extends Model
      * @param  array  $data       [description]
      * @return [type]             [description]
      */
-    public static function edit($primaryKey, array $data)
+    public static function edit(array $data)
     {
         $success = FormatUtilities::getDateTime(self::$timecolumns, $data);
-        
         if (!$success) {
             return JSONUtilities::returnError(FormatUtilities::displayTimecolumnFormats(self::$timecolumns));
         }
+        
+        $primaryKey = array_only($data, ['email', 'card#']);
         
         $success = DB::table('billings')
             ->where('email', $primaryKey['email'])
@@ -79,6 +85,19 @@ class Billing extends Model
             return JSONUtilities::returnData(array('message' => 'Billing info successfully updated.'));
         } else {
             return JSONUtilities::returnError('Could not update billing info.');
+        }
+    }
+    
+    public static function remove(array $data) {
+        $success = DB::table('billings')
+            ->where('email', $data['email'])
+            ->where('card#', $data['card#'])
+            ->delete();
+
+        if ($success) {
+            return JSONUtilities::returnData(array('message' => 'Billing info successfully deleted.'));
+        } else {
+            return JSONUtilities::returnError('Could not delete billing info.');
         }
     }
 }
