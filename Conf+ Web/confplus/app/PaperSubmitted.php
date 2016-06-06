@@ -45,4 +45,13 @@ class PaperSubmitted extends Model
 
         return JSONUtilities::returnData($results);
     }
+    
+    public static function getBestPaperForEvent(array $data) {
+        $results = DB::table('paper_submitted')
+            ->where('event_id', $data['event_id'])
+            ->where('best_paper', 'true')
+            ->get();
+            
+        return JSONUtilities::returnData($results);
+    }
 }
