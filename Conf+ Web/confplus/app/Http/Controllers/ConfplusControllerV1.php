@@ -176,7 +176,8 @@ class ConfplusControllerV1 extends Controller
         'getSessionForEventByUser',
         
         'getBillingInformation',
-        'deleteBillingInfo'
+        'deleteBillingInfo',
+        'getBestPaperForEvent'
     );
     
     public function store(Request $request)
@@ -3411,6 +3412,28 @@ class ConfplusControllerV1 extends Controller
         
         if ($request->has($required)) {
             return Billing::remove($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
+    
+    /**
+     * @api {post} / getBestPaperForEvent
+     * @apiGroup Paper
+     * @apiName getBestPaperForEvent
+     *
+     * @apiParam event_id The id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.message Indicated successful login.
+     */
+    private function getBestPaperForEvent(Request $request)
+    {
+        $required = array('event_id');
+        
+        if ($request->has($required)) {
+            return PaperSubmitted::getBestPaperForEvent($request->only($required));
         } else {
             return JSONUtilities::returnRequirementsError($required);
         }
