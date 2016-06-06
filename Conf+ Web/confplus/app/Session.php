@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 use DB;
+use Carbon\Carbon;
 
 use App\Http\Helpers\JSONUtilities;
 use App\Http\Helpers\FormatUtilities;
@@ -179,6 +180,18 @@ class Session extends Model
             ->update([
                 'conversation_id' => $id
             ]);
+
+        $message = [
+            'sender_email' => 'system@eventure.management',
+            'conversation_id' => $id,
+            'content' => 'Session conversation for "' . $results1[0]['title'] . '"'
+        ];
+
+        $format = 'Y-m-d H:i';
+        $message['date'] = Carbon::createFromFormat($format, gmdate($format));
+
+        $success = DB::table('messages')
+            ->insert($message);
 
         if ($success) {
             return JSONUtilities::returnData(array('conversation_id' => $id));
