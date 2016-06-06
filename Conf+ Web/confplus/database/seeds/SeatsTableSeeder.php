@@ -88,7 +88,7 @@ class SeatsTableSeeder extends Seeder
         for ($i = 0; $i < 200; $i++) {
             DB::table('seats')->insert([
                 'venue_id' => '11',
-                'name' => 'Stage B',
+                'name' => 'Stage C',
                 'seat_num' => $i + 1
             ]);
         }
