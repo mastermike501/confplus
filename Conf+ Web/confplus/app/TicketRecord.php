@@ -54,6 +54,8 @@ class TicketRecord extends Model
             } else {
                 $item['image_data_url'] = 'No image available';
             }
+            
+            return $item;
         }, $results1);
         
         return JSONUtilities::returnData($results2);
