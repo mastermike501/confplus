@@ -3438,4 +3438,26 @@ class ConfplusControllerV1 extends Controller
             return JSONUtilities::returnRequirementsError($required);
         }
     }
+    
+    /**
+     * @api {post} / getEventAttendeesWithImage
+     * @apiGroup TicketRecord
+     * @apiName getEventAttendeesWithImage
+     *
+     * @apiParam event_id The event_id of the event.
+     *
+     * @apiSuccess success Returns true upon success.
+     * @apiSuccess data JSON array containing the following data:
+     * @apiSuccess data.<data> Refer to getUser method for attributes.
+     */
+    private function getEventAttendeesWithImage(Request $request)
+    {
+        $required = array('event_id');
+
+        if ($request->has($required)) {
+            return TicketRecord::getEventAttendeesWithImage($request->only($required));
+        } else {
+            return JSONUtilities::returnRequirementsError($required);
+        }
+    }
 }
