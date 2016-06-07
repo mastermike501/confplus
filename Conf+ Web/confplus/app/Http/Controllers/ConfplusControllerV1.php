@@ -177,7 +177,8 @@ class ConfplusControllerV1 extends Controller
         
         'getBillingInformation',
         'deleteBillingInfo',
-        'getBestPaperForEvent'
+        'getBestPaperForEvent',
+        'getEventAttendeesWithImage'
     );
     
     public function store(Request $request)
