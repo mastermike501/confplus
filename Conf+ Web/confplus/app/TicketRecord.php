@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use DB;
 use Hash;
+use Storage;
 
 use App\Http\Helpers\JSONUtilities;
 use App\Http\Helpers\EmailUtilities;
@@ -29,6 +30,35 @@ class TicketRecord extends Model
         }
 
         return JSONUtilities::returnData($results);
+    }
+    
+    /**
+     * [getEventAttendees]
+     * @param  array  $data [description]
+     * @return [JSON]       [description]
+     */
+    public static function getEventAttendeesWithImage(array $data)
+    {
+        $results1 = DB::table('users')
+            ->join('ticket_record', 'users.email', '=', 'ticket_record.email')
+            ->where('event_id', $data['event_id'])
+            ->get();
+
+        $localStorage = Storage::disk('local');
+
+        $results2 = array_map(function ($item) use ($localStorage){
+            $path = 'profile_images/' . 'profile_image_' . $item['email'] . '.txt';
+        
+            if ($localStorage->exists($path)) {
+                $item['image_data_url'] = $localStorage->get($path);
+            } else {
+                $item['image_data_url'] = 'No image available';
+            }
+            
+            return $item;
+        }, $results1);
+        
+        return JSONUtilities::returnData($results2);
     }
     
     /**
